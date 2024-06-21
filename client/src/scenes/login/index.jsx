@@ -1,12 +1,12 @@
-import { Box, Typography } from "@mui/material"
+import { Box, Grid, Stack, Typography } from "@mui/material"
 import { Socials } from "../../components/Socials"
 import { Form } from "../../components/Form"
 
 export const LoginPage = () => {
 
     return (
-        <Box>
-            <Box width={{xs:"50%", md:"20%"}} m="1rem auto">
+        <Box> 
+            <Box width={{xs:"90%", md:"15%"}} m="1rem auto">
                 <Socials/>
             </Box>
             <Box textAlign={"center"}>
@@ -21,8 +21,11 @@ export const LoginPage = () => {
                     alt="Title"
                 />
             </Box>
-            <Box width={{xs:"90%", md:"50%"}} m="2rem auto" textAlign={"center"}>
+            <Box width={{xs:"90%", md:"50%"}} m="1rem auto">
                 <Form />
+            </Box>
+            <Box textAlign={"center"}>
+                <img src="assets/walking_duck.gif" alt="duckgif" style={{width: "25%", objectFit: "cover"}} />
             </Box>
         </Box>
     )

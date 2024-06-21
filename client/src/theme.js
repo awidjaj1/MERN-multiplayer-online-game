@@ -22,6 +22,6 @@ export const themeOptions = {
     },
   },
   typography: {
-    fontFamily: ["Press Start 2P"]
-  }
+    fontFamily: ["Press Start 2P", "Play"].join(',')
+  },
 };

@@ -29,7 +29,7 @@ export const Socials = () => {
                         <GitHubIcon/>
                     </IconButton>
                 </Tooltip>
-                <Tooltip title="Add/follow me on LinkedIn">
+                <Tooltip title="Connect with me on LinkedIn">
                     <IconButton href='https://www.linkedin.com/in/andrew-widjaja-41b39b245/' target='_blank'>
                         <LinkedInIcon/>
                     </IconButton>
