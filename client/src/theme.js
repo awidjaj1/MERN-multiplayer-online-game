@@ -21,4 +21,7 @@ export const themeOptions = {
       primary: '#fafafa',
     },
   },
+  typography: {
+    fontFamily: ["Press Start 2P"]
+  }
 };

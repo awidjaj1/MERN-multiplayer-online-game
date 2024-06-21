@@ -1,4 +1,5 @@
 import { themeOptions } from "./theme";
+import { LoginPage } from "./scenes/login";
 import { createTheme, responsiveFontSizes, ThemeProvider, CssBaseline } from "@mui/material";
 
 function App() {
@@ -7,7 +8,7 @@ function App() {
     <div className="App">
       <ThemeProvider theme={theme}>
         <CssBaseline/>
-        Hello World!
+        <LoginPage />
       </ThemeProvider>
     </div>
   );
