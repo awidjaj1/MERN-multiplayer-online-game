@@ -1,9 +1,13 @@
-import { Button, Grid, TextField, Typography, Avatar } from "@mui/material";
+import { Button, Grid, TextField, Typography, Avatar, Box, Stack, Card } from "@mui/material";
 import { Formik } from "formik";
 import { useState } from "react";
 import Dropzone from "react-dropzone";
+import EditIcon from '@mui/icons-material/Edit';
+import PhotoIcon from '@mui/icons-material/Photo';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
+
 import * as yup from "yup";
+import Photo from "@mui/icons-material/Photo";
 
 const loginSchema = yup.object().shape({
     email: yup.string().email("invalid email").required("required"),
@@ -15,8 +19,26 @@ const registerSchema = yup.object().shape({
     lastName: yup.string().required("required"),
     email: yup.string().email("invalid email").required("required"),
     password: yup.string().required("required"),
-    confirmPassword: yup.string().oneOf([yup.ref('password'), null], 'passwords must match'),
-    picture: yup.string().required("required"),
+    confirmPassword: yup.string().required("required").oneOf([yup.ref('password')], 'passwords must match'),
+    picture: yup.mixed()
+        .required("Require a profile picture")
+        .test("file", "Submit a png, jpg, or jpeg under 5MB", 
+            (file) => {
+                const preview = document.getElementById("preview");
+                if(file.size <= 1024 * 1024 * 5 && 
+                    (file.type === "image/png" || file.type === "image/jpg" || file.type === "image/jpeg")
+                ){
+                    if(preview.src)
+                        //clean up past blobs
+                        URL.revokeObjectURL(preview.src);
+                    preview.src = URL.createObjectURL(file);
+                    preview.removeAttribute("hidden");
+                    return true;
+                }
+                preview.setAttribute("hidden", "");
+                return false;
+            })
+
 });
 
 
@@ -63,7 +85,7 @@ export const Form = () => {
                             bgcolor: "secondary.main"
                         }}
                     >
-                        <LockOpenIcon />
+                        <LockOpenIcon/>
                     </Avatar>
                     <Grid container spacing={2} columns={{xs: 12}}>
                         {isRegister &&
@@ -91,36 +113,6 @@ export const Form = () => {
                                     helperText={touched.lastName && errors.lastName}
                                     fullWidth
                                 />
-                            </Grid>
-                            <Grid item xs={12} border={"1px solid secondary.main"} borderRadius={"1rem"} p="1rem">
-                                {/* <Dropzone
-                                    acceptedFiles=".jpg,.jpeg,.png"
-                                    multiple={false}
-                                    onDrop={(acceptedFiles) => 
-                                        setFieldValue("picture", acceptedFiles[0])
-                                    }
-                                >
-                                    {({getRootProps, getInputProps}) => (
-                                        <Box
-                                            {...getRootProps()}
-                                            border={"2px dashed"}
-                                            p="1rem"
-                                            sx={{"&:hover": {cursor: "pointer"}}}
-                                        >
-                                            <input {...getInputProps()}/>
-                                            {!values.picture? (
-                                                <p>Add Picture Here</p>
-                                            ): (
-                                                <FlexBetween>
-                                                    <Typography>
-                                                        {values.picture.name}
-                                                    </Typography>
-                                                    <EditOutlinedIcon />
-                                                </FlexBetween>
-                                            )}
-                                        </Box>
-                                    )}
-                                </Dropzone> */}
                             </Grid>
                         </>
                         }
@@ -163,6 +155,64 @@ export const Form = () => {
                                     helperText={touched.confirmPassword && errors.confirmPassword}
                                     fullWidth
                                 />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <Dropzone
+                                    acceptedFiles=".jpg,.jpeg,.png"
+                                    multiple={false}
+                                    onDrop={(acceptedFiles) => {
+                                        setFieldValue("picture", acceptedFiles[0]);
+                                    }}
+                                >
+                                    {({getRootProps, getInputProps}) => (
+                                        <Box
+                                            {...getRootProps()}
+                                            p="1rem"
+                                            sx={{"&:hover": {cursor: "pointer"},
+                                            "border": "1px dashed",
+                                            "borderColor": "black",
+                                            "borderRadius": 1
+                                            }}
+                                        >
+                                            <input {...getInputProps()}/>
+                                            {!values.picture? (
+                                                <Stack direction="row" justifyContent={"space-between"}>
+                                                    {(touched.picture && errors.picture)? 
+                                                        <Typography color={"error.main"}>
+                                                            {errors.picture}
+                                                        </Typography>: 
+                                                        <Typography color={"text.secondary"}>
+                                                            Add Profile Picture Here
+                                                        </Typography>
+                                                    }
+                                                    <PhotoIcon />
+                                                </Stack>
+                                            ): (
+                                                <Stack direction="row" justifyContent={"space-between"}>
+                                                    {errors.picture? 
+                                                        <Typography color={"error.main"}>
+                                                            {errors.picture}
+                                                        </Typography>: 
+                                                        <Typography color={"text.primary"} mb={"1rem"}>
+                                                            {values.picture.name}
+                                                        </Typography>
+                                                    } 
+                                                    <EditIcon />
+                                                </Stack>
+                                            )}
+                                            <Avatar 
+                                                sx={{
+                                                    margin: "auto",
+                                                    width: "70%",
+                                                    height: "70%",
+                                                    bgcolor: "secondary.light"
+                                                }}
+                                            >
+                                                <img id="preview" hidden style={{width: "100%", objectFit: "cover"}}/>
+                                            </Avatar>
+                                        </Box>
+                                    )}
+                                </Dropzone>
                             </Grid>
                         </>
                         }
