@@ -1,4 +1,4 @@
-import { Button, Grid, TextField, Typography, Avatar, Box, Stack, Card } from "@mui/material";
+import { Button, Grid, TextField, Typography, Avatar, Box, Stack } from "@mui/material";
 import { Formik } from "formik";
 import { useState } from "react";
 import Dropzone from "react-dropzone";
@@ -6,27 +6,28 @@ import EditIcon from '@mui/icons-material/Edit';
 import PhotoIcon from '@mui/icons-material/Photo';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import AppRegistrationIcon from '@mui/icons-material/AppRegistration';
-
 import * as yup from "yup";
-import Photo from "@mui/icons-material/Photo";
+
+const test_length = (str) => str.length <= 50;
 
 const loginSchema = yup.object().shape({
-    email: yup.string().email("invalid email").required("required"),
-    password: yup.string().required("required"),
+    email_username: yup.string().required("required").test("length", "use less than 50 chars", test_length),
+    password: yup.string().required("required").test("length", "use less than 50 chars", test_length),
 });
 
 const registerSchema = yup.object().shape({
-    firstName: yup.string().required("required"),
-    lastName: yup.string().required("required"),
-    email: yup.string().email("invalid email").required("required"),
-    password: yup.string().required("required"),
+    firstName: yup.string().required("required").test("length", "use less than 50 chars", test_length),
+    lastName: yup.string().required("required").test("length", "use less than 50 chars", test_length),
+    email: yup.string().email("invalid email").required("required").test("length", "use less than 50 chars", test_length),
+    username: yup.string().required("required").test("length", "use less than 15 chars", (str) => str.length <= 15),
+    password: yup.string().required("required").test("length", "use less than 50 chars", test_length),
     confirmPassword: yup.string().required("required").oneOf([yup.ref('password')], 'passwords must match'),
     picture: yup.mixed()
         .required("Require a profile picture")
-        .test("file", "Submit a png, jpg, or jpeg under 5MB", 
+        .test("file", "Submit a png, jpg, or jpeg under 1MB", 
             (file) => {
                 const preview = document.getElementById("preview");
-                if(file.size <= 1024 * 1024 * 5 && 
+                if(file.size <= 1024 * 1024 && 
                     (file.type === "image/png" || file.type === "image/jpg" || file.type === "image/jpeg")
                 ){
                     if(preview.src)
@@ -44,7 +45,7 @@ const registerSchema = yup.object().shape({
 
 
 const initialValuesLogin = {
-    email: "",
+    email_username: "",
     password: "",
 };
 
@@ -52,6 +53,7 @@ const initialValuesRegister = {
     firstName: "",
     lastName: "",
     email: "",
+    username: "",
     password: "",
     confirmPassword: "",
     picture: "",
@@ -61,10 +63,67 @@ export const Form = () => {
     const [pageType, setPageType] = useState("login");
     const isRegister = pageType === "register";
 
+    const register = async (values, onSubmitProps) => {
+        // this allows us to send form info with image
+        const formData = new FormData();
+        for (let value in values){
+            formData.append(value, values[value]);
+        }
+        // console.log(values.picture);
+        formData.append('picturePath', values.picture.name);
+
+        const savedUserResponse = await fetch(
+            "http://localhost:3001/auth/register",
+            {
+                method: "POST",
+                // using formData automatically sets header 
+                body: formData,
+            }
+        );
+        const savedUser = await savedUserResponse.json();
+        onSubmitProps.resetForm();
+
+        if (savedUser){
+            setPageType("login");
+        }
+    }
+
+    const login = async (values, onSubmitProps) => {
+        const loggedInResponse = await fetch(
+            "http://localhost:3001/auth/login",
+            {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify(values),
+            }
+        );
+        const loggedIn = await loggedInResponse.json();
+        onSubmitProps.resetForm();
+        if (loggedIn){
+            // console.log(loggedIn.user);
+            // dispatch the redux login event
+            dispatch(
+                setLogin({
+                    user: loggedIn.user,
+                    token: loggedIn.token
+                })
+            );
+            navigate("/home");
+        }
+    }
+
+    const handleFormSubmit = async (values, onSubmitProps) => {
+        if(isRegister){
+            await register(values, onSubmitProps);
+        } else{
+            await login(values, onSubmitProps);
+        }
+    };
+
     return (
         <Formik
             enableReinitialize
-            onSubmit={() => {}}
+            onSubmit={handleFormSubmit}
             initialValues={isRegister? initialValuesRegister: initialValuesLogin}
             validationSchema={isRegister? registerSchema: loginSchema}
         >
@@ -117,17 +176,35 @@ export const Form = () => {
                                     fullWidth
                                 />
                             </Grid>
+                            <Grid item xs={12}>
+                                <TextField 
+                                    label="Username"
+                                    onBlur={handleBlur}
+                                    onChange={handleChange}
+                                    value={values.username}
+                                    name="username"
+                                    error={Boolean(touched.username) && Boolean(errors.username)}
+                                    helperText={touched.username && errors.username}
+                                    fullWidth
+                                />
+                            </Grid>
                         </>
                         }
                         <Grid item xs={12}>
                             <TextField 
-                                label="Email"
+                                label={isRegister? "Email": "Email/Username"}
                                 onBlur={handleBlur}
                                 onChange={handleChange}
-                                value={values.email}
-                                name="email"
-                                error={Boolean(touched.email) && Boolean(errors.email)}
-                                helperText={touched.email && errors.email}
+                                value={isRegister? values.email: values.email_username}
+                                name={isRegister? "email": "email_username"}
+                                error={isRegister? 
+                                    (Boolean(touched.email) && Boolean(errors.email)):
+                                    (Boolean(touched.email_username) && Boolean(errors.email_username))
+                                }
+                                helperText={isRegister? 
+                                    (touched.email && errors.email):
+                                    (touched.email_username && errors.email_username)
+                                }
                                 fullWidth
                             />
                         </Grid>
@@ -197,7 +274,7 @@ export const Form = () => {
                                                             {errors.picture}
                                                         </Typography>: 
                                                         <Typography color={"text.primary"} mb={"1rem"}>
-                                                            {values.picture.name}
+                                                            {values.picture.name.length > 11? values.picture.name.slice(0,8) + "...": values.picture.name}
                                                         </Typography>
                                                     } 
                                                     <EditIcon />
@@ -221,7 +298,7 @@ export const Form = () => {
                         }
                         <Grid item xs={12}>
                             <Button variant="contained" type="submit" fullWidth m="1rem auto">
-                                <Typography fontFamily={"Play"} fontSize={"1.5rem"}>
+                                <Typography fontFamily={"Play"} fontSize={"large"}>
                                     {isRegister? "REGISTER": "LOGIN"}
                                 </Typography>
                             </Button>

@@ -2,14 +2,26 @@ import express from "express";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 import morgan from "morgan";
+import helmet from "helmet";
 
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+//logging
 app.use(morgan("common"));
+//security headers
+app.use(helmet());
+//for json req
+app.use(express.json());
+//for form req
+app.use(express.urlencoded({limit: "2mb"}));
 
-app.use(express.static("../client/build"));
+//serve static files from "../client/build"
+app.use("/", express.static("../client/build"));
+
+
+
 
 mongoose
     .connect(process.env.MONGO_URL, {dbName: "MMO"})
