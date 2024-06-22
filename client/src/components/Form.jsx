@@ -5,6 +5,7 @@ import Dropzone from "react-dropzone";
 import EditIcon from '@mui/icons-material/Edit';
 import PhotoIcon from '@mui/icons-material/Photo';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
+import AppRegistrationIcon from '@mui/icons-material/AppRegistration';
 
 import * as yup from "yup";
 import Photo from "@mui/icons-material/Photo";
@@ -57,11 +58,12 @@ const initialValuesRegister = {
 };
 
 export const Form = () => {
-    const [pageType, setPageType] = useState("register");
+    const [pageType, setPageType] = useState("login");
     const isRegister = pageType === "register";
 
     return (
         <Formik
+            enableReinitialize
             onSubmit={() => {}}
             initialValues={isRegister? initialValuesRegister: initialValuesLogin}
             validationSchema={isRegister? registerSchema: loginSchema}
@@ -84,8 +86,9 @@ export const Form = () => {
                             height: 50,
                             bgcolor: "secondary.main"
                         }}
+                        variant={isRegister? "rounded": ""}
                     >
-                        <LockOpenIcon/>
+                        {isRegister? <AppRegistrationIcon fontSize="large"/>: <LockOpenIcon fontSize="large"/>}
                     </Avatar>
                     <Grid container spacing={2} columns={{xs: 12}}>
                         {isRegister &&
@@ -168,7 +171,7 @@ export const Form = () => {
                                         <Box
                                             {...getRootProps()}
                                             p="1rem"
-                                            sx={{"&:hover": {cursor: "pointer"},
+                                            sx={{"&:hover": {cursor: "pointer", borderColor: "secondary.main"},
                                             "border": "1px dashed",
                                             "borderColor": "black",
                                             "borderRadius": 1
@@ -222,7 +225,20 @@ export const Form = () => {
                                     {isRegister? "REGISTER": "LOGIN"}
                                 </Typography>
                             </Button>
-                            <Typography fontFamily={"Play"} m="1rem auto">
+                            <Typography 
+                                fontFamily={"Play"} 
+                                m="1rem auto" 
+                                onClick={() => {
+                                    setPageType(isRegister? "login": "register");
+                                    resetForm();
+                                }}
+                                sx={{
+                                    textDecoration: "underline",
+                                    "&:hover": {
+                                        cursor: "pointer",
+                                        color: "secondary.main"
+                                    }
+                                }}>
                                 {isRegister? "Already have an account? Login here.":
                                              "Don't have an account? Sign Up here."}
                             </Typography>
