@@ -7,6 +7,8 @@ import PhotoIcon from '@mui/icons-material/Photo';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import AppRegistrationIcon from '@mui/icons-material/AppRegistration';
 import * as yup from "yup";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
 
 const test_length = (str) => str.length <= 50;
 
@@ -62,21 +64,21 @@ const initialValuesRegister = {
 export const Form = () => {
     const [pageType, setPageType] = useState("login");
     const isRegister = pageType === "register";
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
 
     const register = async (values, onSubmitProps) => {
-        // this allows us to send form info with image
         const formData = new FormData();
         for (let value in values){
             formData.append(value, values[value]);
         }
         // console.log(values.picture);
-        formData.append('picturePath', values.picture.name);
 
         const savedUserResponse = await fetch(
             "http://localhost:3001/auth/register",
             {
                 method: "POST",
-                // using formData automatically sets header 
+                // using formData automatically sets header to multipart form
                 body: formData,
             }
         );
