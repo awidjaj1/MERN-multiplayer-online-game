@@ -17,7 +17,8 @@ function App() {
           <CssBaseline/>
           <Routes>
             <Route path="/" element={<LoginPage />} />
-            <Route path="/home" element={isAuth? <HomePage />: <Navigate to="/" />} />
+            <Route path="/home" element={<HomePage />} /> 
+            {/* isAuth? <HomePage />: <Navigate to="/" /> */}
           </Routes>
         </ThemeProvider>
       </BrowserRouter>

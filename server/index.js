@@ -27,7 +27,8 @@ app.use(express.json());
 // app.use(cors());
 
 app.use("/auth", authRouter);
-
+//serve server-side static assets
+app.use("/server/public/assets", express.static("public/assets"));
 //serve static files from "../client/build"
 app.use(express.static("../client/build"));
 //catch all route since we're serving a SPA (for refreshes and manual url input)

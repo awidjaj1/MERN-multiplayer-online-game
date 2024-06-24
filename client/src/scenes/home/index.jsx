@@ -1,19 +1,17 @@
-import { AppBar, Box, Card, Typography } from "@mui/material";
+import { Box, Card, Typography } from "@mui/material";
 import { ServerList } from "../../components/ServerList";
 import { useSelector } from "react-redux";
+import { HomeAppBar } from "../../components/AppBar";
+
 
 export const HomePage = () => {
-    const {firstName, lastName, username} = useSelector((state) => state.user);
-    // const firstName = "Andrew";
-    // const username = "awid";
-    // const lastName = "Widjaja";
+    // const {firstName, lastName, username} = useSelector((state) => state.user);
+    const firstName = "Andrew";
+    const username = "awid";
+    const lastName = "Widjaja";
     return (
         <Box> 
-            <Box bgcolor={"background.paper"}>
-               <AppBar>
-                    hello
-               </AppBar>
-            </Box>
+            <HomeAppBar />
             <Box width={{xs:"50%", md:"30%"}} m="auto" mt="3rem" textAlign={"center"}>
                 <Typography>
                     Welcome back <Typography display={"inline"} color={"primary.dark"} sx={{textDecoration: 'underline'}}>

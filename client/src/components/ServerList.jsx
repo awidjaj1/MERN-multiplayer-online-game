@@ -9,11 +9,14 @@ export const ServerList = () => {
             p="1rem"
             spacing={"1rem"}
             sx={{
-                "& > div:nth-child(even)": {
-                    bgcolor: "secondary.dark"
+                "& > .MuiStack-root:nth-child(even)": {
+                    bgcolor: "secondary.dark",
                 },
-                "& > div:nth-child(odd)": {
-                    bgcolor: "secondary.main"
+                "& > .MuiStack-root:nth-child(odd)": {
+                    bgcolor: "secondary.main",
+                },
+                "& button:disabled": {
+                    bgcolor: "primary.light",
                 },
                 border: "1px dashed",
                 borderRadius: "1rem"
@@ -27,7 +30,11 @@ export const ServerList = () => {
                 p={1}
             >
                 <Typography>US-EAST</Typography>
-                <Button variant="contained" type="submit" m="1rem auto">
+                <Button 
+                    variant="contained" 
+                    type="submit" 
+                    m="1rem auto"
+                >
                     <Typography fontFamily={"Play"} fontSize={"large"}>
                         PLAY!
                     </Typography>
@@ -41,7 +48,12 @@ export const ServerList = () => {
                 p={1}
             >
                 <Typography>TBA</Typography>
-                <Button variant="contained" type="submit" m="1rem auto" disabled>
+                <Button 
+                    variant="contained" 
+                    type="submit" 
+                    m="1rem auto" 
+                    disabled
+                >
                     <Typography fontFamily={"Play"} fontSize={"large"}>
                         PLAY!
                     </Typography>
@@ -55,7 +67,12 @@ export const ServerList = () => {
                 p={1}
             >
                 <Typography>TBA</Typography>
-                <Button variant="contained" type="submit" m="1rem auto" disabled>
+                <Button 
+                    variant="contained" 
+                    type="submit" 
+                    m="1rem auto" 
+                    disabled
+                >
                     <Typography fontFamily={"Play"} fontSize={"large"}>
                         PLAY!
                     </Typography>
@@ -69,7 +86,12 @@ export const ServerList = () => {
                 p={1}
             >
                 <Typography>TBA</Typography>
-                <Button variant="contained" type="submit" m="1rem auto" disabled>
+                <Button 
+                    variant="contained" 
+                    type="submit" 
+                    m="1rem auto" 
+                    disabled
+                >
                     <Typography fontFamily={"Play"} fontSize={"large"}>
                         PLAY!
                     </Typography>
