@@ -20,7 +20,7 @@ app.use(express.urlencoded({limit: "2mb"}));
 
 app.use("/auth", authRouter);
 
-//serve static files from "../client/build"
+//serve static files from "../client/build" if it doesn't match anything else
 app.use("/", express.static("../client/build"));
 
 

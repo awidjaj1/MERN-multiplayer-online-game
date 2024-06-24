@@ -43,7 +43,6 @@ export const login = async (req, res) => {
                 username,
                 email,
                 picturePath,
-                friends,
                 inventory,
                 equipped,
                 level
@@ -61,10 +60,10 @@ export const login = async (req, res) => {
             }))(realUser);
         // console.log(token);
         // console.log(formattedUser);
-        res.status(200).json({token, user: formattedUser});
+        return res.status(200).json({token, user: formattedUser});
 
     } catch(err){
-        res.status(500).json({error: err.message})
+        return res.status(500).json({error: err.message})
     }
 }
 
@@ -95,8 +94,7 @@ export const register = async (req, res) => {
         });
 
         const savedUser = await newUser.save();
-        res.status(201).json(savedUser);
-        next();
+        return res.status(201).json(savedUser);
     } catch(err){
         // set status code to 500: server has encountered an error
         return res.status(500).json({error: err.message});

@@ -21,7 +21,7 @@ import { PersistGate } from 'redux-persist/integration/react';
 
 /* SET UP REDUX WITH PERSIST: https://stackoverflow.com/questions/63761763/how-to-configure-redux-persist-with-redux-toolkit */
 // use local storage to persist state
-const persistConfig = {key: "root", storage, version: 1};
+const persistConfig = {key: "mern_mmo_render", storage, version: 1};
 // ensure the reducer saves state to persisted storage
 const persistedReducer = persistReducer(persistConfig, authReducer);
 const store = configureStore({

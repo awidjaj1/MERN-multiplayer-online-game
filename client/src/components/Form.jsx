@@ -9,6 +9,7 @@ import AppRegistrationIcon from '@mui/icons-material/AppRegistration';
 import * as yup from "yup";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
+import { setLogin } from "../state";
 
 const test_length = (str) => str.length <= 50;
 
@@ -90,8 +91,7 @@ export const Form = () => {
     }
 
     const login = async (values, onSubmitProps) => {
-        const loggedInResponse = await fetch(
-            "http://localhost:3001/auth/login",
+        const loggedInResponse = await fetch("auth/login",
             {
                 method: "POST",
                 headers: {"Content-Type": "application/json"},
