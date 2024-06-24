@@ -4,30 +4,32 @@ import User from "../models/User.js";
 
 export const login = async (req, res) => {
     try{
-        const {email, password} = req.body;
+        const {email_username, password} = req.body;
         // find the user document with the matching unique email
-        const user = await User.findOne({email: email});
+        const [user1, user2] = await Promise.all([User.findOne({email: email_username}), User.findOne({username: email_username})]);
         // set status code to 401: lack valid authentication cred for the target rescource
-        if (!user) return res.status(401).json({msg: "User does not exist."});
+        if (!user1 && !user2) return res.status(401).json({msg: "User does not exist."});
         // compare the login pass with the stored salted+hashed pass
         // note that the salt is included in plaintext in the hash
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) return res.status(401).json({msg: "Invalid credentials. "});
+        const [isMatch1, isMatch2] = await Promise.all([bcrypt.compare(password, user1.password), bcrypt.compare(password, user2.password)]);
+        if (!isMatch1 && !isMatch2) return res.status(401).json({msg: "Invalid credentials. "});
+
+        const realUser = isMatch1? user1: user2;
         
         // send a token (contains header, payload, and sig) that claims 
         // whoever has the token is whoever is defined by user._id
         // we don't need to share the secret key as only the server will
         // need to verify the signatures
-        const token = jwt.sign({id: user._id}, process.env.JWT_SECRET);
+        const token = jwt.sign({id: realUser._id}, process.env.JWT_SECRET);
         
         // store all the promises as one promise and await
         const friends = await Promise.all(
-            user.friends.map((id) => User.findById(id))
+            realUser.friends.map((id) => User.findById(id))
         );
         const formattedFriends = friends.map(
-            ({_id, firstName, lastName, occupation, location, picturePath}) => {
+            ({_id, username, picturePath, level}) => {
                 // destructure and return only what client needs
-                return {_id, firstName, lastName, occupation, location, picturePath};
+                return {_id, username, picturePath, level};
             }
         );
         
@@ -35,27 +37,28 @@ export const login = async (req, res) => {
         // this is what we store in local storage
         const formattedUser = (
             ({
-                _id, 
-                firstName, 
-                lastName, 
+                _id,
+                firstName,
+                lastName,
+                username,
                 email,
                 picturePath,
-                location,
-                occupation,
-                viewedProfile,
-                impressions,
+                friends,
+                inventory,
+                equipped,
+                level
             }) => ({
-                _id, 
-                firstName, 
-                lastName, 
+                _id,
+                firstName,
+                lastName,
+                username,
                 email,
                 picturePath,
                 friends: formattedFriends,
-                location,
-                occupation,
-                viewedProfile,
-                impressions
-            }))(user);
+                inventory,
+                equipped,
+                level
+            }))(realUser);
         // console.log(token);
         // console.log(formattedUser);
         res.status(200).json({token, user: formattedUser});

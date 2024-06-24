@@ -13,6 +13,7 @@ function App() {
           <CssBaseline/>
           <Routes>
             <Route path="/" element={<LoginPage />} />
+            <Route path="/home" element={<div>Hi</div>} />
           </Routes>
         </ThemeProvider>
       </BrowserRouter>

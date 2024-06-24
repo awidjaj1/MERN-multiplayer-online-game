@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import mongoose from "mongoose";
 import morgan from "morgan";
 import helmet from "helmet";
+import { authRouter } from "./routes/auth";
 
 dotenv.config();
 const app = express();
@@ -16,6 +17,8 @@ app.use(helmet());
 app.use(express.json());
 //for form req
 app.use(express.urlencoded({limit: "2mb"}));
+
+app.use("/auth", authRouter);
 
 //serve static files from "../client/build"
 app.use("/", express.static("../client/build"));

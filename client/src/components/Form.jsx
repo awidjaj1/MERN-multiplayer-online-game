@@ -54,8 +54,8 @@ const initialValuesLogin = {
 const initialValuesRegister = {
     firstName: "",
     lastName: "",
-    email: "",
     username: "",
+    email: "",
     password: "",
     confirmPassword: "",
     picture: "",
@@ -74,8 +74,7 @@ export const Form = () => {
         }
         // console.log(values.picture);
 
-        const savedUserResponse = await fetch(
-            "http://localhost:3001/auth/register",
+        const savedUserResponse = await fetch("auth/register",
             {
                 method: "POST",
                 // using formData automatically sets header to multipart form
