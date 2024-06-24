@@ -40,12 +40,12 @@ const persistor = persistStore(store);
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-        <Provider store={store}>
-      {/* PersistGate delays rendering until persisted state is retrieved and saved; loading 
-      is what should be rendered while loading; persistor will handle persisting the state*/}
-      <PersistGate loading={null} persistor={persistor}>
-        <App />
-      </PersistGate>
+      <Provider store={store}>
+        {/* PersistGate delays rendering until persisted state is retrieved and saved; loading 
+        is what should be rendered while loading; persistor will handle persisting the state*/}
+        <PersistGate loading={null} persistor={persistor}>
+          <App />
+        </PersistGate>
     </Provider>
   </React.StrictMode>
 );

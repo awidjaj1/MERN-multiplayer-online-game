@@ -11,19 +11,19 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setLogin } from "../state";
 
-const test_length = (str) => str.length <= 50;
+
 
 const loginSchema = yup.object().shape({
-    email_username: yup.string().required("required").test("length", "use less than 50 chars", test_length),
-    password: yup.string().required("required").test("length", "use less than 50 chars", test_length),
+    email_username: yup.string().required("required").max(50, "use less than 50 chars"),
+    password: yup.string().required("required").max(50, "use less than 50 chars"),
 });
 
 const registerSchema = yup.object().shape({
-    firstName: yup.string().required("required").test("length", "use less than 50 chars", test_length),
-    lastName: yup.string().required("required").test("length", "use less than 50 chars", test_length),
-    email: yup.string().email("invalid email").required("required").test("length", "use less than 50 chars", test_length),
-    username: yup.string().required("required").test("length", "use less than 15 chars", (str) => str.length <= 15),
-    password: yup.string().required("required").test("length", "use less than 50 chars", test_length),
+    firstName: yup.string().required("required").max(50, "use less than 50 chars"),
+    lastName: yup.string().required("required").max(50, "use less than 50 chars"),
+    email: yup.string().email("invalid email").required("required").max(50, "use less than 50 chars"),
+    username: yup.string().required("required").max(15, "use less than 15 chars").matches(/^[a-zA-Z0-9]+$/, 'Username can only contain letters and numbers'),
+    password: yup.string().required("required").max(50, "use less than 50 chars"),
     confirmPassword: yup.string().required("required").oneOf([yup.ref('password')], 'passwords must match'),
     picture: yup.mixed()
         .required("Require a profile picture")
@@ -83,9 +83,11 @@ export const Form = () => {
             }
         );
         const savedUser = await savedUserResponse.json();
-        onSubmitProps.resetForm();
 
-        if (savedUser){
+        if (savedUser.error){
+            window.alert(`There was an error making your account. Possibly because your email or username is already in use. Error: ${savedUser.error}`);
+        }else {
+            onSubmitProps.resetForm();
             setPageType("login");
         }
     }
@@ -99,8 +101,10 @@ export const Form = () => {
             }
         );
         const loggedIn = await loggedInResponse.json();
-        onSubmitProps.resetForm();
-        if (loggedIn){
+        if (loggedIn.error){
+            window.alert(`There was an error logging in. Error: ${loggedIn.error}`);
+        } else{
+            onSubmitProps.resetForm();
             // console.log(loggedIn.user);
             // dispatch the redux login event
             dispatch(

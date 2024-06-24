@@ -1,8 +1,9 @@
 import express from "express";
-import { upload } from "../storage";
+import { upload } from "../storage.js";
+import { login, register } from "../controllers/auth.js";
 
 const authRouter = express.Router();
-router.post("/login", login);
-router.post("/register", upload.single("picture"), register);
+authRouter.post("/login", login);
+authRouter.post("/register", upload.single("picture"), register);
 
-export {authRouter};
+export default authRouter;

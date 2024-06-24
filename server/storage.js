@@ -1,5 +1,6 @@
 import multer from "multer";
 import mongoose from "mongoose";
+import path from "path";
 
 //storage for upload
 const storage = multer.diskStorage({
@@ -8,8 +9,11 @@ const storage = multer.diskStorage({
     },
     filename: (req, file, cb) => {
         const userId = new mongoose.Types.ObjectId();
+        const filename = "pfp_" + userId.toHexString() + path.extname(file.originalname);
+        const picturePath = "public/assets/" + filename;
         req.userId = userId;
-        cb(null, "pfp_" + userId.toHexString());
+        req.picturePath = picturePath;
+        cb(null, filename);
     }
 });
 export const upload = multer({storage: storage});
