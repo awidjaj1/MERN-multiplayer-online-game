@@ -24,7 +24,16 @@ export const HomeAppBar = () => {
 
 
     return (
-        <Stack direction="row" justifyContent={"space-between"} bgcolor={"primary.main"} alignItems={"center"} p="0.2rem 1rem">
+        <Stack 
+            direction="row" 
+            justifyContent={"space-between"} 
+            bgcolor={"primary.main"} 
+            alignItems={"center"} 
+            p="0.2rem 1rem"
+            sx={{
+                boxShadow: 5
+            }}
+        >
             <Stack direction="row" justifyContent={"space-between"} spacing={"0.5rem"} alignItems={"center"}>
                 <ForestOutlinedIcon fontSize={"large"}/>
                 <img src="/assets/title_icon.png" alt="title icon"/>
