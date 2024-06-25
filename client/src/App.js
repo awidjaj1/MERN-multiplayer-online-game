@@ -4,6 +4,7 @@ import { createTheme, responsiveFontSizes, ThemeProvider, CssBaseline } from "@m
 import {BrowserRouter, Navigate, Routes, Route} from 'react-router-dom';
 import { useSelector } from "react-redux";
 import { HomePage } from "./scenes/home";
+import { SettingsPage } from "./scenes/userSettings";
 
 
 function App() {
@@ -16,9 +17,10 @@ function App() {
         <ThemeProvider theme={theme}>
           <CssBaseline/>
           <Routes>
-            <Route path="/" element={<LoginPage />} />
-            <Route path="/home" element={<HomePage />} /> 
+            <Route path="/" element={!isAuth? <LoginPage />: <Navigate to="/home" />} />
+            <Route path="/home" element={isAuth? <HomePage />: <Navigate to="/" />} /> 
             {/* isAuth? <HomePage />: <Navigate to="/" /> */}
+            <Route path="/settings" element={isAuth? <SettingsPage />: <Navigate to="/" />} />
           </Routes>
         </ThemeProvider>
       </BrowserRouter>

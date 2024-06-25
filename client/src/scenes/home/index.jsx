@@ -5,10 +5,10 @@ import { HomeAppBar } from "../../components/AppBar";
 
 
 export const HomePage = () => {
-    // const {firstName, lastName, username} = useSelector((state) => state.user);
-    const firstName = "Andrew";
-    const username = "awid";
-    const lastName = "Widjaja";
+    const {firstName, lastName, username} = useSelector((state) => state.user);
+    // const firstName = "Andrew";
+    // const username = "awid";
+    // const lastName = "Widjaja";
     return (
         <Box> 
             <HomeAppBar />
