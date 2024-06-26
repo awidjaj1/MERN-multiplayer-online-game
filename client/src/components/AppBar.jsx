@@ -4,7 +4,7 @@ import LandscapeIcon from '@mui/icons-material/Landscape';
 import { useDispatch, useSelector } from "react-redux";
 import { useState } from "react";
 import LogoutIcon from '@mui/icons-material/Logout';
-import SettingsIcon from '@mui/icons-material/Settings';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { useNavigate } from "react-router-dom";
 import { setLogout } from "../state";
 import { ProfileImage } from "./ProfileImage";
@@ -79,10 +79,10 @@ export const HomeAppBar = () => {
                     onClick={() => navigate("/settings")}
                 >
                     <ListItemIcon>
-                        <SettingsIcon fontSize={"small"}/>
+                        <AccountCircleIcon fontSize={"small"}/>
                     </ListItemIcon>
                     <ListItemText>
-                        Settings
+                        Account
                     </ListItemText>
                 </MenuItem>
                 <MenuItem
