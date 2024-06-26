@@ -6,67 +6,31 @@ import EditIcon from '@mui/icons-material/Edit';
 import PhotoIcon from '@mui/icons-material/Photo';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import AppRegistrationIcon from '@mui/icons-material/AppRegistration';
-import * as yup from "yup";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setLogin } from "../state";
-
-
-
-const loginSchema = yup.object().shape({
-    email_username: yup.string().required("required").max(50, "use less than 50 chars"),
-    password: yup.string().required("required").max(50, "use less than 50 chars"),
-});
-
-const registerSchema = yup.object().shape({
-    firstName: yup.string().required("required").max(50, "use less than 50 chars"),
-    lastName: yup.string().required("required").max(50, "use less than 50 chars"),
-    email: yup.string().email("invalid email").required("required").max(50, "use less than 50 chars"),
-    username: yup.string().required("required").max(15, "use less than 15 chars").matches(/^[a-zA-Z0-9]+$/, 'Username can only contain letters and numbers'),
-    password: yup.string().required("required").max(50, "use less than 50 chars"),
-    confirmPassword: yup.string().required("required").oneOf([yup.ref('password')], 'passwords must match'),
-    picture: yup.mixed()
-        .required("Require a profile picture")
-        .test("file", "Submit a png, jpg, or jpeg under 1MB", 
-            (file) => {
-                const preview = document.getElementById("preview");
-                if(file.size <= 1024 * 1024 && 
-                    (file.type === "image/png" || file.type === "image/jpg" || file.type === "image/jpeg")
-                ){
-                    if(preview.src)
-                        //clean up past blobs
-                        URL.revokeObjectURL(preview.src);
-                    preview.src = URL.createObjectURL(file);
-                    preview.removeAttribute("hidden");
-                    return true;
-                }
-                preview.setAttribute("hidden", "");
-                return false;
-            })
-
-});
-
-
-const initialValuesLogin = {
-    email_username: "",
-    password: "",
-};
-
-const initialValuesRegister = {
-    firstName: "",
-    lastName: "",
-    username: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-    picture: "",
-};
+import { ProfileImage } from "./ProfileImage";
+import { registerSchema, loginSchema } from "../form";
 
 export const Form = () => {
     const [pageType, setPageType] = useState("login");
     const isRegister = pageType === "register";
     const navigate = useNavigate();
     const dispatch = useDispatch();
+    const initialValuesLogin = {
+        email_username: "",
+        password: "",
+    };
+    
+    const initialValuesRegister = {
+        firstName: "",
+        lastName: "",
+        username: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
+        picture: "",
+    };
 
     const register = async (values, onSubmitProps) => {
         const formData = new FormData();
@@ -124,6 +88,7 @@ export const Form = () => {
             await login(values, onSubmitProps);
         }
     };
+    const [upload, setUpload] = useState(null);
 
     return (
         <Formik
@@ -246,6 +211,8 @@ export const Form = () => {
                                     acceptedFiles=".jpg,.jpeg,.png"
                                     multiple={false}
                                     onDrop={(acceptedFiles) => {
+                                        URL.revokeObjectURL(upload);
+                                        setUpload(URL.createObjectURL(acceptedFiles[0]));
                                         setFieldValue("picture", acceptedFiles[0]);
                                     }}
                                 >
@@ -258,6 +225,8 @@ export const Form = () => {
                                             "borderColor": "black",
                                             "borderRadius": 1
                                             }}
+                                            onFocus={null}
+                                            onBlur={null}
                                         >
                                             <input {...getInputProps()}/>
                                             {!values.picture? (
@@ -279,7 +248,7 @@ export const Form = () => {
                                                             {errors.picture}
                                                         </Typography>: 
                                                         <Typography color={"text.primary"} mb={"1rem"}>
-                                                            {values.picture.name.length > 11? values.picture.name.slice(0,8) + "...": values.picture.name}
+                                                            {values.picture.name.length > 15? values.picture.name.slice(0,12) + "...": values.picture.name}
                                                         </Typography>
                                                     } 
                                                     <EditIcon />
@@ -289,11 +258,13 @@ export const Form = () => {
                                                 sx={{
                                                     margin: "auto",
                                                     width: "70%",
-                                                    height: "70%",
-                                                    bgcolor: "secondary.light"
+                                                    pt: "70%",
+                                                    bgcolor: "secondary.light",
+                                                    display: values.picture && !errors.picture? "": "none"
                                                 }}
-                                            >
-                                                <img id="preview" hidden style={{width: "100%", objectFit: "cover"}}/>
+                                            >   
+                                                <ProfileImage src={(values.picture && !errors.picture)? upload: ""}/>
+                                                {/* dropzone causes rerenders even when picture doesnt change, so base blob creation depending on drop events */}
                                             </Avatar>
                                         </Box>
                                     )}

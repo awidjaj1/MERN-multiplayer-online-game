@@ -1,4 +1,4 @@
-import { Avatar, IconButton, ListItemIcon, ListItemText, Menu, MenuItem, Stack } from "@mui/material"
+import { Avatar, Icon, IconButton, ListItemIcon, ListItemText, Menu, MenuItem, Stack } from "@mui/material"
 import ForestOutlinedIcon from '@mui/icons-material/ForestOutlined';
 import LandscapeIcon from '@mui/icons-material/Landscape';
 import { useDispatch, useSelector } from "react-redux";
@@ -7,6 +7,7 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import SettingsIcon from '@mui/icons-material/Settings';
 import { useNavigate } from "react-router-dom";
 import { setLogout } from "../state";
+import { ProfileImage } from "./ProfileImage";
 
 export const HomeAppBar = () => {
     // const picturePath = "yo";
@@ -34,7 +35,18 @@ export const HomeAppBar = () => {
                 boxShadow: 5
             }}
         >
-            <Stack direction="row" justifyContent={"space-between"} spacing={"0.5rem"} alignItems={"center"}>
+            <Stack 
+                direction="row" 
+                justifyContent={"space-between"} 
+                spacing={"0.5rem"} 
+                alignItems={"center"}
+                onClick={() => navigate("/home")}
+                sx={{
+                    "&:hover":{
+                        cursor: "pointer"
+                    }
+                }}
+            >
                 <ForestOutlinedIcon fontSize={"large"}/>
                 <img src="/assets/title_icon.png" alt="title icon"/>
                 <LandscapeIcon sx={{fontSize: 50}}/>
@@ -50,7 +62,7 @@ export const HomeAppBar = () => {
                     }}
                     
                 >
-                    <img src={`/server/${picturePath}`} alt="pfp" style={{width: "100%", objectFit: "cover"}} />
+                    <ProfileImage src={`/server/${picturePath}`} />
                 </Avatar>
             </IconButton>
             <Menu
