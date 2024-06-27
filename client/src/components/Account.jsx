@@ -8,6 +8,35 @@ import { ProfileImage } from "./ProfileImage";
 import { registerSchema } from "../form";
 import { Debugger } from "./Debugger";
 
+const ConfirmPassword = ({handleBlur, handleChange, values, touched, errors, setFieldValue, setFieldTouched}) => {
+    useEffect(() => {
+        return () => {
+            setFieldValue("confirmPassword", "");
+            setFieldTouched("confirmPassword", false);
+        }
+    }, [])
+    return (
+        <>
+            <Grid item xs={6}>
+                <Typography fullWidth>
+                    Confirm Password: 
+                </Typography>
+            </Grid>
+            <Grid item xs={6}>
+                <TextField
+                    onBlur={handleBlur}
+                    onChange={handleChange}
+                    value={values.confirmPassword}
+                    type="password"
+                    name="confirmPassword"
+                    error={Boolean(touched.confirmPassword) && Boolean(errors.confirmPassword)}
+                    helperText={touched.confirmPassword && errors.confirmPassword}
+                    fullWidth
+                />
+            </Grid>
+        </>
+    );
+}
 
 
 export const AccountInfo = () => {
@@ -17,7 +46,9 @@ export const AccountInfo = () => {
     //     lastName,
     //     username,
     //     email,
-    //     picture:""
+    //     picture:"",
+    //     password:"",
+    //     confirmPassword: "",
     // };
     const initialValues = {
         firstName: 'Andrew',
@@ -26,6 +57,7 @@ export const AccountInfo = () => {
         email: 'awidjaj1@terpmail.umd.edu',
         picture: "",
         password: "",
+        confirmPassword: "",
     }
     const picturePath = "random.png"
     const [upload, setUpload] = useState(null);
@@ -47,6 +79,7 @@ export const AccountInfo = () => {
                 handleChange,
                 handleSubmit,
                 setFieldValue,
+                setFieldTouched,
                 resetForm
             }) => (
                 <form onSubmit={handleSubmit}>
@@ -183,6 +216,17 @@ export const AccountInfo = () => {
                                 fullWidth
                             />
                         </Grid>
+                        {values.password &&
+                            <ConfirmPassword 
+                                handleBlur={handleBlur} 
+                                handleChange={handleChange} 
+                                values={values} 
+                                errors={errors} 
+                                touched={touched}
+                                setFieldValue={setFieldValue}
+                                setFieldTouched={setFieldTouched}
+                            />
+                        }
                     </Grid>
                     <Button variant="contained" type="submit" fullWidth sx={{borderRadius: 2}} disabled={!dirty}>
                         <Typography fontFamily={"Play"} fontSize={"large"}>
