@@ -5,8 +5,8 @@ import Dropzone from "react-dropzone";
 import EditIcon from '@mui/icons-material/Edit';
 import { useState, useRef, useEffect } from "react";
 import { ProfileImage } from "./ProfileImage";
-import { registerSchema } from "../form";
 import { Debugger } from "./Debugger";
+import { accountSettingsSchema } from "../form";
 
 const ConfirmPassword = ({handleBlur, handleChange, values, touched, errors, setFieldValue, setFieldTouched}) => {
     useEffect(() => {
@@ -18,7 +18,7 @@ const ConfirmPassword = ({handleBlur, handleChange, values, touched, errors, set
     return (
         <>
             <Grid item xs={6}>
-                <Typography fullWidth>
+                <Typography>
                     Confirm Password: 
                 </Typography>
             </Grid>
@@ -36,7 +36,7 @@ const ConfirmPassword = ({handleBlur, handleChange, values, touched, errors, set
             </Grid>
         </>
     );
-}
+};
 
 
 export const AccountInfo = () => {
@@ -61,14 +61,21 @@ export const AccountInfo = () => {
     }
     const picturePath = "random.png"
     const [upload, setUpload] = useState(null);
-    const handleFormSubmit = () => {
+    const handleFormSubmit = (values, onSubmitProps) => {
+        const formData = new FormData();
+        for (let value in values){
+            console.log(value, values[value])
+            formData.append(value, values[value]);
+        }
 
-    }
+    };
+
     return (
         <Formik
+            enableReinitialize
             initialValues={initialValues}
             onSubmit={handleFormSubmit}
-            validationSchema={registerSchema}
+            validationSchema={accountSettingsSchema}
         >
             {({
                 values,
@@ -136,7 +143,7 @@ export const AccountInfo = () => {
                         m="0.5rem auto"
                     >
                         <Grid item xs={6}>
-                            <Typography fullWidth>
+                            <Typography>
                                 First Name: 
                             </Typography>
                         </Grid>
@@ -152,7 +159,7 @@ export const AccountInfo = () => {
                             />
                         </Grid>
                         <Grid item xs={6}>
-                            <Typography fullWidth>
+                            <Typography>
                                 Last Name: 
                             </Typography>
                         </Grid>
@@ -168,7 +175,7 @@ export const AccountInfo = () => {
                             />
                         </Grid>
                         <Grid item xs={6}>
-                            <Typography fullWidth>
+                            <Typography>
                                 Username: 
                             </Typography>
                         </Grid>
@@ -184,7 +191,7 @@ export const AccountInfo = () => {
                             />
                         </Grid>
                         <Grid item xs={6}>
-                            <Typography fullWidth>
+                            <Typography>
                                 Email: 
                             </Typography>
                         </Grid>
@@ -200,7 +207,7 @@ export const AccountInfo = () => {
                             />
                         </Grid>
                         <Grid item xs={6}>
-                            <Typography fullWidth>
+                            <Typography>
                                 Password: 
                             </Typography>
                         </Grid>
@@ -209,6 +216,7 @@ export const AccountInfo = () => {
                                 onBlur={handleBlur}
                                 onChange={handleChange}
                                 value={values.password}
+                                placeholder="Update password?"
                                 type="password"
                                 name="password"
                                 error={Boolean(touched.password) && Boolean(errors.password)}
