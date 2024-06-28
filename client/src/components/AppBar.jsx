@@ -2,7 +2,7 @@ import { Avatar, Icon, IconButton, ListItemIcon, ListItemText, Menu, MenuItem, S
 import ForestOutlinedIcon from '@mui/icons-material/ForestOutlined';
 import LandscapeIcon from '@mui/icons-material/Landscape';
 import { useDispatch, useSelector } from "react-redux";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import LogoutIcon from '@mui/icons-material/Logout';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { useNavigate } from "react-router-dom";
@@ -11,10 +11,25 @@ import { ProfileImage } from "./ProfileImage";
 
 export const HomeAppBar = () => {
     // const picturePath = "yo";
-    const {picturePath} = useSelector((state) => state.user);
+    const user = useSelector((state) => state.user);
+    const {picturePath} = user;
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const [anchor, setAnchor] = useState(null);
+    const [uncachedPicturePath, setUncachedPicturePath] = useState(picturePath);
+
+    // this might request an uncached picture that is different from the uncached picture in the settings page
+    // since we are not using global state, but i think thats okay. Two requests on rare chances isn't that 
+    // bad for performance. Otherwise i would have to refactor the redux state.
+    const firstRender = useRef(true);
+    useEffect(() => {
+        if(firstRender.current) {
+            firstRender.current = false;
+            return;
+        }
+        setUncachedPicturePath(`${picturePath}?ts=${new Date().getTime()}`);
+    }, [user]);
+
     const isOpen = Boolean(anchor);
     const handleOpen = (event) => {
         setAnchor(event.currentTarget);
@@ -62,7 +77,7 @@ export const HomeAppBar = () => {
                     }}
                     
                 >
-                    <ProfileImage src={`/server/${picturePath}`} />
+                    <ProfileImage src={`/server/${uncachedPicturePath}`} />
                 </Avatar>
             </IconButton>
             <Menu

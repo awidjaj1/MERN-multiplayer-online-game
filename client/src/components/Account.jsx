@@ -42,7 +42,21 @@ const ConfirmPassword = ({handleBlur, handleChange, values, touched, errors, set
 
 
 export const AccountInfo = () => {
-    const {_id, firstName, lastName, username, email, picturePath} = useSelector((state) => state.user)
+    const user = useSelector((state) => state.user)
+    const {_id, firstName, lastName, username, email, picturePath} = user;
+    const [upload, setUpload] = useState(null);
+    //since pfp normally have same name (if theyre the same type), we need to req uncached when we update
+    const [uncachedPicturePath, setUncachedPicturePath] = useState(picturePath);
+    const firstRender = useRef(true);
+    useEffect(() => {
+        if(firstRender.current) {
+            firstRender.current = false;
+            return;
+        }
+        setUncachedPicturePath(`${picturePath}?ts=${new Date().getTime()}`);
+        setUpload(null); //to stop flickering when change pfp
+    }, [user]);
+
     const token = useSelector((state) => state.token);
     const dispatch = useDispatch();
     const initialValues = {
@@ -64,7 +78,6 @@ export const AccountInfo = () => {
     //     confirmPassword: "",
     // }
     // const picturePath = "random.png"
-    const [upload, setUpload] = useState(null);
     const handleFormSubmit = async (values, onSubmitProps) => {
         const formData = new FormData();
 
@@ -89,8 +102,8 @@ export const AccountInfo = () => {
             dispatch(
                 updateUser({user: updatedUser.user})
             );
-            // console.log(updatedUser);
             onSubmitProps.resetForm();
+            // console.log(updatedUser);
         }
         
 
@@ -151,7 +164,7 @@ export const AccountInfo = () => {
                                         bgcolor: "secondary.light"
                                     }}
                                 >
-                                    <ProfileImage src={values.picture && !errors.picture? upload:`server/${picturePath}`}/>
+                                    <ProfileImage src={upload && !errors.picture? upload:`server/${uncachedPicturePath}`}/>
                                 </Avatar>
                             </Box>
                         )}

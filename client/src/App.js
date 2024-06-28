@@ -19,8 +19,7 @@ function App() {
           <Routes>
             <Route path="/" element={!isAuth? <LoginPage />: <Navigate to="/home" />} />
             <Route path="/home" element={isAuth? <HomePage />: <Navigate to="/" />} /> 
-            <Route path="/settings" element={<SettingsPage />} />
-            {/* isAuth? <SettingsPage />: <Navigate to="/" /> */}
+            <Route path="/settings" element={isAuth? <SettingsPage />: <Navigate to="/" />} />
           </Routes>
         </ThemeProvider>
       </BrowserRouter>

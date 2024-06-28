@@ -10,7 +10,7 @@ export const patchSettings = async (req, res) => {
                             .filter(([key, val]) => fields.includes(key) && val));
 
 
-        
+        // might need to update picture path if format changes (i.e. png to jpg)        
         if(req.dbPicturePath){
             updates.picturePath = req.dbPicturePath
         }
