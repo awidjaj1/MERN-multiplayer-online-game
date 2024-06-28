@@ -7,6 +7,8 @@ import { useState, useRef, useEffect } from "react";
 import { ProfileImage } from "./ProfileImage";
 import { Debugger } from "./Debugger";
 import { accountSettingsSchema } from "../form";
+import { useDispatch } from "react-redux";
+import { updateUser } from "../state";
 
 const ConfirmPassword = ({handleBlur, handleChange, values, touched, errors, setFieldValue, setFieldTouched}) => {
     useEffect(() => {
@@ -40,7 +42,9 @@ const ConfirmPassword = ({handleBlur, handleChange, values, touched, errors, set
 
 
 export const AccountInfo = () => {
-    const {firstName, lastName, username, email, picturePath} = useSelector((state) => state.user)
+    const {_id, firstName, lastName, username, email, picturePath} = useSelector((state) => state.user)
+    const token = useSelector((state) => state.token);
+    const dispatch = useDispatch();
     const initialValues = {
         firstName,
         lastName,
@@ -61,12 +65,36 @@ export const AccountInfo = () => {
     // }
     // const picturePath = "random.png"
     const [upload, setUpload] = useState(null);
-    const handleFormSubmit = (values, onSubmitProps) => {
+    const handleFormSubmit = async (values, onSubmitProps) => {
         const formData = new FormData();
-        for (let value in values){
-            console.log(value, values[value])
-            formData.append(value, values[value]);
+
+        for(let value in values){
+            if(values[value] !== initialValues[value]){
+                formData.append(value, values[value]);
+            }
         }
+
+        const updatedUserResponse = await fetch(`users/${_id}/settings`,
+            {
+                headers: {Authorization: `Bearer ${token}`},
+                method: "PATCH",
+                // using formData automatically sets header to multipart form
+                body: formData,
+            }
+        );
+        const updatedUser = await updatedUserResponse.json();
+        if (updatedUser.error){
+            window.alert(`There was an error updating your account. Error: ${updatedUser.error}`);
+        } else {
+            dispatch(
+                updateUser({user: updatedUser.user})
+            );
+            // console.log(updatedUser);
+            onSubmitProps.resetForm();
+        }
+        
+
+
 
     };
 
@@ -86,8 +114,7 @@ export const AccountInfo = () => {
                 handleChange,
                 handleSubmit,
                 setFieldValue,
-                setFieldTouched,
-                resetForm
+                setFieldTouched
             }) => (
                 <form onSubmit={handleSubmit}>
                     <Dropzone

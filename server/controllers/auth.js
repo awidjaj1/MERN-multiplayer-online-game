@@ -108,7 +108,7 @@ export const register = async (req, res) => {
             }
             console.log(`Renamed ${req.curPicturePath} to ${req.dbPicturePath}`);
         });
-        return res.status(201).json(savedUser);
+        return res.status(201).json({user: savedUser});
     } catch(err){
         // set status code to 500: server has encountered an error
         // delete the picture since we failed to make an account 

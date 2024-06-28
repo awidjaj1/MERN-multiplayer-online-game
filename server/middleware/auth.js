@@ -19,6 +19,7 @@ export const verifyToken = async (req, res, next) => {
         // console.log(verified);
 
         const {userId} = req.params;
+        // console.log(userId, verified.id);
         if (userId !== verified.id) return res.status(403).json({error: "Invalid token for user"});
         return next();
     } catch(err){

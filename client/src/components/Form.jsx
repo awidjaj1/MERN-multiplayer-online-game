@@ -49,7 +49,7 @@ export const Form = () => {
         const savedUser = await savedUserResponse.json();
 
         if (savedUser.error){
-            window.alert(`There was an error making your account. Possibly because your email or username is already in use. Error: ${savedUser.error}`);
+            window.alert(`There was an error making your account. Error: ${savedUser.error}`);
         }else {
             onSubmitProps.resetForm();
             setPageType("login");

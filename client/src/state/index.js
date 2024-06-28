@@ -21,13 +21,17 @@ export const authSlice = createSlice({
             state.user = null;
             state.token = null;
         },
+        updateUser: (state, action) => {
+            state.user = action.payload.user;
+        }
     }
 });
 
 // export action creators/blueprints
 export const {
     setLogin, 
-    setLogout
+    setLogout,
+    updateUser
 } = authSlice.actions;
 
 // export the reducer function which uses all the reducers we defined in the slice
