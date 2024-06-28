@@ -90,17 +90,31 @@ export const register = async (req, res) => {
             username,
             email,
             password: passwordHash,
-            picturePath: req.picturePath,
+            picturePath: req.dbPicturePath,
         });
         
         const savedUser = await newUser.save();
+        
+        fs.rename(req.curPicturePath, req.dbPicturePath, (err) => {
+            //this shouldn't ever error, but if it did it would just result in the user having no pfp
+            //which they could change in settings
+            if(err){
+                console.log(err);
+                //dont bleed memory
+                fs.unlink(req.curPicturePath, (err) => {
+                    if(err) return console.log(err);
+                    console.log(`${req.curPicturePath} was deleted`);
+                });
+            }
+            console.log(`Renamed ${req.curPicturePath} to ${req.dbPicturePath}`);
+        });
         return res.status(201).json(savedUser);
     } catch(err){
         // set status code to 500: server has encountered an error
         // delete the picture since we failed to make an account 
-        fs.unlink(req.picturePath, (err) => {
-            if (err) throw err;
-            console.log(`${req.picturePath} was deleted`);
+        fs.unlink(req.curPicturePath, (err) => {
+            if(err) return console.log(err);
+            console.log(`${req.curPicturePath} was deleted`);
         });
         return res.status(500).json({error: err.message});
     }

@@ -5,7 +5,7 @@ import { AccountInfo } from "../../components/Account";
 export const SettingsPage = () => {
     return (
         <Box>
-            {/* <HomeAppBar /> */}
+            <HomeAppBar />
             <Box width={{xs:"70%", md:"40%"}} m="1rem auto">
                 <AccountInfo />
             </Box>

@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 import morgan from "morgan";
 import helmet from "helmet";
 import authRouter from "./routes/auth.js";
+import usersRouter from "./routes/users.js";
 import path from "path";
 
 dotenv.config();
@@ -27,6 +28,7 @@ app.use(express.json());
 // app.use(cors());
 
 app.use("/auth", authRouter);
+app.use("/users", usersRouter);
 //serve server-side static assets
 app.use("/server/public/assets", express.static("public/assets"));
 //serve static files from "../client/build"

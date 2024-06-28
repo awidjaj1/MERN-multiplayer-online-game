@@ -8,12 +8,15 @@ const storage = multer.diskStorage({
         cb(null, "public/assets");
     },
     filename: (req, file, cb) => {
-        const userId = new mongoose.Types.ObjectId();
-        const filename = "pfp_" + userId.toHexString() + path.extname(file.originalname);
-        const picturePath = "public/assets/" + filename;
+        const userId = req.params.userId? req.params.userId: new mongoose.Types.ObjectId();
+        const dbFilename = "pfp_" + userId + path.extname(file.originalname);
+        const curFilename = "pending_" + dbFilename;
+        const dbPicturePath = "public/assets/" + dbFilename;
+        const curPicturePath = "public/assets/" + curFilename;
         req.userId = userId;
-        req.picturePath = picturePath;
-        cb(null, filename);
+        req.dbPicturePath = dbPicturePath;
+        req.curPicturePath = curPicturePath;
+        cb(null, curFilename);
     }
 });
 export const upload = multer({storage: storage});

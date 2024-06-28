@@ -40,26 +40,26 @@ const ConfirmPassword = ({handleBlur, handleChange, values, touched, errors, set
 
 
 export const AccountInfo = () => {
-    // const {firstName, lastName, username, email, picturePath} = useSelector((state) => state.user)
-    // const initialValues = {
-    //     firstName,
-    //     lastName,
-    //     username,
-    //     email,
-    //     picture:"",
-    //     password:"",
-    //     confirmPassword: "",
-    // };
+    const {firstName, lastName, username, email, picturePath} = useSelector((state) => state.user)
     const initialValues = {
-        firstName: 'Andrew',
-        lastName: 'Widjaja',
-        username: 'awid',
-        email: 'awidjaj1@terpmail.umd.edu',
-        picture: "",
-        password: "",
+        firstName,
+        lastName,
+        username,
+        email,
+        picture:"",
+        password:"",
         confirmPassword: "",
-    }
-    const picturePath = "random.png"
+    };
+    // const initialValues = {
+    //     firstName: 'Andrew',
+    //     lastName: 'Widjaja',
+    //     username: 'awid',
+    //     email: 'awidjaj1@terpmail.umd.edu',
+    //     picture: "",
+    //     password: "",
+    //     confirmPassword: "",
+    // }
+    // const picturePath = "random.png"
     const [upload, setUpload] = useState(null);
     const handleFormSubmit = (values, onSubmitProps) => {
         const formData = new FormData();
