@@ -1,7 +1,8 @@
 import { Button, Stack, Typography } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 export const ServerList = () => {
-
+    const navigate = useNavigate();
     return (
         <Stack
             justifyContent={"center"}
@@ -31,6 +32,7 @@ export const ServerList = () => {
             >
                 <Typography>US-EAST</Typography>
                 <Button 
+                    onClick={() => navigate("/game")}
                     variant="contained" 
                     type="submit" 
                     m="1rem auto"
