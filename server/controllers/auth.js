@@ -69,8 +69,15 @@ export const login = async (req, res) => {
 }
 
 
+//TODO: validate that multer upload middleware is actually passed through
+// otherwise, users can make an api call without an image but with req.fileExt set?, 
+// not really a big issue as it will just make it so user doesnt have a pfp
 export const register = async (req, res) => {
     try{
+        if(!req.fileExt || ![".jpg", ".png", ".jpeg"].includes(req.fileExt)){
+            throw new Error("Profile picture issue");
+        }
+
         //frontend should pass the following args in the post req body
         const{
             firstName,
