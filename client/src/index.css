@@ -10,6 +10,11 @@ body,
   font-family: "Press Start 2P", Play;
 }
 
+/* canvas {
+  display: block;
+  margin: 0 auto;
+} */
+
 input:-webkit-autofill,
 input:-webkit-autofill:focus {
   transition: background-color 0s 600000s, color 0s 600000s !important;
