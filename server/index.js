@@ -6,6 +6,7 @@ import helmet from "helmet";
 import authRouter from "./routes/auth.js";
 import usersRouter from "./routes/users.js";
 import path from "path";
+import { load_chunks } from "./chunk_loader.js";
 
 dotenv.config();
 const app = express();
@@ -43,5 +44,19 @@ app.get('*', (req, res) => {
 
 mongoose
     .connect(process.env.MONGO_URL, {dbName: "MMO"})
-    .then(() => app.listen(PORT, () => console.log(`Listening to ${PORT}`)))
+    .then(() => app.listen(PORT, main))
     .catch((err) => console.error(`${err} did not connect`));
+
+async function main() {
+    console.log(`Listening to ${PORT}`);
+    const {tile_size, chunk_size, layers, gidToImageMap} = await load_chunks();
+    const getChunk = (x,y) => {
+        return layers.map((layer) => layer[x] && layer[x][y]);
+    }
+    const keys = Object.keys(gidToImageMap).map((key) => parseInt(key)).sort((a,b) => b - a);
+    const getImageFromGid = (gid) => {
+        for (const key of keys) {
+            if (key <= gid) return gidToImageMap[key];
+        }
+    };
+}
