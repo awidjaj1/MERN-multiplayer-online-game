@@ -1027,11 +1027,11 @@
  "tilesets":[
         {
          "firstgid":1,
-         "source":"tileset_demo.tsx"
+         "source":"tileset_demo.tsj"
         }, 
         {
          "firstgid":17,
-         "source":"tile_demo2.tsx"
+         "source":"tile_demo2.tsj"
         }],
  "tilewidth":16,
  "type":"map",

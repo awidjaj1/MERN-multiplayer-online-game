@@ -3,8 +3,8 @@
  <editorsettings>
   <chunksize width="64" height="64"/>
  </editorsettings>
- <tileset firstgid="1" source="tileset_demo.tsx"/>
- <tileset firstgid="17" source="tile_demo2.tsx"/>
+ <tileset firstgid="1" source="tileset_demo.tsj"/>
+ <tileset firstgid="17" source="tile_demo2.tsj"/>
  <layer id="1" name="ground" width="224" height="160">
   <data encoding="csv">
    <chunk x="0" y="0" width="64" height="64">
