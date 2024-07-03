@@ -49,14 +49,13 @@ mongoose
 
 async function main() {
     console.log(`Listening to ${PORT}`);
-    const {tile_size, chunk_size, layers, gidToImageMap} = await load_chunks();
-    const getChunk = (x,y) => {
-        return layers.map((layer) => layer[x] && layer[x][y]);
-    }
-    const keys = Object.keys(gidToImageMap).map((key) => parseInt(key)).sort((a,b) => b - a);
-    const getImageFromGid = (gid) => {
-        for (const key of keys) {
-            if (key <= gid) return gidToImageMap[key];
-        }
-    };
+    const {tile_size, chunk_size, getChunk, gidToImageMap} = await load_chunks();
+    
+    // retrieving the correct image should be done client side?
+    // const keys = Object.keys(gidToImageMap).map((key) => parseInt(key)).sort((a,b) => b - a);
+    // const getImageFromGid = (gid) => {
+    //     for (const key of keys) {
+    //         if (key <= gid) return gidToImageMap[key];
+    //     }
+    // };
 }

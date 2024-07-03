@@ -21,8 +21,16 @@ export async function load_chunks() {
                                                                                         acc[chunk.x] = {[chunk.y]: chunk.data};
                                                                                     return acc;
                                                                                 }, {}));
+        const getChunk = (function  (){
+            const chunks = {}
+            return (x,y) => {
+                if(chunks[x] === undefined || chunks[x][y] === undefined)
+                    chunks[x][y] = layers.map((layer) => (layer[x] && layer[x][y]) || null);
+                return chunks[x][y];
+            };
+        })();
         
-       return {tile_size, chunk_size, layers, gidToImageMap};
+       return {tile_size, chunk_size, getChunk, gidToImageMap};
     } catch(err){
         return console.error(`Error encountered when trying to load chunks: ${err}`);
     }
