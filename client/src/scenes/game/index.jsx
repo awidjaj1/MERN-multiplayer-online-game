@@ -3,11 +3,13 @@ import { useEffect, useRef, useState } from "react";
 import { clamp } from "../../utils";
 import io from "socket.io-client";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 export const GamePage = () => {
     const MAX_CANVAS_SIZE = {width: 1600, height: 900};
     const MIN_CANVAS_SIZE = {width: 800, height: 450};
     const canvasRef = useRef(null);
     const token = useSelector((state) => state.token);
+    const navigate = useNavigate();
     const [screenSize, setScreenSize] = useState(
                             {width: clamp(window.innerWidth, MIN_CANVAS_SIZE.width, MAX_CANVAS_SIZE.width), 
                             height: clamp(window.innerHeight, MIN_CANVAS_SIZE.height, MAX_CANVAS_SIZE.height)});
@@ -17,14 +19,21 @@ export const GamePage = () => {
                                     {width: clamp(window.innerWidth, MIN_CANVAS_SIZE.width, MAX_CANVAS_SIZE.width), 
                                     height: clamp(window.innerHeight, MIN_CANVAS_SIZE.height, MAX_CANVAS_SIZE.height)});
         window.addEventListener('resize', handleResize);
+        //i think this is a simpler option than doing express type middleware
+        //where we set the token in Authorizaiton: Bearer header
         const socket = io({
-            extraHeaders: {
-              Authorization: `Bearer ${token}`
+            auth: {
+                token
             }
         });
 
         socket.on('connect', () => {
             console.log("Connected");
+        });
+
+        socket.on('connect_error', (err) => {
+            window.alert(`There was an error starting the game. ${err}`);
+            navigate("/home");
         });
 
         return () => {

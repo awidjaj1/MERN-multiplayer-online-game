@@ -27,24 +27,34 @@ export const verifyToken = (req, res, next) => {
     }
 };
 
-export const verifyTokenIO = (req, res, next) => {
-    const isHandshake = req._query.sid === undefined;
-    if (!isHandshake) {
+export const verifyTokenIO = (socket, next) => {
+  try{
+      const token = socket.handshake.auth.token;
+      const verified = jwt.verify(token, process.env.JWT_SECRET);
+      socket.player_id = verified.id;
       return next();
-    }
+  }catch(err){
+      return next(new Error(err));
+  }
+};
+// (req, res, next) => {
+//     const isHandshake = req._query.sid === undefined;
+//     if (!isHandshake) {
+//       return next();
+//     }
     
-    //socket io uses lowercase for some reason
-    const header = req.headers["authorization"];
-    if (!header) {
-      return next(new Error("no token"));
-    }
+//     //socket io uses lowercase for some reason
+//     const header = req.headers["authorization"];
+//     if (!header) {
+//       return next(new Error("no token"));
+//     }
   
-    if (!header.startsWith("Bearer ")) {
-      return next(new Error("invalid token"));
-    }
+//     if (!header.startsWith("Bearer ")) {
+//       return next(new Error("invalid token"));
+//     }
   
-    const token = header.substring(7);
+//     const token = header.substring(7);
   
-    req.user = jwt.verify(token, process.env.JWT_SECRET)
-    next();
-  };
+//     req.user = jwt.verify(token, process.env.JWT_SECRET)
+//     next();
+//   };

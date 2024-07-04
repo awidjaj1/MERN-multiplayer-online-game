@@ -97,6 +97,7 @@ export const AccountInfo = () => {
         );
         const updatedUser = await updatedUserResponse.json();
         if (updatedUser.error){
+            //the error might be a jwt error, in which case we should log out? no bad behavior i think
             window.alert(`There was an error updating your account. Error: ${updatedUser.error}`);
         } else {
             dispatch(

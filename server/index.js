@@ -13,6 +13,9 @@ import { verifyTokenIO } from "./middleware/auth.js";
 
 dotenv.config();
 const app = express();
+const httpServer = createServer(app);
+const io = new Server(httpServer);
+const PORT = process.env.PORT || 5000;
 const __dirname = import.meta.dirname;
 
 //logging
@@ -42,10 +45,6 @@ app.get('*', (req, res) => {
 });
 
 
-const httpServer = createServer(app);
-const io = new Server(httpServer);
-const PORT = process.env.PORT || 5000;
-
 mongoose
     .connect(process.env.MONGO_URL, {dbName: "MMO"})
     .then(() => httpServer.listen(PORT, main))
@@ -62,13 +61,26 @@ async function main() {
     //         if (key <= gid) return gidToImageMap[key];
     //     }
     // };
-    io.engine.use(helmet());
-    io.engine.use(verifyTokenIO);
 
-    io.on("connection", (socket) => {
-        const user = socket.request.user;
-        console.log(user);
+    // io.engine.use(helmet());
+    // io.engine.use(verifyTokenIO);
 
+    io.use(verifyTokenIO);
+    io.use(async (socket, next) => {
+        try{
+            const sockets = await io.in(`${socket.player_id}`).fetchSockets();
+            const isUserConnected = sockets.length > 0;
+            if (isUserConnected)
+                throw new Error("User is already in game");
+            return next();
+        }catch(err){
+            return next(err);
+        }
+    })
+
+    io.on("connection", async (socket) => {
+        const player_id = socket.player_id;
+        socket.join(`${player_id}`);
         socket.on("disconnect", () => {
             console.log("disconnected");
         })
