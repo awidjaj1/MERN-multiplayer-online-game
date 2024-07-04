@@ -1,10 +1,13 @@
 import { Box } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 import { clamp } from "../../utils";
+import io from "socket.io-client";
+import { useSelector } from "react-redux";
 export const GamePage = () => {
     const MAX_CANVAS_SIZE = {width: 1600, height: 900};
     const MIN_CANVAS_SIZE = {width: 800, height: 450};
     const canvasRef = useRef(null);
+    const token = useSelector((state) => state.token);
     const [screenSize, setScreenSize] = useState(
                             {width: clamp(window.innerWidth, MIN_CANVAS_SIZE.width, MAX_CANVAS_SIZE.width), 
                             height: clamp(window.innerHeight, MIN_CANVAS_SIZE.height, MAX_CANVAS_SIZE.height)});
@@ -14,8 +17,20 @@ export const GamePage = () => {
                                     {width: clamp(window.innerWidth, MIN_CANVAS_SIZE.width, MAX_CANVAS_SIZE.width), 
                                     height: clamp(window.innerHeight, MIN_CANVAS_SIZE.height, MAX_CANVAS_SIZE.height)});
         window.addEventListener('resize', handleResize);
+        const socket = io({
+            extraHeaders: {
+              Authorization: `Bearer ${token}`
+            }
+        });
 
-        return () => window.removeEventListener('resize', handleResize);
+        socket.on('connect', () => {
+            console.log("Connected");
+        });
+
+        return () => {
+            socket.disconnect();
+            window.removeEventListener('resize', handleResize);
+        }
     }, []);
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -35,6 +50,7 @@ export const GamePage = () => {
 
         return () => window.cancelAnimationFrame(animationFrameId);
     }, [screenSize])
+
     return (
         <Box display={"flex"} alignItems={"center"} justifyContent={"center"} minHeight={"100vh"}>
             <canvas ref={canvasRef}></canvas>

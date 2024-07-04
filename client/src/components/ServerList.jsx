@@ -32,7 +32,7 @@ export const ServerList = () => {
             >
                 <Typography>US-EAST</Typography>
                 <Button 
-                    onClick={() => navigate("/game")}
+                    onClick={() => navigate("/game", {state: window.location.pathname})}
                     variant="contained" 
                     type="submit" 
                     m="1rem auto"

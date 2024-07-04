@@ -7,11 +7,13 @@ import authRouter from "./routes/auth.js";
 import usersRouter from "./routes/users.js";
 import path from "path";
 import { load_chunks } from "./chunk_loader.js";
+import { createServer } from "http";
+import { Server } from "socket.io";
+import { verifyTokenIO } from "./middleware/auth.js";
 
 dotenv.config();
 const app = express();
 const __dirname = import.meta.dirname;
-const PORT = process.env.PORT || 5000;
 
 //logging
 app.use(morgan("common"));
@@ -40,11 +42,13 @@ app.get('*', (req, res) => {
 });
 
 
-
+const httpServer = createServer(app);
+const io = new Server(httpServer);
+const PORT = process.env.PORT || 5000;
 
 mongoose
     .connect(process.env.MONGO_URL, {dbName: "MMO"})
-    .then(() => app.listen(PORT, main))
+    .then(() => httpServer.listen(PORT, main))
     .catch((err) => console.error(`${err} did not connect`));
 
 async function main() {
@@ -58,4 +62,14 @@ async function main() {
     //         if (key <= gid) return gidToImageMap[key];
     //     }
     // };
+    io.engine.use(verifyTokenIO);
+
+    io.on("connection", (socket) => {
+        const user = socket.request.user;
+        console.log(user);
+
+        socket.on("disconnect", () => {
+            console.log("disconnected");
+        })
+    });
 }
