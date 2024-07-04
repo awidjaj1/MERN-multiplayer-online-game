@@ -62,6 +62,7 @@ async function main() {
     //         if (key <= gid) return gidToImageMap[key];
     //     }
     // };
+    io.engine.use(helmet());
     io.engine.use(verifyTokenIO);
 
     io.on("connection", (socket) => {
