@@ -65,6 +65,16 @@ const UserSchema = new mongoose.Schema(
             default: 1,
             min: 1,
             max: 100
+        },
+        x: {
+            type: Number,
+            required: true,
+            default: 50
+        },
+        y: {
+            type: Number,
+            required: true,
+            default: 50
         }
     }
 );

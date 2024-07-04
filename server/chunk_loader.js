@@ -24,7 +24,9 @@ export async function load_chunks() {
         const getChunk = (function  (){
             const chunks = {}
             return (x,y) => {
-                if(chunks[x] === undefined || chunks[x][y] === undefined)
+                if(chunks[x] === undefined)
+                    chunks[x] = {}
+                if(chunks[x][y] === undefined)
                     chunks[x][y] = layers.map((layer) => (layer[x] && layer[x][y]) || null);
                 return chunks[x][y];
             };

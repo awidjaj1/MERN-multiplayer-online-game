@@ -14,6 +14,8 @@ export const GamePage = () => {
                             {width: clamp(window.innerWidth, MIN_CANVAS_SIZE.width, MAX_CANVAS_SIZE.width), 
                             height: clamp(window.innerHeight, MIN_CANVAS_SIZE.height, MAX_CANVAS_SIZE.height)});
 
+    let chunks = null;
+
     useEffect(() => {
         const handleResize = () => setScreenSize(
                                     {width: clamp(window.innerWidth, MIN_CANVAS_SIZE.width, MAX_CANVAS_SIZE.width), 
@@ -29,6 +31,32 @@ export const GamePage = () => {
 
         socket.on('connect', () => {
             console.log("Connected");
+            const tile_path = "/server/public/assets/game/tilesets";
+
+            socket.on("init", (init) => {
+                console.log(init);
+                const chunk_size = init.chunk_size;
+                const player = {x: init.x, y: init.y};
+                const current_chunk = {x: parseInt(player.x / chunk_size), y: parseInt(player.y / chunk_size)}
+                const get_visible_chunks = (current_chunk) => {
+                    
+                    const chunks = [];
+                    for(let scaleX=-1; scaleX <= 1; scaleX++){
+                        for(let scaleY=-1; scaleY <= 1; scaleY++){
+                            chunks.push({x: current_chunk.x + scaleX * chunk_size,
+                                        y: current_chunk.y + scaleY * chunk_size});
+                        }
+                    }
+                    return chunks
+                }
+                const visible_chunks = get_visible_chunks(current_chunk);
+                console.log(visible_chunks);
+                socket.emit("req_chunks", visible_chunks);
+                socket.on("resp_chunks", (requested_chunks) => {
+                    chunks = requested_chunks;
+                });
+
+            })
         });
 
         socket.on('connect_error', (err) => {

@@ -37,24 +37,3 @@ export const verifyTokenIO = (socket, next) => {
       return next(new Error(err));
   }
 };
-// (req, res, next) => {
-//     const isHandshake = req._query.sid === undefined;
-//     if (!isHandshake) {
-//       return next();
-//     }
-    
-//     //socket io uses lowercase for some reason
-//     const header = req.headers["authorization"];
-//     if (!header) {
-//       return next(new Error("no token"));
-//     }
-  
-//     if (!header.startsWith("Bearer ")) {
-//       return next(new Error("invalid token"));
-//     }
-  
-//     const token = header.substring(7);
-  
-//     req.user = jwt.verify(token, process.env.JWT_SECRET)
-//     next();
-//   };

@@ -10,6 +10,7 @@ import { load_chunks } from "./chunk_loader.js";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import { verifyTokenIO } from "./middleware/auth.js";
+import { User } from "./models/User.js";
 
 dotenv.config();
 const app = express();
@@ -53,18 +54,8 @@ mongoose
 async function main() {
     console.log(`Listening to ${PORT}`);
     const {tile_size, chunk_size, getChunk, gidToImageMap} = await load_chunks();
-    
-    // retrieving the correct image should be done client side?
-    // const keys = Object.keys(gidToImageMap).map((key) => parseInt(key)).sort((a,b) => b - a);
-    // const getImageFromGid = (gid) => {
-    //     for (const key of keys) {
-    //         if (key <= gid) return gidToImageMap[key];
-    //     }
-    // };
 
-    // io.engine.use(helmet());
-    // io.engine.use(verifyTokenIO);
-
+    io.engine.use(helmet());
     io.use(verifyTokenIO);
     io.use(async (socket, next) => {
         try{
@@ -81,6 +72,28 @@ async function main() {
     io.on("connection", async (socket) => {
         const player_id = socket.player_id;
         socket.join(`${player_id}`);
+
+        const player = await User.findById(player_id);
+        // console.log(player);
+        socket.emit("init", 
+            {
+                tile_size, 
+                chunk_size, 
+                gidToImageMap, 
+                username: player.username, 
+                friends: player.friends, 
+                inventory: player.inventory, 
+                equipped: player.equipped,
+                level: player.level, 
+                x: player.x, 
+                y: player.y
+            });
+
+        socket.on("req_chunks", (chunks) => {
+            const requested_chunks = chunks.map(({x,y}) => getChunk(x,y));
+            socket.emit("resp_chunks", requested_chunks);
+        })
+
         socket.on("disconnect", () => {
             console.log("disconnected");
         })
