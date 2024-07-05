@@ -35,11 +35,10 @@ export const GamePage = () => {
         let chunks = null;
         const canvas = canvasRef.current;
         const ctx = canvas.getContext('2d');
-        const mapHeight = 160 * 16;
-        const mapWidth = 224 * 16;
         socketRef.current.on("init", (init) => {
-            console.log(init);
             const chunk_size = init.chunk_size;
+            const mapHeight = init.mapHeight;
+            const mapWidth = init.mapWidth;
             const tile_path = "/server/public/assets/game/tilesets/";
             const player = {x: init.x, y: init.y};
             const camera = {x: clamp(player.x - canvas.width/2,0,mapWidth - canvas.width), y: clamp(player.y - canvas.height/2,0, mapHeight - canvas.height) };
@@ -56,7 +55,6 @@ export const GamePage = () => {
                 return chunks
             }
             const visible_chunks = get_visible_chunks(current_chunk);
-            console.log(visible_chunks);
             socketRef.current.emit("req_chunks", visible_chunks);
             socketRef.current.on("resp_chunks", (requested_chunks) => {
                 chunks = requested_chunks;
@@ -65,12 +63,16 @@ export const GamePage = () => {
                 const keys = Object.keys(init.gidToImageMap).map((key) => parseInt(key)).sort((a,b) => b - a);
                 return (gid) => {
                     for (const key of keys) {
-                        if (key <= gid) return init.gidToImageMap[key];
+                        let src =  init.gidToImageMap[key];
+                        if (key <= gid) return {firstGid: key, src: src.substring(0, src.length - 3) + "png"};
                     }
-                    return null;
+                    return {firstGid: null, src: null};
                 }
             })();
-
+            for(let i = 0; i < 40; i++){
+                const {firstGid, src} = getImageFromGid(i);
+                console.log(firstGid, src);
+            }
             const images = {};
             const render = () => {
                 ctx.clearRect(0,0,canvas.width, canvas.height);
@@ -80,19 +82,22 @@ export const GamePage = () => {
                         x *= 16;
                         y *= 16;
                         const chunk = chunks[j];
-                        for(const layer of chunk){
-                            if(layer){
+                        for(const l in chunk){
+                            const layer = chunk[l];
+                            if(l !== '2' && layer){
+                                console.log(l);
                                 for(let i = 0; i < 64 * 64; i++){
                                     const screenX = x + ((i%64) * 16) - camera.x;
                                     const screenY = y + (Math.floor(i/64)*16) - camera.y;
-                                    if(clamp(screenX, 0, canvas.width) !== screenX || clamp(screenY, 0, canvas.height) !== screenY)
+                                    if(clamp(screenX, 0, canvas.width) !== screenX || clamp(screenY, 0, canvas.height) !== screenY){
                                         continue;
-                                    const tile = layer[i];
-                                    let src = getImageFromGid(tile);
+                                    }
+                                    let tile = layer[i];
+                                    const {firstGid, src} = getImageFromGid(tile);
                                     if(src !== null){
-                                        src = src.substring(0, src.length - 3) + "png";
-                                        const imageRow = Math.floor((tile-1) / 4);
-                                        const imageCol = (tile-1) % 4;
+                                        tile -= firstGid;
+                                        const imageRow = Math.floor(tile / 4);
+                                        const imageCol = tile % 4;
                                         if(!images[src]){
                                             images[src] = new Image();
                                             images[src].src = tile_path + src;
@@ -100,14 +105,12 @@ export const GamePage = () => {
                                         const image = images[src]
                                         ctx.drawImage(image, imageCol * 16, imageRow * 16, 16, 16,screenX,screenY, 16, 16);
                                     }
-                                    // console.log("HI");
                                 }
                             }
                         }
                     }
                 }
                 ctx.fillStyle = "black";
-                console.log(player.x-camera.x, player.y-camera.y);
                 ctx.fillRect((player.x - camera.x) + Math.random() * 10, (player.y - camera.y) + Math.random() * 10, 20, 60);
             }
             const main_loop = () => {

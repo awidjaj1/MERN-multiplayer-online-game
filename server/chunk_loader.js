@@ -13,6 +13,8 @@ export async function load_chunks() {
             }, {});
         //assume tile and chunks are square
         const tile_size = map.tileheight;
+        const mapWidth = map.width * tile_size;
+        const mapHeight = map.height * tile_size;
         const chunk_size = map.layers[0].chunks[0].height;
         const layers = map.layers.map(({chunks}) => chunks.reduce((acc, chunk) => {
                                                                                     if(acc[chunk.x])
@@ -32,7 +34,7 @@ export async function load_chunks() {
             };
         })();
         
-       return {tile_size, chunk_size, getChunk, gidToImageMap};
+       return {tile_size, chunk_size, mapWidth, mapHeight, getChunk, gidToImageMap};
     } catch(err){
         return console.error(`Error encountered when trying to load chunks: ${err}`);
     }
