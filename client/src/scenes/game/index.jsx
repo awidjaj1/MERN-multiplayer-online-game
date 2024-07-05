@@ -35,11 +35,14 @@ export const GamePage = () => {
         let chunks = null;
         const canvas = canvasRef.current;
         const ctx = canvas.getContext('2d');
+        const mapHeight = 160 * 16;
+        const mapWidth = 224 * 16;
         socketRef.current.on("init", (init) => {
             console.log(init);
             const chunk_size = init.chunk_size;
             const tile_path = "/server/public/assets/game/tilesets/";
             const player = {x: init.x, y: init.y};
+            const camera = {x: clamp(player.x - canvas.width/2,0,mapWidth - canvas.width), y: clamp(player.y - canvas.height/2,0, mapHeight - canvas.height) };
             const current_chunk = {x: parseInt(player.x / chunk_size), y: parseInt(player.y / chunk_size)}
             const get_visible_chunks = (current_chunk) => {
                 
@@ -72,12 +75,18 @@ export const GamePage = () => {
             const render = () => {
                 ctx.clearRect(0,0,canvas.width, canvas.height);
                 if(chunks){
-                    for(let j = 3; j < 6; j++){
-                        const {x,y} = visible_chunks[j];
+                    for(let j = 0; j < 9; j++){
+                        let {x,y} = visible_chunks[j];
+                        x *= 16;
+                        y *= 16;
                         const chunk = chunks[j];
                         for(const layer of chunk){
                             if(layer){
                                 for(let i = 0; i < 64 * 64; i++){
+                                    const screenX = x + ((i%64) * 16) - camera.x;
+                                    const screenY = y + (Math.floor(i/64)*16) - camera.y;
+                                    if(clamp(screenX, 0, canvas.width) !== screenX || clamp(screenY, 0, canvas.height) !== screenY)
+                                        continue;
                                     const tile = layer[i];
                                     let src = getImageFromGid(tile);
                                     if(src !== null){
@@ -89,8 +98,6 @@ export const GamePage = () => {
                                             images[src].src = tile_path + src;
                                         }
                                         const image = images[src]
-                                        const screenX = x + ((i%64) * 16);
-                                        const screenY = y + (Math.floor(i/64)*16);
                                         ctx.drawImage(image, imageCol * 16, imageRow * 16, 16, 16,screenX,screenY, 16, 16);
                                     }
                                     // console.log("HI");
@@ -100,7 +107,8 @@ export const GamePage = () => {
                     }
                 }
                 ctx.fillStyle = "black";
-                ctx.fillRect(canvas.width/2 + Math.random() * 10, canvas.height/2 + Math.random() * 10, 20, 60);
+                console.log(player.x-camera.x, player.y-camera.y);
+                ctx.fillRect((player.x - camera.x) + Math.random() * 10, (player.y - camera.y) + Math.random() * 10, 20, 60);
             }
             const main_loop = () => {
                 animationFrameId = requestAnimationFrame(main_loop);
