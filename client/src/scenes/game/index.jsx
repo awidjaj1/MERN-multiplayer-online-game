@@ -36,11 +36,22 @@ export const GamePage = () => {
         const canvas = canvasRef.current;
         const ctx = canvas.getContext('2d');
         socketRef.current.on("init", (init) => {
-            const chunk_size = init.chunk_size;
-            const mapHeight = init.mapHeight;
-            const mapWidth = init.mapWidth;
+            const {
+                tile_size, 
+                chunk_size,
+                mapWidth,
+                mapHeight, 
+                gidToImageMap, 
+                username, 
+                friends, 
+                inventory, 
+                equipped,
+                level, 
+                x, 
+                y
+            } = init
             const tile_path = "/server/public/assets/game/tilesets/";
-            const player = {x: init.x, y: init.y};
+            const player = {x, y, level, equipped, inventory, username, friends};
             const camera = {x: clamp(player.x - canvas.width/2,0,mapWidth - canvas.width), y: clamp(player.y - canvas.height/2,0, mapHeight - canvas.height) };
             const current_chunk = {x: parseInt(player.x / chunk_size), y: parseInt(player.y / chunk_size)}
             const get_visible_chunks = (current_chunk) => {
@@ -62,6 +73,7 @@ export const GamePage = () => {
             const getImageFromGid = (function (){
                 const keys = Object.keys(init.gidToImageMap).map((key) => parseInt(key)).sort((a,b) => b - a);
                 return (gid) => {
+                    //TODO: instead of linear search, can do binary search
                     for (const key of keys) {
                         let src =  init.gidToImageMap[key];
                         if (key <= gid) return {firstGid: key, src: src.substring(0, src.length - 3) + "png"};
@@ -73,6 +85,7 @@ export const GamePage = () => {
                 const {firstGid, src} = getImageFromGid(i);
                 console.log(firstGid, src);
             }
+            //TODO: maybe eventually delete image references to let GC free up memory?
             const images = {};
             const render = () => {
                 ctx.clearRect(0,0,canvas.width, canvas.height);
@@ -85,7 +98,6 @@ export const GamePage = () => {
                         for(const l in chunk){
                             const layer = chunk[l];
                             if(l !== '2' && layer){
-                                console.log(l);
                                 for(let i = 0; i < 64 * 64; i++){
                                     const screenX = x + ((i%64) * 16) - camera.x;
                                     const screenY = y + (Math.floor(i/64)*16) - camera.y;
