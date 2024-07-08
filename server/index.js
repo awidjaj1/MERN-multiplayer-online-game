@@ -19,8 +19,9 @@ const io = new Server(httpServer);
 const PORT = process.env.PORT || 5000;
 const __dirname = import.meta.dirname;
 const TICK_RATE = 30;
-const SPEED = 10;
+const SPEED = 0.05;
 const players = {};
+const inputHandler = {};
 
 //logging
 app.use(morgan("common"));
@@ -77,16 +78,18 @@ async function main() {
         socket.join(`${player_id}`);
         const player = await User.findById(player_id);
         players[player_id] = {
+            username: player.username, 
+            level: player.level, 
             x: player.x, 
-            y: player.y, 
-            inputs: {
-                up: false,
-                down: false,
-                left: false,
-                right: false
-            }
+            y: player.y
+        } 
+        inputHandler[player_id] = {
+            up: false,
+            down: false,
+            left: false,
+            right: false
         }
-        // console.log(player);
+        const inputs = inputHandler[player_id];
         socket.emit("init", 
             {
                 tile_size, 
@@ -94,15 +97,7 @@ async function main() {
                 mapWidth,
                 mapHeight, 
                 gidToTilesetMap,
-                player: {
-                    username: player.username, 
-                    friends: player.friends, 
-                    inventory: player.inventory, 
-                    equipped: player.equipped,
-                    level: player.level, 
-                    x: player.x, 
-                    y: player.y
-                } 
+                player: players[player_id]
             });
 
         socket.on("req_chunks", (chunks) => {
@@ -121,14 +116,16 @@ async function main() {
         })
 
         socket.on("disconnect", async () => {
+            player.x = players[player_id].x;
+            player.y = players[player_id].y;
             await player.save();
             delete players[player_id];
             console.log("disconnected");
         })
 
-        let lastUpdate = Performance.now();
+        let lastUpdate = performance.now();
         setInterval(() => {
-            const now = Performance.now();
+            const now = performance.now();
             const dt = now - lastUpdate;
             tick(dt);
             lastUpdate = now;
@@ -138,26 +135,29 @@ async function main() {
 
 function tick(dt) {
     for(const player_id in players){
-        const inputs = players[player_id].inputs;
+        const player = players[player_id];
+        const inputs = inputHandler[player_id];
         let verticalScale = 0;
         let horizontalScale = 0;
         if(inputs.w)
-            verticalScale = 1;
+            verticalScale = -dt;
         else if(inputs.s)
-            verticalScale = -1;
+            verticalScale = dt;
 
         if(inputs.a)
-            horizontalScale = -1;
+            horizontalScale = -dt;
         else if(inputs.d)
-            horizontalScale = 1;
+            horizontalScale = dt;
         
         if(verticalScale && horizontalScale){
-            players[player_id].x += horizontalScale * SPEED * Math.SQRT1_2;
-            players[player_id].y += verticalScale * SPEED * Math.SQRT1_2;
+            player.x += horizontalScale * SPEED * Math.SQRT1_2;
+            player.y += verticalScale * SPEED * Math.SQRT1_2;
         }else if(verticalScale){
-            players[player_id].y += verticalScale * SPEED;
+            player.y += verticalScale * SPEED;
         }else if(horizontalScale){
-            players[player_id].x += horizontalScale * SPEED;
+            player.x += horizontalScale * SPEED;
         }
     }
+
+    io.emit("players", players);
 }
