@@ -53,9 +53,8 @@ export const GamePage = () => {
             navigate("/home");
         });
 
-        let animationFrameId;
-        let chunks = null;
         const canvas = canvasRef.current;
+        let animationFrameId;
         const ctx = canvas.getContext('2d');
         socketRef.current.on("init", ({
                                         tile_size, 
@@ -63,11 +62,13 @@ export const GamePage = () => {
                                         mapWidth,
                                         mapHeight, 
                                         gidToTilesetMap,
-                                        player
+                                        players,
+                                        id
                                     }) => {
             const __dir = "/server/public/assets/game/tilesets/";
-            const camera = {x: clamp(player.x - canvas.width/2,0,mapWidth - canvas.width), y: clamp(player.y - canvas.height/2,0, mapHeight - canvas.height) };
-            const current_chunk = {x: parseInt(player.x / (tile_size * chunk_size)) * chunk_size, y: parseInt(player.y / (tile_size *chunk_size)) * chunk_size}
+            const camera = {x: clamp(players[id].x - canvas.width/2,0,mapWidth - canvas.width), y: clamp(players[id].y - canvas.height/2,0, mapHeight - canvas.height) };
+            const current_chunk = {x: parseInt(players[id].x / (tile_size * chunk_size)) * chunk_size, y: parseInt(players[id].y / (tile_size *chunk_size)) * chunk_size}
+            let chunks = null;
             const get_visible_chunks = (current_chunk) => {
                 
                 const chunks = [];
@@ -84,6 +85,9 @@ export const GamePage = () => {
             socketRef.current.on("resp_chunks", (requested_chunks) => {
                 chunks = requested_chunks;
             });
+            socketRef.current.on("players", (updated_players) => {
+                players[id] = updated_players[id];
+            })
             const getImageFromGid = (function (){
                 const keys = Object.keys(gidToTilesetMap).map((key) => parseInt(key)).sort((a,b) => b - a);
                 return (gid) => {
@@ -131,14 +135,16 @@ export const GamePage = () => {
                     }
                 }
                 ctx.fillStyle = "black";
-                ctx.fillRect((player.x - camera.x) + Math.random() * 10, (player.y - camera.y) + Math.random() * 10, 20, 60);
+                for(const player_id in players){
+                    ctx.fillRect((players[player_id].x - camera.x), (players[player_id].y - camera.y), 16, 16);
+                }
             }
             const main_loop = () => {
                 animationFrameId = requestAnimationFrame(main_loop);
                 render();
             }
             animationFrameId = requestAnimationFrame(main_loop);
-        })
+        });
 
 
         return () => {

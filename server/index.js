@@ -97,7 +97,8 @@ async function main() {
                 mapWidth,
                 mapHeight, 
                 gidToTilesetMap,
-                player: players[player_id]
+                players,
+                id: player_id
             });
 
         socket.on("req_chunks", (chunks) => {
