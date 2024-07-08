@@ -19,7 +19,20 @@ export const GamePage = () => {
         const handleResize = () => setScreenSize(
                                     {width: clamp(window.innerWidth, MIN_CANVAS_SIZE.width, MAX_CANVAS_SIZE.width), 
                                     height: clamp(window.innerHeight, MIN_CANVAS_SIZE.height, MAX_CANVAS_SIZE.height)});
-        window.addEventListener('resize', handleResize);
+        window.addEventListener('resize', handleResize, true);
+        const handleInput = (function (event){
+            const validInput = ['w', 'a', 's', 'd', 'W', 'A', 'S', 'D'];
+            return (e) => {
+                if(validInput.includes(e.key)){
+                    socket.emit(event, e.key.toLowerCase());
+                }
+            }
+        });
+        const handleKeydown = handleInput('keydown');
+        const handleKeyup = handleInput('keyup');
+        window.addEventListener('keydown', handleKeydown, true);
+        window.addEventListener('keyup', handleKeyup, true);
+
         socketRef.current = io({
             auth: {
                 token
@@ -45,7 +58,7 @@ export const GamePage = () => {
                                     }) => {
             const __dir = "/server/public/assets/game/tilesets/";
             const camera = {x: clamp(player.x - canvas.width/2,0,mapWidth - canvas.width), y: clamp(player.y - canvas.height/2,0, mapHeight - canvas.height) };
-            const current_chunk = {x: parseInt(player.x / chunk_size), y: parseInt(player.y / chunk_size)}
+            const current_chunk = {x: parseInt(player.x / (tile_size * chunk_size)) * chunk_size, y: parseInt(player.y / (tile_size *chunk_size)) * chunk_size}
             const get_visible_chunks = (current_chunk) => {
                 
                 const chunks = [];
@@ -82,9 +95,8 @@ export const GamePage = () => {
                         x *= tile_size;
                         y *= tile_size;
                         const chunk = chunks[j];
-                        for(const l in chunk){
-                            const layer = chunk[l];
-                            if(l !== '2' && layer){
+                        for(const layer of chunk){
+                            if(layer){
                                 for(let i = 0; i < chunk_size ** 2; i++){
                                     const screenX = x + ((i%chunk_size) * tile_size) - camera.x;
                                     const screenY = y + (Math.floor(i/chunk_size)*tile_size) - camera.y;
@@ -95,11 +107,11 @@ export const GamePage = () => {
                                     const {firstGid, src} = getImageFromGid(tile);
                                     if(src !== null){
                                         tile -= firstGid;
-                                        const imageRow = Math.floor(tile / gidToTilesetMap[src].columns);
-                                        const imageCol = tile % gidToTilesetMap[src].columns;
+                                        const imageRow = Math.floor(tile / gidToTilesetMap[firstGid].columns);
+                                        const imageCol = tile % gidToTilesetMap[firstGid].columns;
                                         if(!images[src]){
                                             images[src] = new Image();
-                                            images[src].src = tile_path + src;
+                                            images[src].src = __dir + src;
                                         }
                                         const image = images[src]
                                         ctx.drawImage(image, imageCol * tile_size, imageRow * tile_size, tile_size, tile_size,screenX,screenY, tile_size, tile_size);
@@ -122,6 +134,8 @@ export const GamePage = () => {
 
         return () => {
             window.removeEventListener('resize', handleResize);
+            window.removeEventListener('keydown', handleKeydown);
+            window.removeEventListener('keyup', handleKeyup);
             window.cancelAnimationFrame(animationFrameId);
             socketRef.current.disconnect();
         }

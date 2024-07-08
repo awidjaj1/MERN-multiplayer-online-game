@@ -88,14 +88,21 @@ async function main() {
                     inventory: player.inventory, 
                     equipped: player.equipped,
                     level: player.level, 
-                    x: player.x, 
-                    y: player.y
+                    x: 3500, 
+                    y: 750
                 } 
             });
 
         socket.on("req_chunks", (chunks) => {
             const requested_chunks = chunks.map(({x,y}) => getChunk(x,y));
             socket.emit("resp_chunks", requested_chunks);
+        });
+
+        socket.on("keydown", (key) => {
+            console.log(key + " down");
+        });
+        socket.on("keyup", (key)=>{
+            console.log(key + " up");
         })
 
         socket.on("disconnect", () => {
