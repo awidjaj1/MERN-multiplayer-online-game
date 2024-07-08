@@ -18,6 +18,9 @@ const httpServer = createServer(app);
 const io = new Server(httpServer);
 const PORT = process.env.PORT || 5000;
 const __dirname = import.meta.dirname;
+const TICK_RATE = 30;
+const SPEED = 10;
+const players = {};
 
 //logging
 app.use(morgan("common"));
@@ -72,8 +75,17 @@ async function main() {
     io.on("connection", async (socket) => {
         const player_id = socket.player_id;
         socket.join(`${player_id}`);
-
         const player = await User.findById(player_id);
+        players[player_id] = {
+            x: player.x, 
+            y: player.y, 
+            inputs: {
+                up: false,
+                down: false,
+                left: false,
+                right: false
+            }
+        }
         // console.log(player);
         socket.emit("init", 
             {
@@ -88,8 +100,8 @@ async function main() {
                     inventory: player.inventory, 
                     equipped: player.equipped,
                     level: player.level, 
-                    x: 3500, 
-                    y: 750
+                    x: player.x, 
+                    y: player.y
                 } 
             });
 
@@ -99,14 +111,53 @@ async function main() {
         });
 
         socket.on("keydown", (key) => {
-            console.log(key + " down");
+            inputs[key] = true;
         });
         socket.on("keyup", (key)=>{
-            console.log(key + " up");
+            if(key === 'all')
+                Object.keys(inputs).forEach(key => inputs[key] = false);
+            else
+                inputs[key] = false;
         })
 
-        socket.on("disconnect", () => {
+        socket.on("disconnect", async () => {
+            await player.save();
+            delete players[player_id];
             console.log("disconnected");
         })
+
+        let lastUpdate = Performance.now();
+        setInterval(() => {
+            const now = Performance.now();
+            const dt = now - lastUpdate;
+            tick(dt);
+            lastUpdate = now;
+        }, 1000 / TICK_RATE);
     });
+};
+
+function tick(dt) {
+    for(const player_id in players){
+        const inputs = players[player_id].inputs;
+        let verticalScale = 0;
+        let horizontalScale = 0;
+        if(inputs.w)
+            verticalScale = 1;
+        else if(inputs.s)
+            verticalScale = -1;
+
+        if(inputs.a)
+            horizontalScale = -1;
+        else if(inputs.d)
+            horizontalScale = 1;
+        
+        if(verticalScale && horizontalScale){
+            players[player_id].x += horizontalScale * SPEED * Math.SQRT1_2;
+            players[player_id].y += verticalScale * SPEED * Math.SQRT1_2;
+        }else if(verticalScale){
+            players[player_id].y += verticalScale * SPEED;
+        }else if(horizontalScale){
+            players[player_id].x += horizontalScale * SPEED;
+        }
+    }
 }
