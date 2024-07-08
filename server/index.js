@@ -53,7 +53,7 @@ mongoose
 
 async function main() {
     console.log(`Listening to ${PORT}`);
-    const {tile_size, chunk_size, mapWidth, mapHeight, getChunk, gidToImageMap} = await load_chunks();
+    const {tile_size, chunk_size, mapWidth, mapHeight, getChunk, gidToTilesetMap} = await load_chunks();
 
     io.engine.use(helmet());
     io.use(verifyTokenIO);
@@ -81,14 +81,16 @@ async function main() {
                 chunk_size,
                 mapWidth,
                 mapHeight, 
-                gidToImageMap, 
-                username: player.username, 
-                friends: player.friends, 
-                inventory: player.inventory, 
-                equipped: player.equipped,
-                level: player.level, 
-                x: player.x, 
-                y: player.y
+                gidToTilesetMap,
+                player: {
+                    username: player.username, 
+                    friends: player.friends, 
+                    inventory: player.inventory, 
+                    equipped: player.equipped,
+                    level: player.level, 
+                    x: player.x, 
+                    y: player.y
+                } 
             });
 
         socket.on("req_chunks", (chunks) => {

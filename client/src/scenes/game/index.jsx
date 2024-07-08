@@ -35,23 +35,15 @@ export const GamePage = () => {
         let chunks = null;
         const canvas = canvasRef.current;
         const ctx = canvas.getContext('2d');
-        socketRef.current.on("init", (init) => {
-            const {
-                tile_size, 
-                chunk_size,
-                mapWidth,
-                mapHeight, 
-                gidToImageMap, 
-                username, 
-                friends, 
-                inventory, 
-                equipped,
-                level, 
-                x, 
-                y
-            } = init
-            const tile_path = "/server/public/assets/game/tilesets/";
-            const player = {x, y, level, equipped, inventory, username, friends};
+        socketRef.current.on("init", ({
+                                        tile_size, 
+                                        chunk_size,
+                                        mapWidth,
+                                        mapHeight, 
+                                        gidToTilesetMap,
+                                        player
+                                    }) => {
+            const __dir = "/server/public/assets/game/tilesets/";
             const camera = {x: clamp(player.x - canvas.width/2,0,mapWidth - canvas.width), y: clamp(player.y - canvas.height/2,0, mapHeight - canvas.height) };
             const current_chunk = {x: parseInt(player.x / chunk_size), y: parseInt(player.y / chunk_size)}
             const get_visible_chunks = (current_chunk) => {
@@ -71,20 +63,15 @@ export const GamePage = () => {
                 chunks = requested_chunks;
             });
             const getImageFromGid = (function (){
-                const keys = Object.keys(init.gidToImageMap).map((key) => parseInt(key)).sort((a,b) => b - a);
+                const keys = Object.keys(gidToTilesetMap).map((key) => parseInt(key)).sort((a,b) => b - a);
                 return (gid) => {
                     //TODO: instead of linear search, can do binary search
                     for (const key of keys) {
-                        let src =  init.gidToImageMap[key];
-                        if (key <= gid) return {firstGid: key, src: src.substring(0, src.length - 3) + "png"};
+                        if (key <= gid) return {firstGid: key, src: gidToTilesetMap[key].src};
                     }
                     return {firstGid: null, src: null};
                 }
             })();
-            for(let i = 0; i < 40; i++){
-                const {firstGid, src} = getImageFromGid(i);
-                console.log(firstGid, src);
-            }
             //TODO: maybe eventually delete image references to let GC free up memory?
             const images = {};
             const render = () => {
@@ -92,15 +79,15 @@ export const GamePage = () => {
                 if(chunks){
                     for(let j = 0; j < 9; j++){
                         let {x,y} = visible_chunks[j];
-                        x *= 16;
-                        y *= 16;
+                        x *= tile_size;
+                        y *= tile_size;
                         const chunk = chunks[j];
                         for(const l in chunk){
                             const layer = chunk[l];
                             if(l !== '2' && layer){
-                                for(let i = 0; i < 64 * 64; i++){
-                                    const screenX = x + ((i%64) * 16) - camera.x;
-                                    const screenY = y + (Math.floor(i/64)*16) - camera.y;
+                                for(let i = 0; i < chunk_size ** 2; i++){
+                                    const screenX = x + ((i%chunk_size) * tile_size) - camera.x;
+                                    const screenY = y + (Math.floor(i/chunk_size)*tile_size) - camera.y;
                                     if(clamp(screenX, 0, canvas.width) !== screenX || clamp(screenY, 0, canvas.height) !== screenY){
                                         continue;
                                     }
@@ -108,14 +95,14 @@ export const GamePage = () => {
                                     const {firstGid, src} = getImageFromGid(tile);
                                     if(src !== null){
                                         tile -= firstGid;
-                                        const imageRow = Math.floor(tile / 4);
-                                        const imageCol = tile % 4;
+                                        const imageRow = Math.floor(tile / gidToTilesetMap[src].columns);
+                                        const imageCol = tile % gidToTilesetMap[src].columns;
                                         if(!images[src]){
                                             images[src] = new Image();
                                             images[src].src = tile_path + src;
                                         }
                                         const image = images[src]
-                                        ctx.drawImage(image, imageCol * 16, imageRow * 16, 16, 16,screenX,screenY, 16, 16);
+                                        ctx.drawImage(image, imageCol * tile_size, imageRow * tile_size, tile_size, tile_size,screenX,screenY, tile_size, tile_size);
                                     }
                                 }
                             }
