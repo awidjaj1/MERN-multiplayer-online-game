@@ -20,24 +20,33 @@ export const GamePage = () => {
                                     {width: clamp(window.innerWidth, MIN_CANVAS_SIZE.width, MAX_CANVAS_SIZE.width), 
                                     height: clamp(window.innerHeight, MIN_CANVAS_SIZE.height, MAX_CANVAS_SIZE.height)});
         window.addEventListener('resize', handleResize, true);
-        const handleInput = (function (event){
-            const validInput = ['w', 'a', 's', 'd', 'W', 'A', 'S', 'D'];
-            return (e) => {
-                if(validInput.includes(e.key)){
-                    socket.emit(event, e.key.toLowerCase());
-                }
-            }
-        });
-        const handleKeydown = handleInput('keydown');
-        const handleKeyup = handleInput('keyup');
-        window.addEventListener('keydown', handleKeydown, true);
-        window.addEventListener('keyup', handleKeyup, true);
 
         socketRef.current = io({
             auth: {
                 token
             }
         });
+        const handleInput = (function (event){
+            const validInput = ['w', 'a', 's', 'd', 'W', 'A', 'S', 'D'];
+            return (e) => {
+                if(validInput.includes(e.key) && !e.repeat){
+                    socketRef.current.emit(event, e.key.toLowerCase());
+                }
+            }
+        });
+        const handleBlur = ()=>{
+            socketRef.current.emit("keyup", "all");
+        };
+        const handleKeydown = handleInput('keydown');
+        const handleKeyup = handleInput('keyup');
+        //TODO: implement custom right click where you can right click on users in the game to see more info
+        const handleRightClick = (e) => {
+            socketRef.current.emit("keyup", "all");
+        }
+        window.addEventListener('keydown', handleKeydown, true);
+        window.addEventListener('keyup', handleKeyup, true);
+        window.addEventListener('blur', handleBlur, true);
+        window.addEventListener('contextmenu', handleRightClick, true);
 
         socketRef.current.on('connect_error', (err) => {
             window.alert(`There was an error starting the game. ${err}`);
@@ -136,6 +145,8 @@ export const GamePage = () => {
             window.removeEventListener('resize', handleResize);
             window.removeEventListener('keydown', handleKeydown);
             window.removeEventListener('keyup', handleKeyup);
+            window.removeEventListener('blur', handleBlur);
+            window.removeEventListener('contextmenu', handleRightClick);
             window.cancelAnimationFrame(animationFrameId);
             socketRef.current.disconnect();
         }
