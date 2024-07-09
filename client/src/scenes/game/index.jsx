@@ -4,9 +4,11 @@ import { clamp } from "../../utils";
 import io from "socket.io-client";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { Debugger } from "../../components/Debugger";
 export const GamePage = () => {
     const MAX_CANVAS_SIZE = {width: 1600, height: 900};
     const MIN_CANVAS_SIZE = {width: 800, height: 450};
+    const ZOOM = 2;
     const socketRef = useRef(null);
     const canvasRef = useRef(null);
     const token = useSelector((state) => state.token);
@@ -29,7 +31,7 @@ export const GamePage = () => {
         const handleInput = (function (event){
             const validInput = ['w', 'a', 's', 'd', 'W', 'A', 'S', 'D'];
             return (e) => {
-                if(validInput.includes(e.key) && !e.repeat){
+                if(!e.repeat && validInput.includes(e.key)){
                     socketRef.current.emit(event, e.key.toLowerCase());
                 }
             }
@@ -56,6 +58,7 @@ export const GamePage = () => {
         const canvas = canvasRef.current;
         let animationFrameId;
         const ctx = canvas.getContext('2d');
+        ctx.imageSmoothingEnabled = false;
         socketRef.current.on("init", ({
                                         tile_size, 
                                         chunk_size,
@@ -86,7 +89,9 @@ export const GamePage = () => {
                 chunks = requested_chunks;
             });
             socketRef.current.on("players", (updated_players) => {
-                players[id] = updated_players[id];
+                console.log(Date.now());
+                players = updated_players;
+                //TODO: dont just replace? maybe can be costly if more players
             })
             const getImageFromGid = (function (){
                 const keys = Object.keys(gidToTilesetMap).map((key) => parseInt(key)).sort((a,b) => b - a);
@@ -113,7 +118,7 @@ export const GamePage = () => {
                                 for(let i = 0; i < chunk_size ** 2; i++){
                                     const screenX = x + ((i%chunk_size) * tile_size) - camera.x;
                                     const screenY = y + (Math.floor(i/chunk_size)*tile_size) - camera.y;
-                                    if(clamp(screenX, 0, canvas.width) !== screenX || clamp(screenY, 0, canvas.height) !== screenY){
+                                    if(clamp(screenX, -tile_size, canvas.width) !== screenX || clamp(screenY, -tile_size, canvas.height) !== screenY){
                                         continue;
                                     }
                                     let tile = layer[i];

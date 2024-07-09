@@ -18,8 +18,8 @@ const httpServer = createServer(app);
 const io = new Server(httpServer);
 const PORT = process.env.PORT || 5000;
 const __dirname = import.meta.dirname;
-const TICK_RATE = 30;
-const SPEED = 0.05;
+const TICK_RATE = 60;
+const SPEED = 0.2;
 const players = {};
 const inputHandler = {};
 
@@ -114,23 +114,24 @@ async function main() {
                 Object.keys(inputs).forEach(key => inputs[key] = false);
             else
                 inputs[key] = false;
-        })
+        });
+
+        let lastUpdate = Date.now();
+        const updateLoop = setInterval(() => {
+            const now = Date.now();
+            const dt = now - lastUpdate;
+            tick(dt);
+            lastUpdate = now;
+        }, 1000 / TICK_RATE);
 
         socket.on("disconnect", async () => {
             player.x = players[player_id].x;
             player.y = players[player_id].y;
             await player.save();
+            clearInterval(updateLoop);
             delete players[player_id];
             console.log("disconnected");
         })
-
-        let lastUpdate = performance.now();
-        setInterval(() => {
-            const now = performance.now();
-            const dt = now - lastUpdate;
-            tick(dt);
-            lastUpdate = now;
-        }, 1000 / TICK_RATE);
     });
 };
 
@@ -159,6 +160,5 @@ function tick(dt) {
             player.x += horizontalScale * SPEED;
         }
     }
-
     io.emit("players", players);
 }
