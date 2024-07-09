@@ -22,6 +22,7 @@ function App() {
             <Route path="/home" element={isAuth? <HomePage />: <Navigate to="/" />} /> 
             <Route path="/settings" element={isAuth? <SettingsPage />: <Navigate to="/" />} />
             <Route path="/game" element={isAuth? <GameRoute/>: <Navigate to="/" />} />
+            <Route path="*" element={<Navigate to="/" />}/>
           </Routes>
         </ThemeProvider>
       </BrowserRouter>
