@@ -2,24 +2,31 @@ import { Box, paperClasses } from "@mui/material";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { clamp } from "../../utils";
 import io from "socket.io-client";
+import { Debugger } from "../../components/Debugger";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 export const GamePage = () => {
     const MAX_CANVAS_SIZE = {width: 1600, height: 900};
     const MIN_CANVAS_SIZE = {width: 800, height: 450};
-    const ZOOM = 2;
     const socketRef = useRef(null);
     const canvasRef = useRef(null);
     const token = useSelector((state) => state.token);
     const navigate = useNavigate();
-    const [screenSize, setScreenSize] = useState(
-                            {width: clamp(window.innerWidth, MIN_CANVAS_SIZE.width, MAX_CANVAS_SIZE.width), 
-                            height: clamp(window.innerHeight, MIN_CANVAS_SIZE.height, MAX_CANVAS_SIZE.height)});
+    // const [screenSize, setScreenSize] = useState(
+    //                         {width: clamp(window.innerWidth, MIN_CANVAS_SIZE.width, MAX_CANVAS_SIZE.width), 
+    //                         height: clamp(window.innerHeight, MIN_CANVAS_SIZE.height, MAX_CANVAS_SIZE.height)});
+    const screenSize = {width: clamp(window.innerWidth, MIN_CANVAS_SIZE.width, MAX_CANVAS_SIZE.width), 
+                        height: clamp(window.innerHeight, MIN_CANVAS_SIZE.height, MAX_CANVAS_SIZE.height)};
 
     useEffect(() => {
-        const handleResize = () => setScreenSize(
-                                    {width: clamp(window.innerWidth, MIN_CANVAS_SIZE.width, MAX_CANVAS_SIZE.width), 
-                                    height: clamp(window.innerHeight, MIN_CANVAS_SIZE.height, MAX_CANVAS_SIZE.height)});
+        const handleResize = () => {
+            // setScreenSize(
+            //     {width: clamp(window.innerWidth, MIN_CANVAS_SIZE.width, MAX_CANVAS_SIZE.width), 
+            //     height: clamp(window.innerHeight, MIN_CANVAS_SIZE.height, MAX_CANVAS_SIZE.height)});
+            screenSize.width = clamp(window.innerWidth, MIN_CANVAS_SIZE.width, MAX_CANVAS_SIZE.width);
+            screenSize.height = clamp(window.innerHeight, MIN_CANVAS_SIZE.height, MAX_CANVAS_SIZE.height)
+            worker.postMessage({type:"resize", payload: screenSize});
+        }
         window.addEventListener('resize', handleResize, true);
 
         socketRef.current = io({
@@ -68,8 +75,18 @@ export const GamePage = () => {
                                         players,
                                         id
                                     }) => {
-            const current_chunk = {x: parseInt(players[id].x / (tile_size * chunk_size)) * chunk_size, y: parseInt(players[id].y / (tile_size *chunk_size)) * chunk_size}
-            let chunks = null;
+            worker.postMessage({type:"init", payload: {
+                tile_size, 
+                chunk_size,
+                mapWidth,
+                mapHeight, 
+                gidToTilesetMap,
+                players,
+                id
+            }});
+
+            const current_chunk = {x: parseInt(players[id].x / (tile_size * chunk_size)) * chunk_size, 
+                y: parseInt(players[id].y / (tile_size *chunk_size)) * chunk_size}
             const get_visible_chunks = (current_chunk) => {
                 
                 const chunks = [];
@@ -84,11 +101,10 @@ export const GamePage = () => {
             const visible_chunks = get_visible_chunks(current_chunk);
             socketRef.current.emit("req_chunks", visible_chunks);
             socketRef.current.on("resp_chunks", (requested_chunks) => {
-                chunks = requested_chunks;
+                worker.postMessage({type: "chunks", payload: requested_chunks});
             });
             socketRef.current.on("players", (updated_players) => {
-                players = updated_players;
-                worker.postMessage({type: "players", payload: players});
+                worker.postMessage({type: "players", payload: updated_players});
                 //TODO: dont just replace? maybe can be costly if more players
             })
 
@@ -101,6 +117,8 @@ export const GamePage = () => {
             window.removeEventListener('keyup', handleKeyup);
             window.removeEventListener('blur', handleBlur);
             window.removeEventListener('contextmenu', handleRightClick);
+            worker.postMessage({type:"terminate"}); //not sure if this is necessary
+            worker.terminate();
             socketRef.current.disconnect();
         }
     }, []);

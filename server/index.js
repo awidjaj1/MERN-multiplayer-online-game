@@ -102,7 +102,7 @@ async function main() {
             });
 
         socket.on("req_chunks", (chunks) => {
-            const requested_chunks = chunks.map(({x,y}) => getChunk(x,y));
+            const requested_chunks = chunks.map(({x,y}) => {return {x: x*tile_size, y: y*tile_size, chunk: getChunk(x,y)}});
             socket.emit("resp_chunks", requested_chunks);
         });
 
