@@ -4,6 +4,7 @@
 
 let chunks;
 let players;
+let camera = {};
 let tile_size;
 let chunk_size;
 let mapWidth;
@@ -28,6 +29,8 @@ onmessage = (e) => {
             break;
         case "players":
             players = e.data.payload;
+            camera.x = clamp(players[id].x - canvas.width/2,0,mapWidth - canvas.width);
+            camera.y = clamp(players[id].y - canvas.height/2,0, mapHeight - canvas.height);
             break;
         case "chunks":
             chunks = e.data.payload;
@@ -35,6 +38,8 @@ onmessage = (e) => {
         case "canvas":
             canvas = e.data.payload;
             ctx = canvas.getContext("2d");
+            ctx.imageSmoothingEnabled = false;
+            ctx.textAlign = "center";
             break;
         case "init":
             players = e.data.payload.players;
@@ -44,10 +49,9 @@ onmessage = (e) => {
             mapHeight = e.data.payload.mapHeight;
             gidToTilesetMap = e.data.payload.gidToTilesetMap;
             id = e.data.payload.id;
-            ctx.imageSmoothingEnabled = false;
             const __dir = "/server/public/assets/game/tilesets/";
-            const camera = {x: clamp(players[id].x - canvas.width/2,0,mapWidth - canvas.width), 
-                y: clamp(players[id].y - canvas.height/2,0, mapHeight - canvas.height) };
+            camera.x = clamp(players[id].x - canvas.width/2,0,mapWidth - canvas.width);
+            camera.y = clamp(players[id].y - canvas.height/2,0, mapHeight - canvas.height);
             const getImageFromGid = (function (){
                 const keys = Object.keys(gidToTilesetMap).map((key) => parseInt(key)).sort((a,b) => b - a);
                 return (gid) => {
@@ -93,7 +97,10 @@ onmessage = (e) => {
                 }
                 ctx.fillStyle = "black";
                 for(const player_id in players){
-                    ctx.fillRect((players[player_id].x - camera.x), (players[player_id].y - camera.y), 16, 16);
+                    ctx.fillRect((players[player_id].x - camera.x), (players[player_id].y - camera.y), tile_size, tile_size);
+                    ctx.fillText(`lvl.${players[player_id].level} ${players[player_id].username}`, 
+                        (players[player_id].x - camera.x) + tile_size/2, 
+                        (players[player_id].y - camera.y) + tile_size*2)
                 }
             }
             const main_loop = () => {
