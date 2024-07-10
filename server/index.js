@@ -152,12 +152,12 @@ function tick(dt) {
             horizontalScale = dt;
         
         if(verticalScale && horizontalScale){
-            player.x += horizontalScale * SPEED * Math.SQRT1_2;
-            player.y += verticalScale * SPEED * Math.SQRT1_2;
+            player.x += Math.round(horizontalScale * SPEED * Math.SQRT1_2);
+            player.y += Math.round(verticalScale * SPEED * Math.SQRT1_2);
         }else if(verticalScale){
-            player.y += verticalScale * SPEED;
+            player.y += Math.round(verticalScale * SPEED);
         }else if(horizontalScale){
-            player.x += horizontalScale * SPEED;
+            player.x += Math.round(horizontalScale * SPEED);
         }
     }
     io.emit("players", players);
