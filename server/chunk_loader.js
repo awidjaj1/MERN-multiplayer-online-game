@@ -19,7 +19,7 @@ export async function load_chunks() {
                     acc[chunk.x] = {[chunk.y]: chunk.data};
                 return acc;
             }, {}));
-        const gidToTilesetMap = (await Promise.all(map.tilesets.map(async ({firstgid, source}) => {
+        const {gidToTilesetMap, specialTiles} = (await Promise.all(map.tilesets.map(async ({firstgid, source}) => {
             const data = await readFile(`${__dir}/${source}`);
             const tileset = JSON.parse(data);
             const tiles = tileset.tiles.map((tile) => {
@@ -43,9 +43,10 @@ export async function load_chunks() {
             }, {});
             return {firstgid, src: tileset.image, hitboxes: tiles, columns: tileset.columns};
         }))).reduce((acc, {firstgid, src, hitboxes, columns}) => {
-            acc[firstgid] = {src, hitboxes, columns};
+            acc.gidToTilesetMap[firstgid] = {src, columns};
+            Object.assign(acc.specialTiles, hitboxes);
             return acc;
-        }, {});
+        }, {gidToTilesetMap: {}, specialTiles: {}});
     
         const getChunk = (function  (){
             const chunks = {}
@@ -57,8 +58,10 @@ export async function load_chunks() {
                 return chunks[x][y];
             };
         })();
-        return {tile_size, chunk_size, mapWidth, mapHeight, getChunk, gidToTilesetMap};
+        return {tile_size, chunk_size, mapWidth, mapHeight, getChunk, gidToTilesetMap, specialTiles};
     } catch(err){
         return console.error(`Error encountered when trying to load chunks: ${err}`);
     }
 };
+
+console.log((await load_chunks()).specialTiles);

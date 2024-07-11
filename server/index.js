@@ -136,14 +136,16 @@ async function main() {
             const tile = {x: Math.floor(player.x/16) * 16, y: Math.floor(player.y/16) * 16};
             const chunkX = Math.floor(tile.x/64);
             const chunkY = Math.floor(tile.y/64);
-            const chunk = get_chunk(chunkX, chunkY);
+            const chunk = getChunk(chunkX, chunkY);
             const tileX = (tile.x - chunkX * 16) / 16;
             const tileY = (tile.y - chunkY * 16) / 16;
             const possible_tiles = [
                 chunk[tileY * 64 + tileX], chunk[tileY * 64 + tileX + 1],
                 chunk[(tileY + 1)*64 + tileX], chunk[(tileY + 1)*64 + tileX + 1]
             ];
-            console.log(possible_tiles);
+            for(const possible_tile in possible_tiles){
+                gidToTilesetMap(possible_tile)
+            }
     
     
     
