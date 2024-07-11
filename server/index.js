@@ -116,49 +116,67 @@ async function main() {
                 inputs[key] = false;
         });
 
-        let lastUpdate = Date.now();
-        const updateLoop = setInterval(() => {
-            const now = Date.now();
-            const dt = now - lastUpdate;
-            tick(dt);
-            lastUpdate = now;
-        }, 1000 / TICK_RATE);
-
         socket.on("disconnect", async () => {
             player.x = players[player_id].x;
             player.y = players[player_id].y;
             await player.save();
-            clearInterval(updateLoop);
+            // clearInterval(updateLoop);
             delete players[player_id];
             console.log("disconnected");
-        })
+        });
     });
-};
 
-function tick(dt) {
-    for(const player_id in players){
-        const player = players[player_id];
-        const inputs = inputHandler[player_id];
-        let verticalScale = 0;
-        let horizontalScale = 0;
-        if(inputs.w)
-            verticalScale = -dt;
-        else if(inputs.s)
-            verticalScale = dt;
-
-        if(inputs.a)
-            horizontalScale = -dt;
-        else if(inputs.d)
-            horizontalScale = dt;
-        
-        if(verticalScale && horizontalScale){
-            player.x += Math.round(horizontalScale * SPEED * Math.SQRT1_2);
-            player.y += Math.round(verticalScale * SPEED * Math.SQRT1_2);
-        }else if(verticalScale){
-            player.y += Math.round(verticalScale * SPEED);
-        }else if(horizontalScale){
-            player.x += Math.round(horizontalScale * SPEED);
+    const tick = (dt) => {
+        console.log(dt * 1000);
+        for(const player_id in players){
+            const player = players[player_id];
+            const prevX = player.x;
+            const prevY = player.y;
+    
+            const tile = {x: Math.floor(player.x/16) * 16, y: Math.floor(player.y/16) * 16};
+            const chunkX = Math.floor(tile.x/64);
+            const chunkY = Math.floor(tile.y/64);
+            const chunk = get_chunk(chunkX, chunkY);
+            const tileX = (tile.x - chunkX * 16) / 16;
+            const tileY = (tile.y - chunkY * 16) / 16;
+            const possible_tiles = [
+                chunk[tileY * 64 + tileX], chunk[tileY * 64 + tileX + 1],
+                chunk[(tileY + 1)*64 + tileX], chunk[(tileY + 1)*64 + tileX + 1]
+            ];
+            console.log(possible_tiles);
+    
+    
+    
+            const inputs = inputHandler[player_id];
+            let verticalScale = 0;
+            let horizontalScale = 0;
+            if(inputs.w)
+                verticalScale = -dt;
+            else if(inputs.s)
+                verticalScale = dt;
+    
+            if(inputs.a)
+                horizontalScale = -dt;
+            else if(inputs.d)
+                horizontalScale = dt;
+            
+            if(verticalScale && horizontalScale){
+                player.x += Math.round(horizontalScale * SPEED * Math.SQRT1_2);
+                player.y += Math.round(verticalScale * SPEED * Math.SQRT1_2);
+            }else if(verticalScale){
+                player.y += Math.round(verticalScale * SPEED);
+            }else if(horizontalScale){
+                player.x += Math.round(horizontalScale * SPEED);
+            }
         }
+        io.emit("players", players);
     }
-    io.emit("players", players);
-}
+
+    let lastUpdate = Date.now();
+    const updateLoop = setInterval(() => {
+        const now = Date.now();
+        const dt = now - lastUpdate;
+        tick(dt);
+        lastUpdate = now;
+    }, 1000 / TICK_RATE);
+};
