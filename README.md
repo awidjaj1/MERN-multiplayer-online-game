@@ -21,6 +21,9 @@ Uses MUI for the theme and React to maintain state. Global state is maintained v
 ## Authentication
 Uses JSON web tokens where the unique id is the id used by the database. Currently JWT is stored client-side in the local storage, which I've heard some people say is okay and others say is not okay. Open to suggestions.
 
+## Database
+Uses Atlas's free cluster. On user disconnect, player meta data is saved to the database. Plan to have timed updates as well (like update every 30 minutes, which would reduce the damage caused by a server failure).
+
 ## Asset storage
 Uploaded profile pictures and game assets are stored in the server directory. If deployed, it would probably be best to store uploaded profile pictures to some cloud storage.
 
