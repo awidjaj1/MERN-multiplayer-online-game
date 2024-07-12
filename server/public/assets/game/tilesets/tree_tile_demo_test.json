@@ -1,0 +1,14 @@
+{ "columns":1,
+ "image":"tree_tile_demo.png",
+ "imageheight":32,
+ "imagewidth":32,
+ "margin":0,
+ "name":"tree_tile_demo_test",
+ "spacing":0,
+ "tilecount":1,
+ "tiledversion":"1.10.2",
+ "tileheight":32,
+ "tilewidth":32,
+ "type":"tileset",
+ "version":"1.10"
+}

@@ -18,8 +18,8 @@ const httpServer = createServer(app);
 const io = new Server(httpServer);
 const PORT = process.env.PORT || 5000;
 const __dirname = import.meta.dirname;
-const TICK_RATE = 60;
-const SPEED = 0.2;
+const TICK_RATE = 70;
+const SPEED = 0.35;
 const players = {};
 const inputHandler = {};
 
@@ -55,9 +55,16 @@ mongoose
     .then(() => httpServer.listen(PORT, main))
     .catch((err) => console.error(`${err} did not connect`));
 
+function isColliding(offsetX, offsetY, rect1, rect2){
+    return rect1.x + offsetX < rect2.x + rect2.width &&
+        rect1.x + offsetX + rect1.width > rect2.x &&
+        rect1.y + offsetY < rect2.y + rect2.height &&
+        rect1.y + offsetY + rect1.height > rect2.y;
+}
+
 async function main() {
     console.log(`Listening to ${PORT}`);
-    const {tile_size, chunk_size, mapWidth, mapHeight, getChunk, gidToTilesetMap} = await load_chunks();
+    const {tile_size, chunk_size, mapWidth, mapHeight, getChunk, gidToTilesetMap, specialTiles} = await load_chunks();
 
     io.engine.use(helmet());
     io.use(verifyTokenIO);
@@ -127,27 +134,10 @@ async function main() {
     });
 
     const tick = (dt) => {
-        console.log(dt * 1000);
         for(const player_id in players){
             const player = players[player_id];
             const prevX = player.x;
             const prevY = player.y;
-    
-            const tile = {x: Math.floor(player.x/16) * 16, y: Math.floor(player.y/16) * 16};
-            const chunkX = Math.floor(tile.x/64);
-            const chunkY = Math.floor(tile.y/64);
-            const chunk = getChunk(chunkX, chunkY);
-            const tileX = (tile.x - chunkX * 16) / 16;
-            const tileY = (tile.y - chunkY * 16) / 16;
-            const possible_tiles = [
-                chunk[tileY * 64 + tileX], chunk[tileY * 64 + tileX + 1],
-                chunk[(tileY + 1)*64 + tileX], chunk[(tileY + 1)*64 + tileX + 1]
-            ];
-            for(const possible_tile in possible_tiles){
-                gidToTilesetMap(possible_tile)
-            }
-    
-    
     
             const inputs = inputHandler[player_id];
             let verticalScale = 0;
@@ -169,6 +159,35 @@ async function main() {
                 player.y += Math.round(verticalScale * SPEED);
             }else if(horizontalScale){
                 player.x += Math.round(horizontalScale * SPEED);
+            }
+            
+            const playerHitbox = {x: player.x, y: player.y, width: tile_size, height: tile_size};
+            const tile = {x: Math.floor(player.x/tile_size) * tile_size, y: Math.floor(player.y/tile_size) * tile_size};
+            const chunkX = Math.floor(tile.x/(chunk_size*tile_size)) * chunk_size;
+            const chunkY = Math.floor(tile.y/(chunk_size*tile_size)) * chunk_size;
+            const chunk = getChunk(chunkX, chunkY);
+            const tileX = (tile.x - chunkX * tile_size) / tile_size;
+            const tileY = (tile.y - chunkY * tile_size) / tile_size;
+            const possible_tiles = chunk.map((layer) => {
+                if(!layer) return null;
+                return [
+                    {gid:layer[tileY * chunk_size + tileX], x: tile.x, y: tile.y}, {gid:layer[tileY * chunk_size + tileX + 1], x:tile.x+tile_size, y:tile.y},
+                    {gid:layer[(tileY + 1)*chunk_size + tileX], x:tile.x, y:tile.y+tile_size}, {gid:layer[(tileY + 1)*chunk_size + tileX + 1], x:tile.x+tile_size, y:tile.y+tile_size}
+                ];
+            });
+
+            for(const layer of possible_tiles){
+                if(!layer)
+                    continue;
+                for(const possible_tile of layer){
+                    if(specialTiles[possible_tile.gid]){
+                        if(specialTiles[possible_tile.gid].some((special_tile) => isColliding(possible_tile.x, possible_tile.y, special_tile.hitbox, playerHitbox))){
+                            player.x = prevX;
+                            player.y = prevY;
+                            return;
+                        }
+                    }
+                }
             }
         }
         io.emit("players", players);

@@ -25,26 +25,26 @@ export async function load_chunks() {
             const tiles = tileset.tiles.map((tile) => {
                 let hitboxes = null;
                 if (tile.objectgroup){
-                    hitboxes = tile.objectgroup.objects.map(({polygon, x, y, properties}) => {
-                            const new_polygon = polygon.map(({x:poly_x, y:poly_y}) => {return {x: poly_x + x, y: poly_y + y}})
+                    hitboxes = tile.objectgroup.objects.map(({x, y, width, height, properties}) => {
                             const new_properties = (properties && 
                                 properties.reduce((acc, prop) => {
                                     acc[prop.name] = prop.value;
                                     return acc;
                                 }, {})) || {};
-                            return { polygon: new_polygon, properties: new_properties}
+                            const hitbox = {x, y, width, height}
+                            return { hitbox , properties: new_properties}
                         });
                 }
-                return {id: tile.id, hitboxes}
+                return {gid: tile.id + firstgid, hitboxes}
             }).reduce((acc, tile) => {
                 if(tile.hitboxes)
-                    acc[tile.id] = tile.hitboxes;
+                    acc[tile.gid] = tile.hitboxes;
                 return acc;
             }, {});
-            return {firstgid, src: tileset.image, hitboxes: tiles, columns: tileset.columns};
-        }))).reduce((acc, {firstgid, src, hitboxes, columns}) => {
+            return {firstgid, src: tileset.image, specialTiles: tiles, columns: tileset.columns};
+        }))).reduce((acc, {firstgid, src, specialTiles, columns}) => {
             acc.gidToTilesetMap[firstgid] = {src, columns};
-            Object.assign(acc.specialTiles, hitboxes);
+            Object.assign(acc.specialTiles, specialTiles);
             return acc;
         }, {gidToTilesetMap: {}, specialTiles: {}});
     
@@ -64,4 +64,4 @@ export async function load_chunks() {
     }
 };
 
-console.log((await load_chunks()).specialTiles);
+// console.log((await load_chunks()));
