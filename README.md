@@ -34,7 +34,7 @@ I drew the tiles myself using Aseprite and created the map using Tiled. Terrains
 Since I want the map to be arbitrarily large (but reasonable enough to fit in the server's memory), I send the client chunks on a need-to-know basis. Currently the client keeps track of what chunk it's on and the 8 surrounding chunks. Once the client moves off its chunk, it requests for more chunks. This can be optimized.
 
 ## Collision detection
-Originally the plan was to use a quadtree for both dynamic and static collision detection, but after some more thought I decided to use grids. Grids are easier to code and maintain, also I feel like since the map is already stored as a grid I can use that for static collisions and then use another grid (with bigger cells) for dynamic collisions.
+Originally the plan was to use a quadtree for both dynamic and static collision detection, but after some more thought I decided to use grids. Grids are easier to code and maintain, also I feel like since the map is already stored as a grid I can use that for static collisions and then use another grid (with bigger cells) for dynamic collisions. Also, originally I had uses convex polygons to outlined the collision boundaries in Tiled, but then I swapped to rectangular hitboxes because I'm not sure if SAT would be too "heavy" and (multiple) rectangular hitboxes are good enough for now.
 
 ## Gameplay/Story
 Not yet decided. But I hope to make it so that users can kill enemies or other players for gold, and then use that gold to purchase gear and weapons.
