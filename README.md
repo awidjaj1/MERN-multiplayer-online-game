@@ -13,7 +13,7 @@ Uses HTML canvas in a webworker because otherwise rendering slows down the main 
 Uses socket io web sockets.
 
 ## API calls
-Uses Express routes.
+Uses Express routes and middleware. There is a catch-all route that returns index.html to ensure that no undesired resource is reached and because the app is a single page application, where client-side routes are handled by React router.
 
 ## UI Design and Style
 Uses MUI for the theme and React to maintain state. Global state is maintained via React redux persist. This allows users to persist their login state if they dont log out.
