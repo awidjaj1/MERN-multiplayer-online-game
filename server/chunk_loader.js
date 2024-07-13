@@ -41,9 +41,9 @@ export async function load_chunks() {
                     acc[tile.gid] = tile.hitboxes;
                 return acc;
             }, {});
-            return {firstgid, src: tileset.image, specialTiles: tiles, columns: tileset.columns};
-        }))).reduce((acc, {firstgid, src, specialTiles, columns}) => {
-            acc.gidToTilesetMap[firstgid] = {src, columns};
+            return {firstgid, src: tileset.image, specialTiles: tiles, columns: tileset.columns, tileHeight: tileset.tileheight, tileWidth: tileset.tilewidth};
+        }))).reduce((acc, {firstgid, src, specialTiles, columns, tileHeight, tileWidth}) => {
+            acc.gidToTilesetMap[firstgid] = {src, columns, tileHeight, tileWidth};
             Object.assign(acc.specialTiles, specialTiles);
             return acc;
         }, {gidToTilesetMap: {}, specialTiles: {}});
@@ -64,4 +64,4 @@ export async function load_chunks() {
     }
 };
 
-// console.log((await load_chunks()).specialTiles['70']);
+console.log((await load_chunks()));

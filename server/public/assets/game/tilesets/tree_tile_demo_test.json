@@ -1,9 +1,9 @@
 { "columns":1,
  "grid":
     {
-     "height":32,
+     "height":16,
      "orientation":"orthogonal",
-     "width":32
+     "width":16
     },
  "image":"tree_tile_demo.png",
  "imageheight":48,
@@ -14,6 +14,11 @@
  "tilecount":1,
  "tiledversion":"1.10.2",
  "tileheight":48,
+ "tileoffset":
+    {
+     "x":-16,
+     "y":0
+    },
  "tiles":[
         {
          "id":0,
@@ -32,7 +37,7 @@
                      "visible":true,
                      "width":11.6363636363636,
                      "x":10.6363636363636,
-                     "y":32.9090909090909
+                     "y":33
                     }],
              "opacity":1,
              "type":"objectgroup",
