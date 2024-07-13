@@ -55,13 +55,6 @@ mongoose
     .then(() => httpServer.listen(PORT, main))
     .catch((err) => console.error(`${err} did not connect`));
 
-function isColliding(offsetX, offsetY, rect1, rect2){
-    return rect1.x + offsetX < rect2.x + rect2.width &&
-        rect1.x + offsetX + rect1.width > rect2.x &&
-        rect1.y + offsetY < rect2.y + rect2.height &&
-        rect1.y + offsetY + rect1.height > rect2.y;
-}
-
 
 async function main() {
     console.log(`Listening to ${PORT}`);
@@ -143,6 +136,12 @@ async function main() {
         });
     });
 
+    function isColliding(offsetX, offsetY, rect1, rect2){
+        return rect1.x + offsetX < rect2.x + rect2.width &&
+            rect1.x + offsetX + rect1.width > rect2.x &&
+            rect1.y + offsetY < rect2.y + rect2.height &&
+            rect1.y + offsetY + rect1.height > rect2.y;
+    }
     const checkCollision = (playerHitbox, possible_tiles, possible_tiles_ids) => {
         for(const i in possible_tiles){
             const {x,y} = possible_tiles[i];
@@ -163,8 +162,7 @@ async function main() {
             const player = players[player_id];
             let newX = player.x;
             let newY = player.y;
-            
-    
+
             const inputs = inputHandler[player_id];
             let verticalScale = 0;
             let horizontalScale = 0;
@@ -194,9 +192,7 @@ async function main() {
                 }
             }
             const possible_tiles_ids = possible_tiles.map(({x,y}) => get_tiles(x,y));
-
             const attemptedHitboxes = [{x:newX,y:newY,width:tile_size,height:tile_size}];
-
             if(verticalScale && horizontalScale)
                 attemptedHitboxes.push({x:newX,y:player.y,width:tile_size,height:tile_size},
                     {x:player.x,y:newY,width:tile_size,height:tile_size});
