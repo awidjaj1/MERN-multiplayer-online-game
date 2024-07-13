@@ -62,9 +62,19 @@ function isColliding(offsetX, offsetY, rect1, rect2){
         rect1.y + offsetY + rect1.height > rect2.y;
 }
 
+
 async function main() {
     console.log(`Listening to ${PORT}`);
     const {tile_size, chunk_size, mapWidth, mapHeight, getChunk, gidToTilesetMap, specialTiles} = await load_chunks();
+    const get_tiles = (x,y) => {
+        const tileX = x / tile_size;
+        const tileY = y / tile_size;
+        const chunkX = Math.floor(tileX / chunk_size) * chunk_size;
+        const chunkY = Math.floor(tileY / chunk_size) * chunk_size;
+        const chunk = getChunk(chunkX, chunkY);
+        const tiles = chunk.map((layer) => layer && layer[chunk_size * (tileY % chunk_size) + (tileX % chunk_size)]);
+        return tiles;
+    }
 
     io.engine.use(helmet());
     io.use(verifyTokenIO);
@@ -133,11 +143,27 @@ async function main() {
         });
     });
 
+    const checkCollision = (playerHitbox, possible_tiles, possible_tiles_ids) => {
+        for(const i in possible_tiles){
+            const {x,y} = possible_tiles[i];
+            const tile_ids = possible_tiles_ids[i];
+            for(const tile_id of tile_ids){
+                if(specialTiles[tile_id]){
+                    if(specialTiles[tile_id].some(({hitbox}) => isColliding(x,y,hitbox, playerHitbox))){
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
     const tick = (dt) => {
         for(const player_id in players){
             const player = players[player_id];
-            const prevX = player.x;
-            const prevY = player.y;
+            let newX = player.x;
+            let newY = player.y;
+            
     
             const inputs = inputHandler[player_id];
             let verticalScale = 0;
@@ -153,42 +179,44 @@ async function main() {
                 horizontalScale = dt;
             
             if(verticalScale && horizontalScale){
-                player.x += Math.round(horizontalScale * SPEED * Math.SQRT1_2);
-                player.y += Math.round(verticalScale * SPEED * Math.SQRT1_2);
-            }else if(verticalScale){
-                player.y += Math.round(verticalScale * SPEED);
-            }else if(horizontalScale){
-                player.x += Math.round(horizontalScale * SPEED);
+                newX += Math.round(horizontalScale * SPEED * Math.SQRT1_2);
+                newY += Math.round(verticalScale * SPEED * Math.SQRT1_2);
+            }else{
+                newY += Math.round(verticalScale * SPEED);
+                newX += Math.round(horizontalScale * SPEED);
             }
-            
-            const playerHitbox = {x: player.x, y: player.y, width: tile_size, height: tile_size};
-            const tile = {x: Math.floor(player.x/tile_size) * tile_size, y: Math.floor(player.y/tile_size) * tile_size};
-            const chunkX = Math.floor(tile.x/(chunk_size*tile_size)) * chunk_size;
-            const chunkY = Math.floor(tile.y/(chunk_size*tile_size)) * chunk_size;
-            const chunk = getChunk(chunkX, chunkY);
-            const tileX = (tile.x - chunkX * tile_size) / tile_size;
-            const tileY = (tile.y - chunkY * tile_size) / tile_size;
-            const possible_tiles = chunk.map((layer) => {
-                if(!layer) return null;
-                return [
-                    {gid:layer[tileY * chunk_size + tileX], x: tile.x, y: tile.y}, {gid:layer[tileY * chunk_size + tileX + 1], x:tile.x+tile_size, y:tile.y},
-                    {gid:layer[(tileY + 1)*chunk_size + tileX], x:tile.x, y:tile.y+tile_size}, {gid:layer[(tileY + 1)*chunk_size + tileX + 1], x:tile.x+tile_size, y:tile.y+tile_size}
-                ];
-            });
 
-            for(const layer of possible_tiles){
-                if(!layer)
-                    continue;
-                for(const possible_tile of layer){
-                    if(specialTiles[possible_tile.gid]){
-                        if(specialTiles[possible_tile.gid].some((special_tile) => isColliding(possible_tile.x, possible_tile.y, special_tile.hitbox, playerHitbox))){
-                            player.x = prevX;
-                            player.y = prevY;
-                            return;
-                        }
-                    }
+            const attemptedHitboxes = [{x:newX,y:newY,width:tile_size,height:tile_size}, 
+                {x:newX,y:player.y,width:tile_size,height:tile_size},
+                {x:player.x,y:newY,width:tile_size,height:tile_size}
+            ];
+            const tile = {x: Math.floor(newX/tile_size) * tile_size, y: Math.floor(newY/tile_size) * tile_size};
+            const possible_tiles = [];
+            for(let scaleX=-1; scaleX<=1; scaleX++){
+                for(let scaleY=-1; scaleY<=1; scaleY++){
+                    possible_tiles.push({x:tile.x + scaleX*tile_size, y:tile.y + scaleY*tile_size});
                 }
             }
+            const possible_tiles_ids = possible_tiles.map(({x,y}) => get_tiles(x,y));
+
+            newX = player.x;
+            newY = player.y;
+            if(verticalScale && horizontalScale){
+                for(const playerHitbox of attemptedHitboxes){
+                    if(checkCollision(playerHitbox, possible_tiles, possible_tiles_ids)){
+                        newX = playerHitbox.x;
+                        newY = playerHitbox.y;
+                        break;
+                    }
+                }
+            }else{
+                if(checkCollision(attemptedHitboxes[0], possible_tiles, possible_tiles_ids)){
+                    newX = attemptedHitboxes[0].x;
+                    newY = attemptedHitboxes[0].y;
+                }
+            }
+            player.x = newX;
+            player.y = newY;
         }
         io.emit("players", players);
     }
