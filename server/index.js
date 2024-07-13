@@ -185,11 +185,7 @@ async function main() {
                 newY += Math.round(verticalScale * SPEED);
                 newX += Math.round(horizontalScale * SPEED);
             }
-
-            const attemptedHitboxes = [{x:newX,y:newY,width:tile_size,height:tile_size}, 
-                {x:newX,y:player.y,width:tile_size,height:tile_size},
-                {x:player.x,y:newY,width:tile_size,height:tile_size}
-            ];
+            
             const tile = {x: Math.floor(newX/tile_size) * tile_size, y: Math.floor(newY/tile_size) * tile_size};
             const possible_tiles = [];
             for(let scaleX=-1; scaleX<=1; scaleX++){
@@ -199,20 +195,19 @@ async function main() {
             }
             const possible_tiles_ids = possible_tiles.map(({x,y}) => get_tiles(x,y));
 
+            const attemptedHitboxes = [{x:newX,y:newY,width:tile_size,height:tile_size}];
+
+            if(verticalScale && horizontalScale)
+                attemptedHitboxes.push({x:newX,y:player.y,width:tile_size,height:tile_size},
+                    {x:player.x,y:newY,width:tile_size,height:tile_size});
             newX = player.x;
             newY = player.y;
-            if(verticalScale && horizontalScale){
-                for(const playerHitbox of attemptedHitboxes){
-                    if(checkCollision(playerHitbox, possible_tiles, possible_tiles_ids)){
-                        newX = playerHitbox.x;
-                        newY = playerHitbox.y;
-                        break;
-                    }
-                }
-            }else{
-                if(checkCollision(attemptedHitboxes[0], possible_tiles, possible_tiles_ids)){
-                    newX = attemptedHitboxes[0].x;
-                    newY = attemptedHitboxes[0].y;
+
+            for(const playerHitbox of attemptedHitboxes){
+                if(checkCollision(playerHitbox, possible_tiles, possible_tiles_ids)){
+                    newX = playerHitbox.x;
+                    newY = playerHitbox.y;
+                    break;
                 }
             }
             player.x = newX;
