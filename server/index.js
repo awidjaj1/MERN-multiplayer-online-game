@@ -58,7 +58,7 @@ mongoose
 
 async function main() {
     console.log(`Listening to ${PORT}`);
-    const {tile_size, chunk_size, mapWidth, mapHeight, getChunk, gidToTilesetMap, specialTiles} = await load_chunks();
+    const {tile_size, chunk_size, mapWidth, mapHeight, getChunk, gidToTilesetMap, specialTiles, num_layers} = await load_chunks();
     const get_tiles = (x,y) => {
         const tileX = x / tile_size;
         const tileY = y / tile_size;
@@ -91,7 +91,8 @@ async function main() {
             username: player.username, 
             level: player.level, 
             x: player.x, 
-            y: player.y
+            y: player.y,
+            elevation: 0,
         } 
         inputHandler[player_id] = {
             up: false,
@@ -104,6 +105,7 @@ async function main() {
             {
                 tile_size, 
                 chunk_size,
+                num_layers,
                 mapWidth,
                 mapHeight, 
                 gidToTilesetMap,
@@ -112,8 +114,27 @@ async function main() {
             });
 
         socket.on("req_chunks", (chunks) => {
-            const requested_chunks = chunks.map(({x,y}) => {return {x: x*tile_size, y: y*tile_size, chunk: getChunk(x,y)}});
-            socket.emit("resp_chunks", requested_chunks);
+            const requested_chunks = chunks.map(({x,y}) => getChunk(x,y));
+            const layers = [];
+            for(let i=0; i<num_layers; i++){
+                let layer = [];
+                for(let j=0; j<3; j++){
+                    for(let row=0; row < chunk_size; row++){
+                        for(let k=0; k<3; k++){
+                            const chunk = requested_chunks[j*3 + k][i];
+                            if(!chunk){
+                                //null indicates an empty row; i.e. 64 empty tiles in a row
+                                layer.push(null);
+                                continue;
+                            }
+                            const chunk_row = chunk.slice(row*chunk_size, (row+1)*chunk_size);
+                            layer = layer.concat(chunk_row);
+                        }
+                    }
+                }
+                layers.push(layer);
+            }
+            socket.emit("resp_chunks", {layers, layerX: chunks[0].x*tile_size, layerY: chunks[0].y*tile_size});
         });
 
         socket.on("keydown", (key) => {
@@ -135,7 +156,16 @@ async function main() {
             console.log("disconnected");
         });
     });
-
+    const getFirstGid = (function (){
+        const keys = Object.keys(gidToTilesetMap).map((key) => parseInt(key)).sort((a,b) => b - a);
+        return (gid) => {
+            //TODO: instead of linear search, can do binary search
+            for (const key of keys) {
+                if (key <= gid) return key;
+            }
+            return null;
+        }
+    })();
     function isColliding(offsetX, offsetY, rect1, rect2){
         return rect1.x + offsetX < rect2.x + rect2.width &&
             rect1.x + offsetX + rect1.width > rect2.x &&
@@ -148,7 +178,13 @@ async function main() {
             const tile_ids = possible_tiles_ids[i];
             for(const tile_id of tile_ids){
                 if(specialTiles[tile_id]){
-                    if(specialTiles[tile_id].some(({hitbox}) => isColliding(x,y,hitbox, playerHitbox))){
+                    const gid = getFirstGid(tile_id);
+                    const tileWidth = gidToTilesetMap[gid].tileWidth;
+                    const tileHeight = gidToTilesetMap[gid].tileHeight;
+                    const offsetX = tile_size - tileWidth;
+                    const offsetY = tile_size - tileHeight;
+                    //tiled gives hitbox coordinates relative to top left corner, but we render based on bottom right corner
+                    if(specialTiles[tile_id].some(({hitbox}) => isColliding(x + offsetX,y + offsetY,hitbox, playerHitbox))){
                         return false;
                     }
                 }

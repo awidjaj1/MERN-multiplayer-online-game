@@ -69,6 +69,7 @@ export const GamePage = () => {
         socketRef.current.on("init", ({
                                         tile_size, 
                                         chunk_size,
+                                        num_layers,
                                         mapWidth,
                                         mapHeight, 
                                         gidToTilesetMap,
@@ -78,6 +79,7 @@ export const GamePage = () => {
             worker.postMessage({type:"init", payload: {
                 tile_size, 
                 chunk_size,
+                num_layers,
                 mapWidth,
                 mapHeight, 
                 gidToTilesetMap,

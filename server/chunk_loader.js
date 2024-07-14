@@ -10,7 +10,8 @@ export async function load_chunks() {
         const tile_size = map.tileheight;
         const mapWidth = map.width * tile_size;
         const mapHeight = map.height * tile_size;
-        const chunk_size = map.layers[0].chunks[0].height;
+        const chunk_size = map.editorsettings.chunksize.height;
+        const num_layers = map.layers.length; 
         const layers = map.layers.map(({chunks}) => 
             chunks.reduce((acc, chunk) => {
                 if(acc[chunk.x])
@@ -58,7 +59,7 @@ export async function load_chunks() {
                 return chunks[x][y];
             };
         })();
-        return {tile_size, chunk_size, mapWidth, mapHeight, getChunk, gidToTilesetMap, specialTiles};
+        return {tile_size, chunk_size, mapWidth, mapHeight, getChunk, gidToTilesetMap, specialTiles, num_layers};
     } catch(err){
         return console.error(`Error encountered when trying to load chunks: ${err}`);
     }
