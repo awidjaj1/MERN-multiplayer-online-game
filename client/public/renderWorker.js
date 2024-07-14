@@ -151,7 +151,10 @@ function render() {
                 //check if we move onto next row of layer
                 layer_dx = 0;
                 layer_dy += tile_size;
+                //TODO: only draw when player in camera
                 while(players_to_draw.length && players[players_to_draw.at(-1)].y < layer_dy + layerY){
+                    //don't have to worry about the case where you have to draw the player before the first row of tiles
+                    //since the first row will always be offscreen anyways
                    const player_id = players_to_draw.pop();
                    ctx.fillRect((players[player_id].x - camera.x), (players[player_id].y - camera.y) - tile_size, tile_size, 2*tile_size);
                     ctx.fillText(`lvl.${players[player_id].level} ${players[player_id].username}`, 
