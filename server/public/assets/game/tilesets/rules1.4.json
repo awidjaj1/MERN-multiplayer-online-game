@@ -56,7 +56,7 @@
          "source":"tileset_demo_full.json"
         }, 
         {
-         "firstgid":131,
+         "firstgid":144,
          "source":":\/automap-tiles.tsx"
         }],
  "tilewidth":16,
