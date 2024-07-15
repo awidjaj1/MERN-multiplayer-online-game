@@ -156,7 +156,7 @@ function render() {
                     //don't have to worry about the case where you have to draw the player before the first row of tiles
                     //since the first row will always be offscreen anyways
                    const player_id = players_to_draw.pop();
-                   ctx.fillRect((players[player_id].x - camera.x), (players[player_id].y - camera.y) - tile_size, tile_size, 2*tile_size);
+                   ctx.fillRect((players[player_id].x - camera.x), (players[player_id].y - camera.y) - 0.5*tile_size, tile_size, 1.5*tile_size);
                     ctx.fillText(`lvl.${players[player_id].level} ${players[player_id].username}`, 
                         (players[player_id].x - camera.x) + tile_size/2, 
                         (players[player_id].y - camera.y) + tile_size*2)

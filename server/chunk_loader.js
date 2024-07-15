@@ -65,4 +65,4 @@ export async function load_chunks() {
     }
 };
 
-console.log((await load_chunks()));
+// console.log((await load_chunks()));
