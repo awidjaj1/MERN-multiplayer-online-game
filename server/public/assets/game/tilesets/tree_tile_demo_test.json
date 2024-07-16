@@ -1,4 +1,4 @@
-{ "columns":1,
+{ "columns":2,
  "grid":
     {
      "height":16,
@@ -7,11 +7,11 @@
     },
  "image":"tree_tile_demo.png",
  "imageheight":48,
- "imagewidth":32,
+ "imagewidth":64,
  "margin":0,
  "name":"tree_tile_demo_test",
  "spacing":0,
- "tilecount":1,
+ "tilecount":2,
  "tiledversion":"1.10.2",
  "tileheight":48,
  "tileoffset":
@@ -32,12 +32,50 @@
                      "height":13.9090909090909,
                      "id":1,
                      "name":"",
+                     "properties":[
+                            {
+                             "name":"type",
+                             "type":"string",
+                             "value":"collision"
+                            }],
                      "rotation":0,
                      "type":"",
                      "visible":true,
                      "width":11.6363636363636,
                      "x":10.6363636363636,
                      "y":33
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "x":0,
+             "y":0
+            }
+        }, 
+        {
+         "id":1,
+         "objectgroup":
+            {
+             "draworder":"index",
+             "id":2,
+             "name":"",
+             "objects":[
+                    {
+                     "height":33,
+                     "id":5,
+                     "name":"",
+                     "properties":[
+                            {
+                             "name":"type",
+                             "type":"string",
+                             "value":"climb"
+                            }],
+                     "rotation":0,
+                     "type":"",
+                     "visible":true,
+                     "width":25,
+                     "x":4,
+                     "y":7
                     }],
              "opacity":1,
              "type":"objectgroup",

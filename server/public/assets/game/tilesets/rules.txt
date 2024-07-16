@@ -1,5 +1,7 @@
 rules1.5.json
+rules1.7.json
 rules1.4.json
 rules1.2.json
 rules1.3.json
 rules1.1.json
+rules1.6.json

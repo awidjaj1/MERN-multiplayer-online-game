@@ -21,6 +21,12 @@
                      "height":5,
                      "id":1,
                      "name":"",
+                     "properties":[
+                            {
+                             "name":"type",
+                             "type":"string",
+                             "value":"collision"
+                            }],
                      "rotation":0,
                      "type":"",
                      "visible":true,

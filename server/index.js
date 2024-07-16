@@ -84,7 +84,7 @@ async function main() {
             level: player.level, 
             x: player.x, 
             y: player.y,
-            elevation: 0,
+            elevation: 1,
         } 
         inputHandler[player_id] = {
             up: false,
