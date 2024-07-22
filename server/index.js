@@ -58,7 +58,7 @@ mongoose
 
 async function main() {
     console.log(`Listening to ${PORT}`);
-    const {tile_size, chunk_size, mapWidth, mapHeight, getChunk, gidToTilesetMap, specialTiles, num_layers} = await load_chunks();
+    const {grid_size, chunk_size, mapWidth, mapHeight, getChunk, gidToTilesetMap, specialTiles, num_layers} = await load_chunks();
 
 
     io.engine.use(helmet());
@@ -84,6 +84,7 @@ async function main() {
             level: player.level, 
             x: player.x, 
             y: player.y,
+            state: "idle",
             elevation: 1,
         } 
         inputHandler[player_id] = {
@@ -95,7 +96,7 @@ async function main() {
         const inputs = inputHandler[player_id];
         socket.emit("init", 
             {
-                tile_size, 
+                grid_size, 
                 chunk_size,
                 num_layers,
                 mapWidth,
@@ -126,7 +127,7 @@ async function main() {
                 }
                 layers.push(layer);
             }
-            socket.emit("resp_chunks", {layers, layerX: chunks[0].x*tile_size, layerY: chunks[0].y*tile_size});
+            socket.emit("resp_chunks", {layers, layerX: chunks[0].x*grid_size, layerY: chunks[0].y*grid_size});
         });
 
         socket.on("keydown", (key) => {
@@ -148,6 +149,19 @@ async function main() {
             console.log("disconnected");
         });
     });
+    // const getElevation = (tile) => {
+    //     const {x,y} = tile;
+    //     const tileX = x / grid_size;
+    //     const tileY = y / grid_size;
+    //     const chunkX = Math.floor(tileX / chunk_size) * chunk_size;
+    //     const chunkY = Math.floor(tileY / chunk_size) * chunk_size;
+    //     const chunk = getChunk(chunkX, chunkY);
+    //     for(let i = num_layers; i > 0; i--){
+    //         if(chunk[i][chunk_size * (tileY % chunk_size) + (tileX % chunk_size)])
+    //             break;
+    //     }
+    //     return i;
+    // }
     const getFirstGid = (function (){
         const keys = Object.keys(gidToTilesetMap).map((key) => parseInt(key)).sort((a,b) => b - a);
         return (gid) => {
@@ -160,8 +174,8 @@ async function main() {
     })();
     const get_tiles = (x,y, elevation) => {
         const layer_nums = [elevation*2, elevation*2+1];
-        const tileX = x / tile_size;
-        const tileY = y / tile_size;
+        const tileX = x / grid_size;
+        const tileY = y / grid_size;
         const chunkX = Math.floor(tileX / chunk_size) * chunk_size;
         const chunkY = Math.floor(tileY / chunk_size) * chunk_size;
         const chunk = getChunk(chunkX, chunkY);
@@ -175,32 +189,38 @@ async function main() {
             rect1.y + offsetY + rect1.height > rect2.y;
     }
     const checkCollision = (playerHitbox, possible_tiles, possible_tiles_ids) => {
-        const ground_tile_hitbox = {x:0,y:0,width:tile_size,height:tile_size};
+        const ground_tile_hitbox = {x:0,y:0,width:grid_size,height:grid_size};
+        const event = {collided: false, newState: ""};
         for(const i in possible_tiles){
             const {x,y} = possible_tiles[i];
             const [ground_id, object_id] = possible_tiles_ids[i];
             if(isColliding(x, y, ground_tile_hitbox, playerHitbox) && !ground_id){
-                return false;
+                event.collided = true;
             }
             if(specialTiles[ground_id]){
-                //tiled gives hitbox coordinates relative to top left corner, but we render based on bottom right corner
-                if(specialTiles[ground_id].some(({hitbox}) => isColliding(x,y,hitbox, playerHitbox))){
-                    return false;
-                }
+                specialTiles[ground_id].forEach(({hitbox, properties}) => {
+                    if(properties.type === "collision" && isColliding(x,y,hitbox, playerHitbox)){
+                        event.collided = true;
+                    }
+                })
             }
             if(specialTiles[object_id]){
                 const gid = getFirstGid(object_id);
                 const tileWidth = gidToTilesetMap[gid].tileWidth;
                 const tileHeight = gidToTilesetMap[gid].tileHeight;
-                const offsetX = tile_size - tileWidth;
-                const offsetY = tile_size - tileHeight;
-                //tiled gives hitbox coordinates relative to top left corner, but we render based on bottom right corner
-                if(specialTiles[object_id].some(({hitbox}) => isColliding(x + offsetX,y + offsetY,hitbox, playerHitbox))){
-                    return false;
-                }
+                const offsetX = grid_size - tileWidth;
+                const offsetY = grid_size - tileHeight;
+                specialTiles[object_id].forEach(({hitbox, properties}) => {
+                    if(properties.type === "collision" && isColliding(x + offsetX,y + offsetY,hitbox, playerHitbox)){
+                        event.collided = true;
+                    }else if(properties.type === "climb" && isColliding(x + offsetX,y + offsetY,hitbox, playerHitbox)){
+                        event.newState = "climb"
+                    }
+                    
+                })
             }
         }
-        return true;
+        return event;
     }
 
     const tick = (dt) => {
@@ -230,18 +250,18 @@ async function main() {
                 newX += Math.round(horizontalScale * SPEED);
             }
             
-            const tile = {x: Math.floor(newX/tile_size) * tile_size, y: Math.floor(newY/tile_size) * tile_size};
+            const tile = {x: Math.floor(newX/grid_size) * grid_size, y: Math.floor(newY/grid_size) * grid_size};
             const possible_tiles = [];
             for(let scaleX=-1; scaleX<=1; scaleX++){
                 for(let scaleY=-1; scaleY<=1; scaleY++){
-                    possible_tiles.push({x:tile.x + scaleX*tile_size, y:tile.y + scaleY*tile_size});
+                    possible_tiles.push({x:tile.x + scaleX*grid_size, y:tile.y + scaleY*grid_size});
                 }
             }
             const possible_tiles_ids = possible_tiles.map(({x,y}) => get_tiles(x,y, player.elevation));
-            const attemptedHitboxes = [{x:newX,y:newY,width:tile_size,height:tile_size}];
+            const attemptedHitboxes = [{x:newX,y:newY,width:grid_size,height:grid_size}];
             if(verticalScale && horizontalScale)
-                attemptedHitboxes.push({x:newX,y:player.y,width:tile_size,height:tile_size},
-                    {x:player.x,y:newY,width:tile_size,height:tile_size});
+                attemptedHitboxes.push({x:newX,y:player.y,width:grid_size,height:grid_size},
+                    {x:player.x,y:newY,width:grid_size,height:grid_size});
             newX = player.x;
             newY = player.y;
 

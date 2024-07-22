@@ -7,7 +7,7 @@ const images = {};
 let chunks;
 let players;
 let camera = {};
-let tile_size;
+let grid_size;
 let chunk_size;
 let num_layers;
 let mapWidth;
@@ -52,7 +52,7 @@ onmessage = (e) => {
             break;
         case "init":
             players = e.data.payload.players;
-            tile_size = e.data.payload.tile_size;
+            grid_size = e.data.payload.grid_size;
             chunk_size = e.data.payload.chunk_size;
             num_layers = e.data.payload.num_layers;
             mapWidth = e.data.payload.mapWidth;
@@ -129,10 +129,10 @@ function render() {
 
                     
                 //want to place tiles upward and left--so according to bottom right corner (to avoid overwriting tiles and cause thats how we configured it in Tiled)
-                //^ only matters for tiles larger than the grid_size (rn is named tile_size, will rename later)
+                //^ only matters for tiles larger than the grid_size (rn is named grid_size, will rename later)
                 //but canvas renders the image downwards and right, so we have to offset x,y position to top left corner
-                const tile_dx = tile_size - tileWidth;
-                const tile_dy = tile_size - tileHeight;
+                const tile_dx = grid_size - tileWidth;
+                const tile_dy = grid_size - tileHeight;
                 const canvasX = layerX + layer_dx + tile_dx - camera.x;
                 const canvasY = layerY + layer_dy + tile_dy - camera.y;
                 if(clamp(canvasX, -tileWidth, canvas.width) === canvasX && clamp(canvasY, -tileHeight, canvas.height) === canvasY)
@@ -143,23 +143,23 @@ function render() {
 
             //a null tile indicates a chunk_sized row of empty tiles
             if(tile === null)
-                layer_dx += tile_size * chunk_size;
+                layer_dx += grid_size * chunk_size;
             else
-                layer_dx += tile_size;
+                layer_dx += grid_size;
 
-            if(!(layer_dx % (tile_size * chunk_size * 3))){
+            if(!(layer_dx % (grid_size * chunk_size * 3))){
                 //check if we move onto next row of layer
                 layer_dx = 0;
-                layer_dy += tile_size;
+                layer_dy += grid_size;
                 //TODO: only draw when player in camera
                 while(players_to_draw.length && players[players_to_draw.at(-1)].y < layer_dy + layerY){
                     //don't have to worry about the case where you have to draw the player before the first row of tiles
                     //since the first row will always be offscreen anyways
                    const player_id = players_to_draw.pop();
-                   ctx.fillRect((players[player_id].x - camera.x), (players[player_id].y - camera.y) - 0.5*tile_size, tile_size, 1.5*tile_size);
+                   ctx.fillRect((players[player_id].x - camera.x), (players[player_id].y - camera.y) - 0.5*grid_size, grid_size, 1.5*grid_size);
                     ctx.fillText(`lvl.${players[player_id].level} ${players[player_id].username}`, 
-                        (players[player_id].x - camera.x) + tile_size/2, 
-                        (players[player_id].y - camera.y) + tile_size*2)
+                        (players[player_id].x - camera.x) + grid_size/2, 
+                        (players[player_id].y - camera.y) + grid_size*2)
                 }
             }
         }

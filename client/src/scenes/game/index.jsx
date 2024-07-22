@@ -67,7 +67,7 @@ export const GamePage = () => {
         worker.postMessage({type: "canvas", payload: offscreen}, [offscreen]);
 
         socketRef.current.on("init", ({
-                                        tile_size, 
+                                        grid_size, 
                                         chunk_size,
                                         num_layers,
                                         mapWidth,
@@ -77,7 +77,7 @@ export const GamePage = () => {
                                         id
                                     }) => {
             worker.postMessage({type:"init", payload: {
-                tile_size, 
+                grid_size, 
                 chunk_size,
                 num_layers,
                 mapWidth,
@@ -89,8 +89,8 @@ export const GamePage = () => {
 
             let player = players[id];
             const get_current_chunk = (player) => {
-                return {x: Math.floor(player.x / (tile_size * chunk_size)) * chunk_size, 
-                    y: Math.floor(player.y / (tile_size *chunk_size)) * chunk_size};
+                return {x: Math.floor(player.x / (grid_size * chunk_size)) * chunk_size, 
+                    y: Math.floor(player.y / (grid_size *chunk_size)) * chunk_size};
             }
             const get_visible_chunks = (current_chunk) => {
                 

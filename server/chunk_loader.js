@@ -7,9 +7,9 @@ export async function load_chunks() {
         const map = JSON.parse(data);
 
         //assume tile and chunks are square
-        const tile_size = map.tileheight;
-        const mapWidth = map.width * tile_size;
-        const mapHeight = map.height * tile_size;
+        const grid_size = map.tileheight;
+        const mapWidth = map.width * grid_size;
+        const mapHeight = map.height * grid_size;
         const chunk_size = map.editorsettings.chunksize.height;
         const num_layers = map.layers.length; 
         const layers = map.layers.map(({chunks}) => 
@@ -53,16 +53,16 @@ export async function load_chunks() {
             const chunks = {}
             return (x,y) => {
                 if(chunks[x] === undefined)
-                    chunks[x] = {}
+                    chunks[x] = {};
                 if(chunks[x][y] === undefined)
                     chunks[x][y] = layers.map((layer) => (layer[x] && layer[x][y]) || null);
                 return chunks[x][y];
             };
         })();
-        return {tile_size, chunk_size, mapWidth, mapHeight, getChunk, gidToTilesetMap, specialTiles, num_layers};
+        return {grid_size, chunk_size, mapWidth, mapHeight, getChunk, gidToTilesetMap, specialTiles, num_layers};
     } catch(err){
         return console.error(`Error encountered when trying to load chunks: ${err}`);
     }
 };
 
-console.log((await load_chunks()).specialTiles['68']);
+console.log((await load_chunks()).specialTiles);
