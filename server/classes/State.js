@@ -1,6 +1,12 @@
 const STATES = {
-    IDLE: 0,
-
+    IDLE_N: 0,
+    IDLE_NE: 1,
+    IDLE_E: 2,
+    IDLE_SE: 3,
+    IDLE_S: 4,
+    IDLE_SW: 5,
+    IDLE_W: 6,
+    IDLE_NW: 7
 }
 
 const DIRECTIONS = {
@@ -15,15 +21,20 @@ const DIRECTIONS = {
 }
 
 class State{
-    constructor(state, direction){
+    constructor(state){
         this.state = state;
+    }
+}
+
+class DirectionalState extends State{
+    constructor(direction){
         this.direction = direction;
     }
 }
 
-export class Idle extends State{
+export class Idle_N extends DirectionalState{
     constructor(){
-        super(STATES.IDLE, DIRECTIONS.S);
+        super(DIRECTIONS.N)
     }
 
     enter(player){
@@ -31,10 +42,34 @@ export class Idle extends State{
     }
 
     handleInput(input, player){
-
+        switch(input.lastKey){
+            case DIRECTIONS.N:
+                break;
+            case DIRECTIONS.NE:
+                player.setState(STATES.IDLE_NE);
+                break;
+            case DIRECTIONS.E:
+                player.setState(STATES.IDLE_E);
+                break;
+            case DIRECTIONS.SE:
+                player.setState(STATES.IDLE_SE);
+                break;
+            case DIRECTIONS.S:
+                player.setState(STATES.IDLE_S);
+                break;
+            case DIRECTIONS.SW:
+                player.setState(STATES.IDLE_SW);
+                break;
+            case DIRECTIONS.W:
+                player.setState(STATES.IDLE_W);
+                break;
+            case DIRECTIONS.NW:
+                player.setState(STATES.IDLE_NW);
+                break;
+        }
     }
 }
 
 export class Climbing extends State{
-    
+
 }
