@@ -93,6 +93,8 @@ export class Idle_N extends DirectionalState{
             player.setState(STATES.WALK_E);
         else if(inputs.a)
             player.setState(STATES.WALK_W);
+        else{}
+            
     }
 }
 
@@ -105,8 +107,8 @@ export class Walk_N {
         player.maxFrame = WALK_END;
         player.frameX = WALK_START;
         player.frameY = this.direction;
-        player.speedX = WALK_SPEED;
-        player.speedY = WALK_SPEED;
+        player.speedX = IDLE_SPEED;
+        player.speedY = -WALK_SPEED;
 
     }
 
@@ -114,6 +116,41 @@ export class Walk_N {
         if(inputs.w)
             if(inputs.d)
                 player.setState(STATES.WALK_NE);
+            else if(inputs.a)
+                player.setState(STATES.WALK_NW);
+            else{}
+        else if(inputs.s)
+            if(inputs.d)
+                player.setState(STATES.WALK_SE);
+            else if(inputs.a)
+                player.setState(STATES.WALK_SW);
+            else
+                player.setState(STATES.WALK_S);
+        else if(inputs.d)
+            player.setState(STATES.WALK_E);
+        else if(inputs.a)
+            player.setState(STATES.WALK_W);
+        else
+            player.setState(STATES.IDLE_N);
+    }
+}
+
+export class Walk_NE {
+    constructor(){
+        super(DIRECTIONS.NE, STATES.WALK_NE);
+    }
+
+    enter(player){
+        player.maxFrame = WALK_END;
+        player.frameX = WALK_START;
+        player.frameY = this.direction;
+        player.speedX = WALK_SPEED * Math.SQRT1_2;
+        player.speedY = -WALK_SPEED * Math.SQRT1_2;
+    }
+
+    handleInput(inputs, player){
+        if(inputs.w)
+            if(inputs.d){}
             else if(inputs.a)
                 player.setState(STATES.WALK_NW);
             else
@@ -129,6 +166,8 @@ export class Walk_N {
             player.setState(STATES.WALK_E);
         else if(inputs.a)
             player.setState(STATES.WALK_W);
+        else
+            player.setState(STATES.IDLE_NE);
     }
 }
 
