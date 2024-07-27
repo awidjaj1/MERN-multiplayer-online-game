@@ -74,33 +74,61 @@ export class Idle_N extends DirectionalState{
 
     }
 
-    handleInput(input, player){
-        switch(input.lastKey){
-            case DIRECTIONS.N:
-                player.setState(STATES.WALK_N)
-                break;
-            case DIRECTIONS.NE:
+    handleInput(inputs, player){
+        if(inputs.w)
+            if(inputs.d)
                 player.setState(STATES.WALK_NE);
-                break;
-            case DIRECTIONS.E:
-                player.setState(STATES.WALK_E);
-                break;
-            case DIRECTIONS.SE:
-                player.setState(STATES.WALK_SE);
-                break;
-            case DIRECTIONS.S:
-                player.setState(STATES.WALK_S);
-                break;
-            case DIRECTIONS.SW:
-                player.setState(STATES.WALK_SW);
-                break;
-            case DIRECTIONS.W:
-                player.setState(STATES.WALK_W);
-                break;
-            case DIRECTIONS.NW:
+            else if(inputs.a)
                 player.setState(STATES.WALK_NW);
-                break;
-        }
+            else
+                player.setState(STATES.WALK_N);
+        else if(inputs.s)
+            if(inputs.d)
+                player.setState(STATES.WALK_SE);
+            else if(inputs.a)
+                player.setState(STATES.WALK_SW);
+            else
+                player.setState(STATES.WALK_S);
+        else if(inputs.d)
+            player.setState(STATES.WALK_E);
+        else if(inputs.a)
+            player.setState(STATES.WALK_W);
+    }
+}
+
+export class Walk_N {
+    constructor(){
+        super(DIRECTIONS.N, STATES.WALK_N);
+    }
+
+    enter(player){
+        player.maxFrame = WALK_END;
+        player.frameX = WALK_START;
+        player.frameY = this.direction;
+        player.speedX = WALK_SPEED;
+        player.speedY = WALK_SPEED;
+
+    }
+
+    handleInput(inputs, player){
+        if(inputs.w)
+            if(inputs.d)
+                player.setState(STATES.WALK_NE);
+            else if(inputs.a)
+                player.setState(STATES.WALK_NW);
+            else
+                player.setState(STATES.WALK_N);
+        else if(inputs.s)
+            if(inputs.d)
+                player.setState(STATES.WALK_SE);
+            else if(inputs.a)
+                player.setState(STATES.WALK_SW);
+            else
+                player.setState(STATES.WALK_S);
+        else if(inputs.d)
+            player.setState(STATES.WALK_E);
+        else if(inputs.a)
+            player.setState(STATES.WALK_W);
     }
 }
 
