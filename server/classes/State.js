@@ -4,6 +4,7 @@ const IDLE_START = 8;
 const IDLE_END = 25;
 const WALK_SPEED = 0.35;
 const CLIMB_SPEED = 0.15;
+const IDLE_SPEED = 0;
 
 const STATES = {
     IDLE_S: 0,
@@ -22,6 +23,17 @@ const STATES = {
     WALK_W: 13,
     WALK_SW: 14,
     WALK_NW: 15
+}
+
+export const KEYS = {
+    PRESS_W: 0,
+    PRESS_A: 1,
+    PRESS_S: 2,
+    PRESS_D: 3,
+    RELEASE_W: 4,
+    RELEASE_A: 5,
+    RELEASE_S: 6,
+    RELEASE_D: 7,
 }
 
 const DIRECTIONS = {
@@ -57,14 +69,9 @@ export class Idle_N extends DirectionalState{
         player.maxFrame = IDLE_END;
         player.frameX = IDLE_START;
         player.frameY = this.direction;
-        player.speed = 0;
-        if(verticalScale && horizontalScale){
-            newX += Math.round(horizontalScale * SPEED * Math.SQRT1_2);
-            newY += Math.round(verticalScale * SPEED * Math.SQRT1_2);
-        }else{
-            newY += Math.round(verticalScale * SPEED);
-            newX += Math.round(horizontalScale * SPEED);
-        }
+        player.speedX = IDLE_SPEED;
+        player.speedY = IDLE_SPEED;
+
     }
 
     handleInput(input, player){
