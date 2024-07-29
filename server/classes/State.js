@@ -345,6 +345,11 @@ class Climb extends DirectionalState{
         player.frameX = CLIMB_START;
         player.frameY = this.direction;
         player.speedX = IDLE_SPEED;
+        player.elevation++;
+    }
+
+    exit(player){
+        player.elevation--;
     }
 
 
@@ -357,7 +362,7 @@ export class Climb_N extends Climb{
 
     enter(player){
         super.enter(player);
-        player.speedY = CLIMB_SPEED;
+        player.speedY = -CLIMB_SPEED;
     }
 
     handleInput(inputs, player){
@@ -372,7 +377,7 @@ export class Climb_S extends Climb{
 
     enter(player){
         super.enter(player);
-        player.speedY = -CLIMB_SPEED;
+        player.speedY = CLIMB_SPEED;
     }
 
     handleInput(inputs, player){
