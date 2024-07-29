@@ -366,7 +366,8 @@ export class Climb_N extends Climb{
     }
 
     handleInput(inputs, player){
-        return;
+        if(inputs.s)
+            player.setState(STATES.CLIMB_S);
     }
 }
 
@@ -381,6 +382,7 @@ export class Climb_S extends Climb{
     }
 
     handleInput(inputs, player){
-        return;
+        if(inputs.n)
+            player.setState(STATES.CLIMB_N);
     }
 }
