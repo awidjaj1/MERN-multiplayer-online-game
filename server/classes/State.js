@@ -171,6 +171,42 @@ export class Walk_NE {
     }
 }
 
+export class Walk_SE {
+    constructor(){
+        super(DIRECTIONS.SE, STATES.WALK_SE);
+    }
+
+    enter(player){
+        player.maxFrame = WALK_END;
+        player.frameX = WALK_START;
+        player.frameY = this.direction;
+        player.speedX = WALK_SPEED * Math.SQRT1_2;
+        player.speedY = WALK_SPEED * Math.SQRT1_2;
+    }
+
+    handleInput(inputs, player){
+        if(inputs.w)
+            if(inputs.d)
+                player.stateState(STATES.WALK_NE);
+            else if(inputs.a)
+                player.setState(STATES.WALK_NW);
+            else
+                player.setState(STATES.WALK_N);
+        else if(inputs.s)
+            if(inputs.d){}
+            else if(inputs.a)
+                player.setState(STATES.WALK_SW);
+            else
+                player.setState(STATES.WALK_S);
+        else if(inputs.d)
+            player.setState(STATES.WALK_E);
+        else if(inputs.a)
+            player.setState(STATES.WALK_W);
+        else
+            player.setState(STATES.IDLE_SE);
+    }
+}
+
 export class Climbing extends State{
 
 }
