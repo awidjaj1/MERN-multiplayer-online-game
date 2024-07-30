@@ -11,6 +11,7 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 import { verifyTokenIO } from "./middleware/auth.js";
 import { User } from "./models/User.js";
+import PlayerWrapper from "./classes/Player.js";
 
 dotenv.config();
 const app = express();
@@ -79,19 +80,21 @@ async function main() {
         const player_id = socket.player_id;
         socket.join(`${player_id}`);
         const player = await User.findById(player_id);
-        players[player_id] = {
+        players[player_id] = new PlayerWrapper({
             username: player.username, 
             level: player.level, 
             x: player.x, 
             y: player.y,
-            state: "idle",
-            elevation: 1,
-        } 
+            elevation: player.elevation,
+            frameX: 0,
+            frameY: 0,
+            spriteSheet: "8d_player-Sheet.png"
+        });
         inputHandler[player_id] = {
-            up: false,
-            down: false,
-            left: false,
-            right: false
+            w: false,
+            a: false,
+            s: false,
+            d: false
         }
         const inputs = inputHandler[player_id];
         socket.emit("init", 
@@ -141,27 +144,15 @@ async function main() {
         });
 
         socket.on("disconnect", async () => {
-            player.x = players[player_id].x;
-            player.y = players[player_id].y;
+            for(const key in players[player_id])
+                player = players[player_id][key];
             await player.save();
             // clearInterval(updateLoop);
             delete players[player_id];
             console.log("disconnected");
         });
     });
-    // const getElevation = (tile) => {
-    //     const {x,y} = tile;
-    //     const tileX = x / grid_size;
-    //     const tileY = y / grid_size;
-    //     const chunkX = Math.floor(tileX / chunk_size) * chunk_size;
-    //     const chunkY = Math.floor(tileY / chunk_size) * chunk_size;
-    //     const chunk = getChunk(chunkX, chunkY);
-    //     for(let i = num_layers; i > 0; i--){
-    //         if(chunk[i][chunk_size * (tileY % chunk_size) + (tileX % chunk_size)])
-    //             break;
-    //     }
-    //     return i;
-    // }
+
     const getFirstGid = (function (){
         const keys = Object.keys(gidToTilesetMap).map((key) => parseInt(key)).sort((a,b) => b - a);
         return (gid) => {
@@ -226,54 +217,55 @@ async function main() {
     const tick = (dt) => {
         for(const player_id in players){
             const player = players[player_id];
-            let newX = player.x;
-            let newY = player.y;
+            player.update();
+            // let newX = player.x;
+            // let newY = player.y;
 
-            const inputs = inputHandler[player_id];
-            let verticalScale = 0;
-            let horizontalScale = 0;
-            if(inputs.w)
-                verticalScale = -dt;
-            else if(inputs.s)
-                verticalScale = dt;
+            // const inputs = inputHandler[player_id];
+            // let verticalScale = 0;
+            // let horizontalScale = 0;
+            // if(inputs.w)
+            //     verticalScale = -dt;
+            // else if(inputs.s)
+            //     verticalScale = dt;
     
-            if(inputs.a)
-                horizontalScale = -dt;
-            else if(inputs.d)
-                horizontalScale = dt;
+            // if(inputs.a)
+            //     horizontalScale = -dt;
+            // else if(inputs.d)
+            //     horizontalScale = dt;
             
-            if(verticalScale && horizontalScale){
-                newX += Math.round(horizontalScale * SPEED * Math.SQRT1_2);
-                newY += Math.round(verticalScale * SPEED * Math.SQRT1_2);
-            }else{
-                newY += Math.round(verticalScale * SPEED);
-                newX += Math.round(horizontalScale * SPEED);
-            }
+            // if(verticalScale && horizontalScale){
+            //     newX += Math.round(horizontalScale * SPEED * Math.SQRT1_2);
+            //     newY += Math.round(verticalScale * SPEED * Math.SQRT1_2);
+            // }else{
+            //     newY += Math.round(verticalScale * SPEED);
+            //     newX += Math.round(horizontalScale * SPEED);
+            // }
             
-            const tile = {x: Math.floor(newX/grid_size) * grid_size, y: Math.floor(newY/grid_size) * grid_size};
-            const possible_tiles = [];
-            for(let scaleX=-1; scaleX<=1; scaleX++){
-                for(let scaleY=-1; scaleY<=1; scaleY++){
-                    possible_tiles.push({x:tile.x + scaleX*grid_size, y:tile.y + scaleY*grid_size});
-                }
-            }
-            const possible_tiles_ids = possible_tiles.map(({x,y}) => get_tiles(x,y, player.elevation));
-            const attemptedHitboxes = [{x:newX,y:newY,width:grid_size,height:grid_size}];
-            if(verticalScale && horizontalScale)
-                attemptedHitboxes.push({x:newX,y:player.y,width:grid_size,height:grid_size},
-                    {x:player.x,y:newY,width:grid_size,height:grid_size});
-            newX = player.x;
-            newY = player.y;
+            // const tile = {x: Math.floor(newX/grid_size) * grid_size, y: Math.floor(newY/grid_size) * grid_size};
+            // const possible_tiles = [];
+            // for(let scaleX=-1; scaleX<=1; scaleX++){
+            //     for(let scaleY=-1; scaleY<=1; scaleY++){
+            //         possible_tiles.push({x:tile.x + scaleX*grid_size, y:tile.y + scaleY*grid_size});
+            //     }
+            // }
+            // const possible_tiles_ids = possible_tiles.map(({x,y}) => get_tiles(x,y, player.elevation));
+            // const attemptedHitboxes = [{x:newX,y:newY,width:grid_size,height:grid_size}];
+            // if(verticalScale && horizontalScale)
+            //     attemptedHitboxes.push({x:newX,y:player.y,width:grid_size,height:grid_size},
+            //         {x:player.x,y:newY,width:grid_size,height:grid_size});
+            // newX = player.x;
+            // newY = player.y;
 
-            for(const playerHitbox of attemptedHitboxes){
-                if(checkCollision(playerHitbox, possible_tiles, possible_tiles_ids)){
-                    newX = playerHitbox.x;
-                    newY = playerHitbox.y;
-                    break;
-                }
-            }
-            player.x = newX;
-            player.y = newY;
+            // for(const playerHitbox of attemptedHitboxes){
+            //     if(checkCollision(playerHitbox, possible_tiles, possible_tiles_ids)){
+            //         newX = playerHitbox.x;
+            //         newY = playerHitbox.y;
+            //         break;
+            //     }
+            // }
+            // player.x = newX;
+            // player.y = newY;
         }
         io.emit("players", players);
     }

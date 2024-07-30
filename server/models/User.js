@@ -75,6 +75,11 @@ const UserSchema = new mongoose.Schema(
             type: Number,
             required: true,
             default: 50
+        },
+        elevation: {
+            type: Number,
+            required: true,
+            default: 0
         }
     }
 );

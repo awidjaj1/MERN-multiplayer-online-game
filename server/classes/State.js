@@ -27,10 +27,10 @@ const STATES = {
     WALK_W: 13,
     WALK_SW: 14,
     WALK_NW: 15,
-    CLIMB_N: 16,
-    CLIMB_S: 17,
-    CLIMB_IDLE_N: 18,
-    CLIMB_IDLE_S: 19
+    CLIMB_IDLE_N: 16,
+    CLIMB_IDLE_S: 17,
+    CLIMB_N: 18,
+    CLIMB_S: 19,
 }
 
 const DIRECTIONS = {
