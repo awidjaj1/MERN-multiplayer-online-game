@@ -22,7 +22,7 @@ const __dirname = import.meta.dirname;
 const TICK_RATE = 70;
 const SPEED = 0.35;
 const players = {};
-const inputHandler = {};
+const inputs = {};
 
 //logging
 app.use(morgan("common"));
@@ -79,6 +79,7 @@ async function main() {
     io.on("connection", async (socket) => {
         const player_id = socket.player_id;
         socket.join(`${player_id}`);
+
         const player = await User.findById(player_id);
         players[player_id] = new PlayerWrapper({
             username: player.username, 
@@ -90,13 +91,12 @@ async function main() {
             frameY: 0,
             spriteSheet: "8d_player-Sheet.png"
         });
-        inputHandler[player_id] = {
+        inputs[player_id] = {
             w: false,
             a: false,
             s: false,
             d: false
         }
-        const inputs = inputHandler[player_id];
         socket.emit("init", 
             {
                 grid_size, 
@@ -134,13 +134,13 @@ async function main() {
         });
 
         socket.on("keydown", (key) => {
-            inputs[key] = true;
+            inputs[player_id][key] = true;
         });
         socket.on("keyup", (key)=>{
             if(key === 'all')
-                Object.keys(inputs).forEach(key => inputs[key] = false);
+                Object.keys(inputs[player_id]).forEach(key => inputs[player_id][key] = false);
             else
-                inputs[key] = false;
+                inputs[player_id][key] = false;
         });
 
         socket.on("disconnect", async () => {
@@ -221,7 +221,7 @@ async function main() {
             // let newX = player.x;
             // let newY = player.y;
 
-            // const inputs = inputHandler[player_id];
+            // const inputs = inputs[player_id];
             // let verticalScale = 0;
             // let horizontalScale = 0;
             // if(inputs.w)
