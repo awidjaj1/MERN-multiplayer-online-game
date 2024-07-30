@@ -44,6 +44,18 @@ class State{
     constructor(state){
         this.state = state;
     }
+
+    handleInput(inputs, player){
+
+    }
+
+    enter(player){
+    
+    }
+
+    exit(player){
+
+    }
 }
 
 class DirectionalState extends State{
