@@ -4,6 +4,8 @@ const IDLE_START = 8;
 const IDLE_END = 25;
 const CLIMB_START = 25;
 const CLIMB_END = 31;
+const CLIMB_IDLE_START = 31;
+const CLIMB_IDLE_END = 49;
 const WALK_SPEED = 0.35;
 const CLIMB_SPEED = 0.15;
 const IDLE_SPEED = 0;
@@ -27,6 +29,8 @@ const STATES = {
     WALK_NW: 15,
     CLIMB_N: 16,
     CLIMB_S: 17,
+    CLIMB_IDLE_N: 18,
+    CLIMB_IDLE_S: 19
 }
 
 const DIRECTIONS = {
@@ -367,6 +371,32 @@ class Climb extends DirectionalState{
 
 }
 
+class Climb_Idle extends DirectionalState{
+    constructor(direction, state){
+        super(direction, state);
+    }
+
+    enter(player){
+        player.maxFrame = CLIMB_IDLE_END;
+        player.frameX = CLIMB_IDLE_START;
+        player.frameY = this.direction;
+        player.speedX = IDLE_SPEED;
+        player.speedY = IDLE_SPEED;
+        player.elevation++;
+    }
+
+    exit(player){
+        player.elevation--;
+    }
+
+    handleInput(inputs, player){
+        if(inputs.w)
+            player.setState(STATES.CLIMB_N);
+        else if(inputs.s)
+            player.setState(STATES.CLIMB_S);
+    }
+}
+
 export class Climb_N extends Climb{
     constructor(){
         super(DIRECTIONS.N, STATES.CLIMB_N);
@@ -380,6 +410,8 @@ export class Climb_N extends Climb{
     handleInput(inputs, player){
         if(inputs.s)
             player.setState(STATES.CLIMB_S);
+        else if(!inputs.w)
+            player.setState(STATES.CLIMB_IDLE_N);
     }
 }
 
@@ -394,7 +426,21 @@ export class Climb_S extends Climb{
     }
 
     handleInput(inputs, player){
-        if(inputs.n)
+        if(inputs.w)
             player.setState(STATES.CLIMB_N);
+        else if(!inputs.s)
+            player.setState(STATES.CLIMB_IDLE_S);
+    }
+}
+
+export class Climb_Idle_N extends Climb_Idle{
+    constructor(){
+        super(DIRECTIONS.N, STATES.CLIMB_IDLE_N);
+    }
+}
+
+export class Climb_Idle_S extends Climb_Idle{
+    constructor(){
+        super(DIRECTIONS.S, STATES.CLIMB_IDLE_S);
     }
 }
