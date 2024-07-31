@@ -5,8 +5,9 @@ function AABB_Colliding(rect1, rect2){
         rect1.y + rect1.height > rect2.y;
 }
 
-const checkCollision = (playerHitbox, possible_tiles, possible_tiles_ids, direction) => {
+const checkCollision = (player, possible_tiles, possible_tiles_ids, direction) => {
     const gridHitbox = {x:0,y:0,width:grid_size,height:grid_size};
+    const playerHitbox = {x: player.x, y: player.y, width: player.width, height: player.height};
 
     //only one direction at a time, even for diagonal (i.e. we move in an L shape). This could make
     //the character move around an object when moving diagonally, but it shouldn't be an issue if the
@@ -54,16 +55,21 @@ const checkCollision = (playerHitbox, possible_tiles, possible_tiles_ids, direct
             const tileHeight = gidToTilesetMap[gid].tileHeight;
             const offsetX = grid_size - tileWidth;
             const offsetY = grid_size - tileHeight;
-            specialTiles[object_id].forEach(({hitbox, properties}) => {
+            for(const {hitbox, properties} of specialTiles[object_id]){
                 const tileHitbox = {...hitbox, x:hitbox.x + x + offsetX, y:hitbox.y + y + offsetY};
-                if(properties.type === "collision" && AABB_Colliding(tileHitbox, playerHitbox)){
-                    coord = measure(extract_coord(tileHitbox), coord || extract_coord(tileHitbox));
-                }else if(properties.type === "climb" && AABB_Colliding(tileHitbox, playerHitbox)){
-                    event.newState = "climb"
+
+                if(AABB_Colliding(tileHitbox, playerHitbox)){
+                    if(properties.type === "collision"){
+                        coord = measure(extract_coord(tileHitbox), coord || extract_coord(tileHitbox));
+                    }else if(properties.type === "climb"){
+                        player.context.near_ladder = true;
+                        player.currentState.handleInput();
+                    }
                 }
-                
-            })
+            }
         }
     }
-    return event;
+
+    Object.keys(player.context).forEach((key) => player.context[key] = false);
+    return coord;
 }

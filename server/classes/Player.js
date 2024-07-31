@@ -12,13 +12,16 @@ export default class PlayerWrapper extends EntityWrapper{
             new Idle_N(), new Idle_NE(), new Idle_E(), new Idle_SE(), new Idle_S(), new Idle_SW(), new Idle_W(), new Idle_NW(),
             new Walk_N(), new Walk_NE(), new Walk_E(), new Walk_SE(), new Walk_S(), new Walk_SW(), new Walk_W(), new Walk_NW(),
             new Climb_Idle_N(), new Climb_Idle_S(), new Climb_N(), new Climb_S(),
-        ]
+        ];
+        this.context = {near_ladder: false, near_water: false};
         this.currentState = this.states[4];
         this.speedX = 0;
         this.speedY = 0;
         this.fps = 30;
         this.frameTimer = 0;
         this.frameInterval = 1000 / this.fps;
+        this.height = 16;
+        this.width = 16;
     }
 
     update(inputs, map, dt){
@@ -34,7 +37,7 @@ export default class PlayerWrapper extends EntityWrapper{
         const newX = this.player.x + this.speedX * dt;
         const newY = this.player.y + this.speedY * dt;
         const grid_size = map.metadata.grid_size;
-        
+
         const tile = {x: Math.floor(player.x/grid_size) * grid_size, y: Math.floor(player.y/grid_size) * grid_size};
         const possible_tiles = map.get_9x9(tile);
     
@@ -48,7 +51,7 @@ export default class PlayerWrapper extends EntityWrapper{
         newY = player.y;
 
         for(const playerHitbox of attemptedHitboxes){
-            if(checkCollision(playerHitbox, possible_tiles, possible_tiles_ids)){
+            if(checkCollision(this, possible_tiles, possible_tiles_ids)){
                 newX = playerHitbox.x;
                 newY = playerHitbox.y;
                 break;
@@ -60,6 +63,8 @@ export default class PlayerWrapper extends EntityWrapper{
     }
 
     setState(state){
+        if(state === player.currentState.state)
+            return;
         this.currentState.exit(this.player);
         this.currentState = this.states[state];
         this.currentState.enter(this.player);
