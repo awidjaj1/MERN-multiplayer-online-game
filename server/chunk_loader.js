@@ -64,5 +64,3 @@ export async function load_chunks() {
         return console.error(`Error encountered when trying to load chunks: ${err}`);
     }
 };
-
-console.log((await load_chunks()).specialTiles);

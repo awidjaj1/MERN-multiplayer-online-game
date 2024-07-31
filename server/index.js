@@ -59,7 +59,9 @@ mongoose
 
 async function main() {
     console.log(`Listening to ${PORT}`);
-    const {grid_size, chunk_size, mapWidth, mapHeight, getChunk, gidToTilesetMap, specialTiles, num_layers} = await load_chunks();
+    const map = await load_chunks();
+    const {grid_size, chunk_size, mapWidth, mapHeight, getChunk, gidToTilesetMap, specialTiles, num_layers} = map;
+
 
 
     io.engine.use(helmet());
