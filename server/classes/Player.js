@@ -4,6 +4,8 @@ import { Idle_N, Idle_NE, Idle_E, Idle_SE, Idle_S, Idle_SW, Idle_W, Idle_NW,
  } from "./State";
 
 export default class PlayerWrapper extends EntityWrapper{
+    static players = {};
+
     constructor(player){
         super(player);
         this.states = [

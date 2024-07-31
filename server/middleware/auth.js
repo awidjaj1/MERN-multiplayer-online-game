@@ -37,3 +37,17 @@ export const verifyTokenIO = (socket, next) => {
       return next(new Error(err));
   }
 };
+
+export const verifyNotLoggedIn = (io) => {
+    return async (socket, next) => {
+        try{
+            const sockets = await io.in(`${socket.player_id}`).fetchSockets();
+            const isUserConnected = sockets.length > 0;
+            if (isUserConnected)
+                throw new Error("User is already in game");
+            return next();
+        }catch(err){
+            return next(err);
+        }
+    };
+}
