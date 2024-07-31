@@ -4,8 +4,9 @@ function AABB_Colliding(rect1, rect2){
         rect1.y < rect2.y + rect2.height &&
         rect1.y + rect1.height > rect2.y;
 }
+
 const checkCollision = (playerHitbox, possible_tiles, possible_tiles_ids, direction) => {
-    const ground_tile_hitbox = {x:0,y:0,width:grid_size,height:grid_size};
+    const gridHitbox = {x:0,y:0,width:grid_size,height:grid_size};
 
     //only one direction at a time, even for diagonal (i.e. we move in an L shape). This could make
     //the character move around an object when moving diagonally, but it shouldn't be an issue if the
@@ -16,16 +17,34 @@ const checkCollision = (playerHitbox, possible_tiles, possible_tiles_ids, direct
     //else if direction is east, want to get the minimum x-coordinate (given by hitbox.x)
     //else if direction is south, want to get the minimum y-coordinate (given by hitbox.y)
     //else if direction is west, want to get the maximum x-coordinate (given by hitbox.x + hitbox.width)
+    let extract_coord = null;
+    let coord = null;
+
+    let measure = Math.min;
+    let extend = false;
+    if(direction === 'n' || direction === 'w'){
+        measure = Math.max;
+        extend = true;
+    }
+    if(direction === 'n' || direction === 's'){
+        extract_coord = (hitbox) => hitbox.y + extend*hitbox.height;
+    }else{
+        extract_coord = (hitbox) => hitbox.x + extend*hitbox.width;
+    }
+
     for(const i in possible_tiles){
         const {x,y} = possible_tiles[i];
         const [ground_id, object_id] = possible_tiles_ids[i];
-        if(AABB_Colliding({...ground_tile_hitbox, x:ground_tile_hitbox.x + x, y: ground_tile_hitbox.y + y}, playerHitbox) && !ground_id){
-            event.collided = true;
+
+        const groundHitbox = {...gridHitbox, x:gridHitbox.x + x, y: gridHitbox.y + y};
+        if(AABB_Colliding(groundHitbox, playerHitbox) && !ground_id){
+            coord = measure(extract_coord(groundHitbox), coord || extract_coord(groundHitbox));
         }
         if(specialTiles[ground_id]){
             specialTiles[ground_id].forEach(({hitbox, properties}) => {
-                if(properties.type === "collision" && AABB_Colliding(x,y,hitbox, playerHitbox)){
-                    event.collided = true;
+                const tileHitbox = {x:hitbox.x + x, y: hitbox.y + y, ...hitbox};
+                if(properties.type === "collision" && AABB_Colliding(tileHitbox, playerHitbox)){
+                    coord = measure(extract_coord(tileHitbox), coord || extract_coord(tileHitbox));
                 }
             })
         }
@@ -36,9 +55,10 @@ const checkCollision = (playerHitbox, possible_tiles, possible_tiles_ids, direct
             const offsetX = grid_size - tileWidth;
             const offsetY = grid_size - tileHeight;
             specialTiles[object_id].forEach(({hitbox, properties}) => {
-                if(properties.type === "collision" && AABB_Colliding({...hitbox, x:hitbox.x + x + offsetX, y:hitbox.y + y + offsetY}, playerHitbox)){
-                    event.collided = true;
-                }else if(properties.type === "climb" && AABB_Colliding(x + offsetX,y + offsetY,hitbox, playerHitbox)){
+                const tileHitbox = {...hitbox, x:hitbox.x + x + offsetX, y:hitbox.y + y + offsetY};
+                if(properties.type === "collision" && AABB_Colliding(tileHitbox, playerHitbox)){
+                    coord = measure(extract_coord(tileHitbox), coord || extract_coord(tileHitbox));
+                }else if(properties.type === "climb" && AABB_Colliding(tileHitbox, playerHitbox)){
                     event.newState = "climb"
                 }
                 
