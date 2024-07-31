@@ -1,6 +1,6 @@
 import {readFile} from "fs/promises";
 
-export async function load_chunks() {
+export async function load_map() {
     try {
         const __dir = './public/assets/game/tilesets';
         const data = await readFile(`${__dir}/map_demo.json`);

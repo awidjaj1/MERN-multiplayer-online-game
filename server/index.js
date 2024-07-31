@@ -6,7 +6,7 @@ import helmet from "helmet";
 import authRouter from "./routes/auth.js";
 import usersRouter from "./routes/users.js";
 import path from "path";
-import { load_chunks } from "./chunk_loader.js";
+import { load_map } from "./map_loader.js";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import { verifyTokenIO, verifyNotLoggedIn } from "./middleware/auth.js";
@@ -21,7 +21,6 @@ const io = new Server(httpServer);
 const PORT = process.env.PORT || 5000;
 const __dirname = import.meta.dirname;
 const TICK_RATE = 70;
-const SPEED = 0.35;
 const clients = {};
 
 //logging
@@ -57,9 +56,43 @@ mongoose
     .catch((err) => console.error(`${err} did not connect`));
 
 
+const tick = (dt) => {
+    for(const player_id in clients){
+        const {player, inputs} = clients[player_id];
+        const oldX = player.x;
+        const oldY = player.y;
+        player.update();
+        
+        
+        const tile = {x: Math.floor(player.x/grid_size) * grid_size, y: Math.floor(player.y/grid_size) * grid_size};
+        const possible_tiles = get_9x9(tile);
+    
+        const possible_tiles_ids = possible_tiles.map(({x,y}) => get_tiles(x,y, player.elevation));
+
+        // const attemptedHitboxes = [{x:newX,y:newY,width:grid_size,height:grid_size}];
+        // if(verticalScale && horizontalScale)
+        //     attemptedHitboxes.push({x:newX,y:player.y,width:grid_size,height:grid_size},
+        //         {x:player.x,y:newY,width:grid_size,height:grid_size});
+        // newX = player.x;
+        // newY = player.y;
+
+        // for(const playerHitbox of attemptedHitboxes){
+        //     if(checkCollision(playerHitbox, possible_tiles, possible_tiles_ids)){
+        //         newX = playerHitbox.x;
+        //         newY = playerHitbox.y;
+        //         break;
+        //     }
+        // }
+        // player.x = newX;
+        // player.y = newY;
+    }
+    io.emit("players", PlayerWrapper.players);
+}
+
+
 async function main() {
     console.log(`Listening to ${PORT}`);
-    const map = await load_chunks();
+    const map = await load_map();
     const {grid_size, chunk_size, mapWidth, mapHeight, num_layers} = map.metadata;
 
 
@@ -117,7 +150,6 @@ async function main() {
             }
             socket.emit("resp_chunks", {layers, layerX: chunks[0].x*grid_size, layerY: chunks[0].y*grid_size});
         });
-
         socket.on("disconnect", async () => {
             for(const key in player)
                 player_db[key] = player[key];
@@ -128,42 +160,8 @@ async function main() {
         });
     });
     
-
-    const tick = (dt) => {
-        for(const player_id in clients){
-            const {player, inputs} = clients[player_id];
-            const oldX = player.x;
-            const oldY = player.y;
-            player.update();
-            
-            
-            const tile = {x: Math.floor(player.x/grid_size) * grid_size, y: Math.floor(player.y/grid_size) * grid_size};
-            const possible_tiles = get_9x9(tile);
-        
-            const possible_tiles_ids = possible_tiles.map(({x,y}) => get_tiles(x,y, player.elevation));
-
-            // const attemptedHitboxes = [{x:newX,y:newY,width:grid_size,height:grid_size}];
-            // if(verticalScale && horizontalScale)
-            //     attemptedHitboxes.push({x:newX,y:player.y,width:grid_size,height:grid_size},
-            //         {x:player.x,y:newY,width:grid_size,height:grid_size});
-            // newX = player.x;
-            // newY = player.y;
-
-            // for(const playerHitbox of attemptedHitboxes){
-            //     if(checkCollision(playerHitbox, possible_tiles, possible_tiles_ids)){
-            //         newX = playerHitbox.x;
-            //         newY = playerHitbox.y;
-            //         break;
-            //     }
-            // }
-            // player.x = newX;
-            // player.y = newY;
-        }
-        io.emit("players", PlayerWrapper.players);
-    }
-
     let lastUpdate = Date.now();
-    const updateLoop = setInterval(() => {
+    setInterval(() => {
         const now = Date.now();
         const dt = now - lastUpdate;
         tick(dt);
