@@ -72,7 +72,7 @@ export const GamePage = () => {
                                         num_layers,
                                         mapWidth,
                                         mapHeight, 
-                                        gidToTilesetMap,
+                                        tilesets,
                                         players,
                                         id
                                     }) => {
@@ -82,7 +82,7 @@ export const GamePage = () => {
                 num_layers,
                 mapWidth,
                 mapHeight, 
-                gidToTilesetMap,
+                tilesets,
                 players,
                 id
             }});

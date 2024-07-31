@@ -12,7 +12,7 @@ let chunk_size;
 let num_layers;
 let mapWidth;
 let mapHeight;
-let gidToTilesetMap;
+let tilesets;
 let id;
 let animationFrameId;
 let ctx;
@@ -57,12 +57,12 @@ onmessage = (e) => {
             num_layers = e.data.payload.num_layers;
             mapWidth = e.data.payload.mapWidth;
             mapHeight = e.data.payload.mapHeight;
-            gidToTilesetMap = e.data.payload.gidToTilesetMap;
+            tilesets = e.data.payload.tilesets;
             id = e.data.payload.id;
             camera.x = Math.round(clamp(players[id].x - canvas.width/2,0,mapWidth - canvas.width));
             camera.y = Math.round(clamp(players[id].y - canvas.height/2,0, mapHeight - canvas.height));
             getFirstGid = (function (){
-                const keys = Object.keys(gidToTilesetMap).map((key) => parseInt(key)).sort((a,b) => b - a);
+                const keys = Object.keys(tilesets).map((key) => parseInt(key)).sort((a,b) => b - a);
                 return (gid) => {
                     //TODO: instead of linear search, can do binary search
                     for (const key of keys) {
@@ -83,8 +83,8 @@ onmessage = (e) => {
 }
 
 async function init () {
-    for(const gid in gidToTilesetMap){
-        const src = gidToTilesetMap[gid].src;
+    for(const gid in tilesets){
+        const src = tilesets[gid].src;
         const blob = await fetch(__dir + src).then(r => r.blob());
         const img = await createImageBitmap(blob);
         images[src] = img;
@@ -121,11 +121,11 @@ function render() {
             if(tile){
                 const firstGid = getFirstGid(tile);
                 tile -= firstGid;
-                const imageRow = Math.floor(tile / gidToTilesetMap[firstGid].columns);
-                const imageCol = tile % gidToTilesetMap[firstGid].columns;
-                const src = gidToTilesetMap[firstGid].src;
-                const tileWidth = gidToTilesetMap[firstGid].tileWidth;
-                const tileHeight = gidToTilesetMap[firstGid].tileHeight;
+                const imageRow = Math.floor(tile / tilesets[firstGid].columns);
+                const imageCol = tile % tilesets[firstGid].columns;
+                const src = tilesets[firstGid].src;
+                const tileWidth = tilesets[firstGid].tileWidth;
+                const tileHeight = tilesets[firstGid].tileHeight;
 
                     
                 //want to place tiles upward and left--so according to bottom right corner (to avoid overwriting tiles and cause thats how we configured it in Tiled)

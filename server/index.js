@@ -60,8 +60,7 @@ mongoose
 async function main() {
     console.log(`Listening to ${PORT}`);
     const map = await load_chunks();
-    const {grid_size, chunk_size, mapWidth, mapHeight, getChunk, gidToTilesetMap, specialTiles, num_layers} = map;
-
+    const {grid_size, chunk_size, mapWidth, mapHeight, num_layers} = map.metadata;
 
 
     io.engine.use(helmet());
@@ -88,12 +87,8 @@ async function main() {
         }
         PlayerWrapper.players[player_id] = player;
         const initial_payload = {
-            grid_size, 
-            chunk_size,
-            num_layers,
-            mapWidth,
-            mapHeight, 
-            gidToTilesetMap,
+            ...map.metadata,
+            tilesets: map.tilesets,
             players: PlayerWrapper.players,
             id: player_id
         };
@@ -132,36 +127,6 @@ async function main() {
             console.log("disconnected");
         });
     });
-
-    const getFirstGid = (function (){
-        const keys = Object.keys(gidToTilesetMap).map((key) => parseInt(key)).sort((a,b) => b - a);
-        return (gid) => {
-            //TODO: instead of linear search, can do binary search
-            for (const key of keys) {
-                if (key <= gid) return key;
-            }
-            return null;
-        }
-    })();
-    const get_9x9 = (tile) => {
-        const possible_tiles = [];
-        for(let scaleX=-1; scaleX<=1; scaleX++){
-            for(let scaleY=-1; scaleY<=1; scaleY++){
-                possible_tiles.push({x:tile.x + scaleX*grid_size, y:tile.y + scaleY*grid_size});
-            }
-        }
-        return possible_tiles;
-    }
-    const get_tiles = (x,y, elevation) => {
-        const layer_nums = [elevation*2, elevation*2+1];
-        const tileX = x / grid_size;
-        const tileY = y / grid_size;
-        const chunkX = Math.floor(tileX / chunk_size) * chunk_size;
-        const chunkY = Math.floor(tileY / chunk_size) * chunk_size;
-        const chunk = getChunk(chunkX, chunkY);
-        const tiles = layer_nums.map((layer_num) => chunk[layer_num] && chunk[layer_num][chunk_size * (tileY % chunk_size) + (tileX % chunk_size)]);
-        return tiles;
-    }
     
 
     const tick = (dt) => {
