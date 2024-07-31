@@ -21,8 +21,8 @@ export default class PlayerWrapper extends EntityWrapper{
         this.frameInterval = 1000 / this.fps;
     }
 
-    update(input, dt){
-        this.currentState.handleInput(input, this.player);
+    update(inputs, map, dt){
+        this.currentState.handleInput(inputs, this.player);
         if(this.frameTimer > this.frameInterval){
             this.player.frameX++;
             this.player.frameX %= this.player.maxFrame;
@@ -31,8 +31,31 @@ export default class PlayerWrapper extends EntityWrapper{
             this.frameTimer += dt;
         }
 
-        this.player.x += this.speedX * dt;
-        this.player.y += this.speedY * dt;
+        const newX = this.player.x + this.speedX * dt;
+        const newY = this.player.y + this.speedY * dt;
+        const grid_size = map.metadata.grid_size;
+        
+        const tile = {x: Math.floor(player.x/grid_size) * grid_size, y: Math.floor(player.y/grid_size) * grid_size};
+        const possible_tiles = map.get_9x9(tile);
+    
+        const possible_tiles_ids = possible_tiles.map(({x,y}) => map.get_tiles(x,y, player.elevation));
+
+        const attemptedHitboxes = [{x:newX,y:newY,width:grid_size,height:grid_size}];
+        if(this.speedX && this.speedY)
+            attemptedHitboxes.push({x:newX,y:player.y,width:grid_size,height:grid_size},
+                {x:player.x,y:newY,width:grid_size,height:grid_size});
+        newX = player.x;
+        newY = player.y;
+
+        for(const playerHitbox of attemptedHitboxes){
+            if(checkCollision(playerHitbox, possible_tiles, possible_tiles_ids)){
+                newX = playerHitbox.x;
+                newY = playerHitbox.y;
+                break;
+            }
+        }
+        player.x = newX;
+        player.y = newY;
 
     }
 

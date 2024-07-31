@@ -59,32 +59,7 @@ mongoose
 const tick = (dt) => {
     for(const player_id in clients){
         const {player, inputs} = clients[player_id];
-        const oldX = player.x;
-        const oldY = player.y;
-        player.update();
-        
-        
-        const tile = {x: Math.floor(player.x/grid_size) * grid_size, y: Math.floor(player.y/grid_size) * grid_size};
-        const possible_tiles = get_9x9(tile);
-    
-        const possible_tiles_ids = possible_tiles.map(({x,y}) => get_tiles(x,y, player.elevation));
-
-        // const attemptedHitboxes = [{x:newX,y:newY,width:grid_size,height:grid_size}];
-        // if(verticalScale && horizontalScale)
-        //     attemptedHitboxes.push({x:newX,y:player.y,width:grid_size,height:grid_size},
-        //         {x:player.x,y:newY,width:grid_size,height:grid_size});
-        // newX = player.x;
-        // newY = player.y;
-
-        // for(const playerHitbox of attemptedHitboxes){
-        //     if(checkCollision(playerHitbox, possible_tiles, possible_tiles_ids)){
-        //         newX = playerHitbox.x;
-        //         newY = playerHitbox.y;
-        //         break;
-        //     }
-        // }
-        // player.x = newX;
-        // player.y = newY;
+        player.update(inputs, map, dt);
     }
     io.emit("players", PlayerWrapper.players);
 }
