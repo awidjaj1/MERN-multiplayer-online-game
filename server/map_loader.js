@@ -70,29 +70,7 @@ export async function load_map() {
             }
         })();
 
-        //we look at collisions to the bottom right since the tile provided is the tile containing the top left corner
-        //of the entity's hitbox, kinda hacky way to get tiles cause collision hitbox may span larger than the tile/grid itself
-        //so we have to check further out
-        const get_4x4 = (tile) => {
-            const possible_tiles = [];
-            for(let scaleX=0; scaleX<=3; scaleX++){
-                for(let scaleY=0; scaleY<=3; scaleY++){
-                    possible_tiles.push({x:tile.x + scaleX*grid_size, y:tile.y + scaleY*grid_size});
-                }
-            }
-            return possible_tiles;
-        }
-        const get_tiles = (x,y, elevation) => {
-            const layer_nums = [elevation*2, elevation*2+1];
-            const tileX = x / grid_size;
-            const tileY = y / grid_size;
-            const chunkX = Math.floor(tileX / chunk_size) * chunk_size;
-            const chunkY = Math.floor(tileY / chunk_size) * chunk_size;
-            const chunk = getChunk(chunkX, chunkY);
-            const tiles = layer_nums.map((layer_num) => chunk[layer_num] && chunk[layer_num][chunk_size * (tileY % chunk_size) + (tileX % chunk_size)]);
-            return tiles;
-        };
-        return {metadata: {grid_size, chunk_size, mapWidth, mapHeight, num_layers}, getChunk, getFirstGid, get_4x4, get_tiles, tilesets, specialTiles};
+        return {metadata: {grid_size, chunk_size, mapWidth, mapHeight, num_layers}, getChunk, getFirstGid, tilesets, specialTiles};
     } catch(err){
         return console.error(`Error encountered when trying to load chunks: ${err}`);
     }

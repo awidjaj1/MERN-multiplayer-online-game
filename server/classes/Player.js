@@ -3,6 +3,8 @@ import { Idle_N, Idle_NE, Idle_E, Idle_SE, Idle_S, Idle_SW, Idle_W, Idle_NW,
     Climb_Idle_N, Climb_Idle_S, Climb_N, Climb_S
  } from "./State";
 
+import { get_4x4, get_tiles } from "../collision_detection";
+
 export default class PlayerWrapper extends EntityWrapper{
     static players = {};
 
@@ -37,9 +39,9 @@ export default class PlayerWrapper extends EntityWrapper{
             if(this.velocity[axis]){
                 this.player.coords[axis] += this.velocity[axis] * dt;
                 const tile = {x: Math.floor(this.player.coords.x/grid_size) * grid_size, y: Math.floor(this.player.coords.y/grid_size) * grid_size};
-                const possible_tiles = map.get_4x4(tile);
-                const possible_tiles_ids = possible_tiles.map(({x,y}) => map.get_tiles(x,y, this.player.elevation));
-                const coord = checkCollision(this, possible_tiles, possible_tiles_ids, get_direction('x', this.velocity[axis]));
+                const possible_tiles = get_4x4(tile);
+                const possible_tiles_ids = possible_tiles.map(({x,y}) => get_tiles(x,y, this.player.elevation));
+                const coord = checkCollision(this, possible_tiles, possible_tiles_ids, get_direction('x', this.velocity[axis]), map.specialTiles);
                 if(coord)
                     this.player.coords[axis] = coord;
             }
