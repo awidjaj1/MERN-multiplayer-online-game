@@ -5,7 +5,15 @@ function AABB_Colliding(rect1, rect2){
         rect1.y + rect1.height > rect2.y;
 }
 
+function get_direction(axis, value){
+    if(axis === 'x')
+        return value > 0? 'e': 'w';
+    else
+        return value > 0? 's': 'n';   
+}
+
 const checkCollision = (player, possible_tiles, possible_tiles_ids, direction) => {
+    Object.keys(player.context).forEach((key) => player.context[key] = false);
     const gridHitbox = {x:0,y:0,width:grid_size,height:grid_size};
     const playerHitbox = {x: player.x, y: player.y, width: player.width, height: player.height};
 
@@ -38,25 +46,38 @@ const checkCollision = (player, possible_tiles, possible_tiles_ids, direction) =
         const [ground_id, object_id] = possible_tiles_ids[i];
 
         const groundHitbox = {...gridHitbox, x:gridHitbox.x + x, y: gridHitbox.y + y};
+
+        //check there is floor below player's feet (if we care for collisions)
         if(player.collidable && AABB_Colliding(groundHitbox, playerHitbox) && !ground_id){
             coord = measure(extract_coord(groundHitbox), coord || extract_coord(groundHitbox));
         }
 
+        //check for ground elevation hitboxes
         if(specialTiles[ground_id]){
+            const gid = getFirstGid(ground_id);
+            const tileWidth = gidToTilesetMap[gid].tileWidth;
+            const tileHeight = gidToTilesetMap[gid].tileHeight;
+            const offsetX = grid_size - tileWidth;
+            const offsetY = grid_size - tileHeight;
+
             specialTiles[ground_id].forEach(({hitbox, properties}) => {
-                const tileHitbox = {x:hitbox.x + x, y: hitbox.y + y, ...hitbox};
+                const tileHitbox = {...hitbox, x:hitbox.x + x + offsetX, y:hitbox.y + y + offsetY};
                 if(AABB_Colliding(tileHitbox, playerHitbox)){
                     if(properties.type === "collision" && player.collidable){
                         coord = measure(extract_coord(tileHitbox), coord || extract_coord(tileHitbox));
                     }else if(properties.type === "climb_up"){
+                        //discovered top half of ladder while on higher elevation
                         player.context.near_ladder = true;
                     }else if(properties.type === "climb_down"){
+                        //discovered lower half of ladder while on higher elevation
                         player.context.near_ladder = true;
                         player.elevation--;
                     }
                 }
             })
         }
+
+        //check for object elevation hitboxes
         if(specialTiles[object_id]){
             const gid = getFirstGid(object_id);
             const tileWidth = gidToTilesetMap[gid].tileWidth;
@@ -70,9 +91,11 @@ const checkCollision = (player, possible_tiles, possible_tiles_ids, direction) =
                     if(properties.type === "collision" && player.collidable){
                         coord = measure(extract_coord(tileHitbox), coord || extract_coord(tileHitbox));
                     }else if(properties.type === "climb_up"){
+                        //discovered top half of ladder while on lower elevation
                         player.context.near_ladder = true;
                         player.elevation++;
                     }else if(properties.type === "climb_down"){
+                        //discovered lower half of ladder while on lower elevation
                         player.context.near_ladder = true;
                     }
                 }

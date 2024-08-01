@@ -129,7 +129,7 @@ function render() {
 
                     
                 //want to place tiles upward and left--so according to bottom right corner (to avoid overwriting tiles and cause thats how we configured it in Tiled)
-                //^ only matters for tiles larger than the grid_size (rn is named grid_size, will rename later)
+                //^ only matters for tiles larger than the grid_size
                 //but canvas renders the image downwards and right, so we have to offset x,y position to top left corner
                 const tile_dx = grid_size - tileWidth;
                 const tile_dy = grid_size - tileHeight;

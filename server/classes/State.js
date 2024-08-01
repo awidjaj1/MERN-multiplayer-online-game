@@ -124,8 +124,8 @@ class Idle extends DirectionalState{
         player.maxFrame = IDLE_END;
         player.frameX = IDLE_START;
         player.frameY = this.direction;
-        player.speedX = IDLE_SPEED;
-        player.speedY = IDLE_SPEED;
+        player.velocity.x = IDLE_SPEED;
+        player.velocity.y = IDLE_SPEED;
         player.collidable = true;
 
     }
@@ -139,7 +139,7 @@ class Climb extends DirectionalState{
         player.maxFrame = CLIMB_END;
         player.frameX = CLIMB_START;
         player.frameY = this.direction;
-        player.speedX = IDLE_SPEED;
+        player.velocity.x = IDLE_SPEED;
         player.collidable = false;
     }
 }
@@ -152,8 +152,8 @@ class Climb_Idle extends DirectionalState{
         player.maxFrame = CLIMB_IDLE_END;
         player.frameX = CLIMB_IDLE_START;
         player.frameY = this.direction;
-        player.speedX = IDLE_SPEED;
-        player.speedY = IDLE_SPEED;
+        player.velocity.x = IDLE_SPEED;
+        player.velocity.y = IDLE_SPEED;
         player.collidable = false;
     }
 }
@@ -207,8 +207,8 @@ export class Walk_N extends Walk{
 
     enter(player){
         super.enter(player);
-        player.speedX = IDLE_SPEED;
-        player.speedY = -WALK_SPEED;
+        player.velocity.x = IDLE_SPEED;
+        player.velocity.y = -WALK_SPEED;
     }
 
     handleInput(inputs, player){
@@ -225,8 +225,8 @@ export class Walk_NE extends Walk{
 
     enter(player){
         super.enter(player);
-        player.speedX = WALK_SPEED;
-        player.speedY = -WALK_SPEED;
+        player.velocity.x = WALK_SPEED;
+        player.velocity.y = -WALK_SPEED;
     }
 
     handleInput(inputs, player){
@@ -243,8 +243,8 @@ export class Walk_E extends Walk{
 
     enter(player){
         super.enter(player);
-        player.speedX = WALK_SPEED;
-        player.speedY = IDLE_SPEED;
+        player.velocity.x = WALK_SPEED;
+        player.velocity.y = IDLE_SPEED;
     }
 
     handleInput(inputs, player){
@@ -261,8 +261,8 @@ export class Walk_SE extends Walk{
 
     enter(player){
         super.enter(player);
-        player.speedX = WALK_SPEED;
-        player.speedY = WALK_SPEED;
+        player.velocity.x = WALK_SPEED;
+        player.velocity.y = WALK_SPEED;
     }
 
     handleInput(inputs, player){
@@ -278,8 +278,8 @@ export class Walk_S extends Walk{
 
     enter(player){
         super.enter(player);
-        player.speedX = IDLE_SPEED;
-        player.speedY = WALK_SPEED;
+        player.velocity.x = IDLE_SPEED;
+        player.velocity.y = WALK_SPEED;
     }
 
     handleInput(inputs, player){
@@ -296,8 +296,8 @@ export class Walk_SW extends Walk{
 
     enter(player){
         super.enter(player);
-        player.speedX = -WALK_SPEED;
-        player.speedY = WALK_SPEED;
+        player.velocity.x = -WALK_SPEED;
+        player.velocity.y = WALK_SPEED;
     }
 
     handleInput(inputs, player){
@@ -314,8 +314,8 @@ export class Walk_W extends Walk{
 
     enter(player){
         super.enter(player);
-        player.speedX = -WALK_SPEED;
-        player.speedY = IDLE_SPEED;
+        player.velocity.x = -WALK_SPEED;
+        player.velocity.y = IDLE_SPEED;
     }
 
     handleInput(inputs, player){
@@ -332,8 +332,8 @@ export class Walk_NW extends Walk{
 
     enter(player){
         super.enter(player);
-        player.speedX = -WALK_SPEED;
-        player.speedY = WALK_SPEED;
+        player.velocity.x = -WALK_SPEED;
+        player.velocity.y = WALK_SPEED;
     }
 
     handleInput(inputs, player){
@@ -351,7 +351,7 @@ export class Climb_N extends Climb{
 
     enter(player){
         super.enter(player);
-        player.speedY = -CLIMB_SPEED;
+        player.velocity.y = -CLIMB_SPEED;
     }
 
     handleInput(inputs, player){
@@ -367,7 +367,7 @@ export class Climb_S extends Climb{
 
     enter(player){
         super.enter(player);
-        player.speedY = CLIMB_SPEED;
+        player.velocity.y = CLIMB_SPEED;
     }
 
 

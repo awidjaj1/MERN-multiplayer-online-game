@@ -69,10 +69,14 @@ export async function load_map() {
                 return null;
             }
         })();
-        const get_9x9 = (tile) => {
+
+        //we look at collisions to the bottom right since the tile provided is the tile containing the top left corner
+        //of the entity's hitbox, kinda hacky way to get tiles cause collision hitbox may span larger than the tile/grid itself
+        //so we have to check further out
+        const get_4x4 = (tile) => {
             const possible_tiles = [];
-            for(let scaleX=-1; scaleX<=1; scaleX++){
-                for(let scaleY=-1; scaleY<=1; scaleY++){
+            for(let scaleX=0; scaleX<=3; scaleX++){
+                for(let scaleY=0; scaleY<=3; scaleY++){
                     possible_tiles.push({x:tile.x + scaleX*grid_size, y:tile.y + scaleY*grid_size});
                 }
             }
@@ -88,7 +92,7 @@ export async function load_map() {
             const tiles = layer_nums.map((layer_num) => chunk[layer_num] && chunk[layer_num][chunk_size * (tileY % chunk_size) + (tileX % chunk_size)]);
             return tiles;
         };
-        return {metadata: {grid_size, chunk_size, mapWidth, mapHeight, num_layers}, getChunk, getFirstGid, get_9x9, get_tiles, tilesets, specialTiles};
+        return {metadata: {grid_size, chunk_size, mapWidth, mapHeight, num_layers}, getChunk, getFirstGid, get_4x4, get_tiles, tilesets, specialTiles};
     } catch(err){
         return console.error(`Error encountered when trying to load chunks: ${err}`);
     }

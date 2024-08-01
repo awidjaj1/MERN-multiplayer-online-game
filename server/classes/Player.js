@@ -16,17 +16,14 @@ export default class PlayerWrapper extends EntityWrapper{
         this.context = {near_ladder: false, near_water: false};
         this.collidable = true;
         this.currentState = this.states[4];
-        this.speedX = 0;
-        this.speedY = 0;
+        this.velocity = {x: 0, y:0};
         this.fps = 30;
         this.frameTimer = 0;
         this.frameInterval = 1000 / this.fps;
-        this.height = 16;
-        this.width = 16;
     }
 
     update(inputs, map, dt){
-        this.currentState.handleInput(inputs, this.player);
+        this.currentState.handleInput(inputs, this);
         if(this.frameTimer > this.frameInterval){
             this.player.frameX++;
             this.player.frameX %= this.player.maxFrame;
@@ -35,31 +32,20 @@ export default class PlayerWrapper extends EntityWrapper{
             this.frameTimer += dt;
         }
 
-        const newX = this.player.x + this.speedX * dt;
-        const newY = this.player.y + this.speedY * dt;
-        const grid_size = map.metadata.grid_size;
-
-        const tile = {x: Math.floor(player.x/grid_size) * grid_size, y: Math.floor(player.y/grid_size) * grid_size};
-        const possible_tiles = map.get_9x9(tile);
-    
-        const possible_tiles_ids = possible_tiles.map(({x,y}) => map.get_tiles(x,y, player.elevation));
-
-        const attemptedHitboxes = [{x:newX,y:newY,width:grid_size,height:grid_size}];
-        if(this.speedX && this.speedY)
-            attemptedHitboxes.push({x:newX,y:player.y,width:grid_size,height:grid_size},
-                {x:player.x,y:newY,width:grid_size,height:grid_size});
-        newX = player.x;
-        newY = player.y;
-
-        for(const playerHitbox of attemptedHitboxes){
-            if(checkCollision(this, possible_tiles, possible_tiles_ids)){
-                newX = playerHitbox.x;
-                newY = playerHitbox.y;
-                break;
+        const move = (axis) => {
+            const grid_size = map.metadata.grid_size;
+            if(this.velocity[axis]){
+                this.player.coords[axis] += this.velocity[axis] * dt;
+                const tile = {x: Math.floor(this.player.coords.x/grid_size) * grid_size, y: Math.floor(this.player.coords.y/grid_size) * grid_size};
+                const possible_tiles = map.get_4x4(tile);
+                const possible_tiles_ids = possible_tiles.map(({x,y}) => map.get_tiles(x,y, this.player.elevation));
+                const coord = checkCollision(this, possible_tiles, possible_tiles_ids, get_direction('x', this.velocity[axis]));
+                if(coord)
+                    this.player.coords[axis] = coord;
             }
         }
-        player.x = newX;
-        player.y = newY;
+        move('x');
+        move('y');
 
     }
 

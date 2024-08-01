@@ -82,8 +82,11 @@ async function main() {
         const player = {
             username: player_db.username, 
             level: player_db.level, 
-            x: player_db.x, 
-            y: player_db.y,
+            coords: {
+                x: player_db.x, 
+                y: player_db.y},
+            height: 16,
+            width: 16,
             elevation: player_db.elevation,
             frameX: 0,
             frameY: 0,
