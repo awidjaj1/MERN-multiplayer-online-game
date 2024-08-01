@@ -38,14 +38,22 @@ const checkCollision = (player, possible_tiles, possible_tiles_ids, direction) =
         const [ground_id, object_id] = possible_tiles_ids[i];
 
         const groundHitbox = {...gridHitbox, x:gridHitbox.x + x, y: gridHitbox.y + y};
-        if(AABB_Colliding(groundHitbox, playerHitbox) && !ground_id){
+        if(player.collidable && AABB_Colliding(groundHitbox, playerHitbox) && !ground_id){
             coord = measure(extract_coord(groundHitbox), coord || extract_coord(groundHitbox));
         }
+
         if(specialTiles[ground_id]){
             specialTiles[ground_id].forEach(({hitbox, properties}) => {
                 const tileHitbox = {x:hitbox.x + x, y: hitbox.y + y, ...hitbox};
-                if(properties.type === "collision" && AABB_Colliding(tileHitbox, playerHitbox)){
-                    coord = measure(extract_coord(tileHitbox), coord || extract_coord(tileHitbox));
+                if(AABB_Colliding(tileHitbox, playerHitbox)){
+                    if(properties.type === "collision" && player.collidable){
+                        coord = measure(extract_coord(tileHitbox), coord || extract_coord(tileHitbox));
+                    }else if(properties.type === "climb_up"){
+                        player.context.near_ladder = true;
+                    }else if(properties.type === "climb_down"){
+                        player.context.near_ladder = true;
+                        player.elevation--;
+                    }
                 }
             })
         }
@@ -59,17 +67,18 @@ const checkCollision = (player, possible_tiles, possible_tiles_ids, direction) =
                 const tileHitbox = {...hitbox, x:hitbox.x + x + offsetX, y:hitbox.y + y + offsetY};
 
                 if(AABB_Colliding(tileHitbox, playerHitbox)){
-                    if(properties.type === "collision"){
+                    if(properties.type === "collision" && player.collidable){
                         coord = measure(extract_coord(tileHitbox), coord || extract_coord(tileHitbox));
-                    }else if(properties.type === "climb"){
+                    }else if(properties.type === "climb_up"){
                         player.context.near_ladder = true;
-                        player.currentState.handleInput();
+                        player.elevation++;
+                    }else if(properties.type === "climb_down"){
+                        player.context.near_ladder = true;
                     }
                 }
             }
         }
     }
 
-    Object.keys(player.context).forEach((key) => player.context[key] = false);
     return coord;
 }

@@ -62,7 +62,6 @@ class State{
 
     }
 }
-
 class DirectionalState extends State{
     constructor(direction, state){
         this.direction = direction;
@@ -113,9 +112,9 @@ class Walk extends DirectionalState{
         player.maxFrame = WALK_END;
         player.frameX = WALK_START;
         player.frameY = this.direction;
+        player.collidable = true;
     }
 }
-
 class Idle extends DirectionalState{
     constructor(direction, state){
         super(direction, state)
@@ -127,60 +126,79 @@ class Idle extends DirectionalState{
         player.frameY = this.direction;
         player.speedX = IDLE_SPEED;
         player.speedY = IDLE_SPEED;
+        player.collidable = true;
 
     }
 }
+class Climb extends DirectionalState{
+    constructor(direction, state){
+        super(direction, state);
+    }
+    
+    enter(player){
+        player.maxFrame = CLIMB_END;
+        player.frameX = CLIMB_START;
+        player.frameY = this.direction;
+        player.speedX = IDLE_SPEED;
+        player.collidable = false;
+    }
+}
+class Climb_Idle extends DirectionalState{
+    constructor(direction, state){
+        super(direction, state);
+    }
 
+    enter(player){
+        player.maxFrame = CLIMB_IDLE_END;
+        player.frameX = CLIMB_IDLE_START;
+        player.frameY = this.direction;
+        player.speedX = IDLE_SPEED;
+        player.speedY = IDLE_SPEED;
+        player.collidable = false;
+    }
+}
 
 export class Idle_N extends Idle{
     constructor(){
         super(State.DIRECTIONS.N, State.STATES.IDLE_N);
     }
 }
-
 export class Idle_NE extends Idle{
     constructor(){
         super(State.DIRECTIONS.NE, State.STATES.IDLE_NE);
     }
 }
-
 export class Idle_E extends Idle{
     constructor(){
         super(State.DIRECTIONS.E, State.STATES.IDLE_E);
     }
 }
-
 export class Idle_SE extends Idle{
     constructor(){
         super(State.DIRECTIONS.SE, State.STATES.IDLE_SE);
     }
 }
-
 export class Idle_S extends Idle{
     constructor(){
         super(State.DIRECTIONS.S, State.STATES.IDLE_S);
     }
 }
-
 export class Idle_SW extends Idle{
     constructor(){
         super(State.DIRECTIONS.SW, State.STATES.IDLE_SW);
     }
 }
-
 export class Idle_W extends Idle{
     constructor(){
         super(State.DIRECTIONS.W, State.STATES.IDLE_W);
     }
 
 }
-
 export class Idle_NW extends Idle{
     constructor(){
         super(State.DIRECTIONS.NW, State.STATES.IDLE_NW);
     }
 }
-
 
 export class Walk_N extends Walk{
     constructor(){
@@ -200,7 +218,6 @@ export class Walk_N extends Walk{
             player.setState(State.STATES.IDLE_N);
     }
 }
-
 export class Walk_NE extends Walk{
     constructor(){
         super(State.DIRECTIONS.NE, State.STATES.WALK_NE);
@@ -219,7 +236,6 @@ export class Walk_NE extends Walk{
             player.setState(State.STATES.IDLE_NE);
     }
 }
-
 export class Walk_E extends Walk{
     constructor(){
         super(State.DIRECTIONS.E, State.STATES.WALK_E);
@@ -238,7 +254,6 @@ export class Walk_E extends Walk{
             player.setState(State.STATES.IDLE_E);
     }
 }
-
 export class Walk_SE extends Walk{
     constructor(){
         super(State.DIRECTIONS.SE, State.STATES.WALK_SE);
@@ -256,7 +271,6 @@ export class Walk_SE extends Walk{
             player.setState(State.STATES.IDLE_SE);
     }
 }
-
 export class Walk_S extends Walk{
     constructor(){
         super(State.DIRECTIONS.S, State.STATES.WALK_S);
@@ -275,7 +289,6 @@ export class Walk_S extends Walk{
             player.setState(State.STATES.IDLE_S);
     }
 }
-
 export class Walk_SW extends Walk{
     constructor(){
         super(State.DIRECTIONS.SW, State.STATES.WALK_SW);
@@ -294,7 +307,6 @@ export class Walk_SW extends Walk{
             player.setState(State.STATES.IDLE_SW);
     }
 }
-
 export class Walk_W extends Walk{
     constructor(){
         super(State.DIRECTIONS.W, State.STATES.WALK_W);
@@ -313,7 +325,6 @@ export class Walk_W extends Walk{
             player.setState(State.STATES.IDLE_W);
     }
 }
-
 export class Walk_NW extends Walk{
     constructor(){
         super(State.DIRECTIONS.NW, State.STATES.WALK_NW);
@@ -333,45 +344,6 @@ export class Walk_NW extends Walk{
     }
 }
 
-
-
-class Climb extends DirectionalState{
-    constructor(direction, state){
-        super(direction, state);
-    }
-    
-    enter(player){
-        player.maxFrame = CLIMB_END;
-        player.frameX = CLIMB_START;
-        player.frameY = this.direction;
-        player.speedX = IDLE_SPEED;
-        player.elevation++;
-    }
-
-    exit(player){
-        player.elevation--;
-    }
-}
-
-class Climb_Idle extends DirectionalState{
-    constructor(direction, state){
-        super(direction, state);
-    }
-
-    enter(player){
-        player.maxFrame = CLIMB_IDLE_END;
-        player.frameX = CLIMB_IDLE_START;
-        player.frameY = this.direction;
-        player.speedX = IDLE_SPEED;
-        player.speedY = IDLE_SPEED;
-        player.elevation++;
-    }
-
-    exit(player){
-        player.elevation--;
-    }
-}
-
 export class Climb_N extends Climb{
     constructor(){
         super(State.DIRECTIONS.N, State.STATES.CLIMB_N);
@@ -388,7 +360,6 @@ export class Climb_N extends Climb{
             player.setState(State.STATES.CLIMB_IDLE_N);
     }
 }
-
 export class Climb_S extends Climb{
     constructor(){
         super(State.DIRECTIONS.S, State.STATES.CLIMB_S);
@@ -399,19 +370,18 @@ export class Climb_S extends Climb{
         player.speedY = CLIMB_SPEED;
     }
 
+
     handleInput(inputs, player){
         //if no key is caught
         if(!super.handleInput(inputs, player))
             player.setState(State.STATES.CLIMB_IDLE_S);
     }
 }
-
 export class Climb_Idle_N extends Climb_Idle{
     constructor(){
         super(State.DIRECTIONS.N, State.STATES.CLIMB_IDLE_N);
     }
 }
-
 export class Climb_Idle_S extends Climb_Idle{
     constructor(){
         super(State.DIRECTIONS.S, State.STATES.CLIMB_IDLE_S);

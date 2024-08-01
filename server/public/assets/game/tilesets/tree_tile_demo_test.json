@@ -25,7 +25,6 @@
          "objectgroup":
             {
              "draworder":"index",
-             "id":2,
              "name":"",
              "objects":[
                     {
@@ -57,24 +56,42 @@
          "objectgroup":
             {
              "draworder":"index",
+             "id":2,
              "name":"",
              "objects":[
                     {
-                     "height":33,
+                     "height":17.5,
                      "id":5,
                      "name":"",
                      "properties":[
                             {
                              "name":"type",
                              "type":"string",
-                             "value":"climb"
+                             "value":"climb_up"
                             }],
                      "rotation":0,
                      "type":"",
                      "visible":true,
-                     "width":25,
-                     "x":4,
-                     "y":7
+                     "width":19,
+                     "x":7,
+                     "y":4
+                    }, 
+                    {
+                     "height":17.5,
+                     "id":6,
+                     "name":"",
+                     "properties":[
+                            {
+                             "name":"type",
+                             "type":"string",
+                             "value":"climb_down"
+                            }],
+                     "rotation":0,
+                     "type":"",
+                     "visible":true,
+                     "width":19,
+                     "x":7.09090909090909,
+                     "y":21.5
                     }],
              "opacity":1,
              "type":"objectgroup",
