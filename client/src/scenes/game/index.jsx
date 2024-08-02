@@ -8,19 +8,15 @@ import { useNavigate } from "react-router-dom";
 export const GamePage = () => {
     const MAX_CANVAS_SIZE = {width: 1920, height: 1080};
     const MIN_CANVAS_SIZE = {width: 320, height: 180};
-    const socketRef = useRef(null);
     const canvasRef = useRef(null);
     const token = useSelector((state) => state.token);
     const navigate = useNavigate();
-    // const [screenSize, setScreenSize] = useState(
-    //                         {width: clamp(window.innerWidth, MIN_CANVAS_SIZE.width, MAX_CANVAS_SIZE.width), 
-    //                         height: clamp(window.innerHeight, MIN_CANVAS_SIZE.height, MAX_CANVAS_SIZE.height)});
     const screenSize = {width: clamp(window.innerWidth, MIN_CANVAS_SIZE.width, MAX_CANVAS_SIZE.width), 
                         height: clamp(window.innerHeight, MIN_CANVAS_SIZE.height, MAX_CANVAS_SIZE.height)};
 
     useEffect(() => {
 
-        socketRef.current = io({
+        const socket = io({
             auth: {
                 token
             }
@@ -34,18 +30,18 @@ export const GamePage = () => {
             const validInput = ['w', 'a', 's', 'd', 'W', 'A', 'S', 'D'];
             return (e) => {
                 if(!e.repeat && validInput.includes(e.key)){
-                    socketRef.current.emit(event, e.key.toLowerCase());
+                    socket.emit(event, e.key.toLowerCase());
                 }
             }
         });
         const handleBlur = ()=>{
-            socketRef.current.emit("keyup", "all");
+            socket.emit("keyup", "all");
         };
         const handleKeydown = handleInput('keydown');
         const handleKeyup = handleInput('keyup');
         //TODO: implement custom right click where you can right click on users in the game to see more info
         const handleRightClick = (e) => {
-            socketRef.current.emit("keyup", "all");
+            socket.emit("keyup", "all");
         };
         const zoom = (e) => {
             worker.postMessage({type:"zoom", payload: e.deltaY*-0.001});
@@ -62,21 +58,21 @@ export const GamePage = () => {
         window.addEventListener('contextmenu', handleRightClick, true);
         window.addEventListener('wheel', zoom, true);
 
-        socketRef.current.on('connect_error', (err) => {
+        socket.on('connect_error', (err) => {
             window.alert(`There was an error starting the game. ${err}`);
             navigate("/home");
         });
 
-        socketRef.current.on("init", ({
-                                        grid_size, 
-                                        chunk_size,
-                                        num_layers,
-                                        mapWidth,
-                                        mapHeight, 
-                                        tilesets,
-                                        players,
-                                        id
-                                    }) => {
+        socket.on("init", ({
+                                grid_size, 
+                                chunk_size,
+                                num_layers,
+                                mapWidth,
+                                mapHeight, 
+                                tilesets,
+                                players,
+                                id
+                            }) => {
             worker.postMessage({type:"init", payload: {
                 grid_size, 
                 chunk_size,
@@ -107,12 +103,12 @@ export const GamePage = () => {
             }
             let current_chunk = get_current_chunk(player);
             let visible_chunks = get_visible_chunks(current_chunk);
-            socketRef.current.emit("req_chunks", visible_chunks);
+            socket.emit("req_chunks", visible_chunks);
 
-            socketRef.current.on("resp_chunks", (requested_chunks) => {
+            socket.on("resp_chunks", (requested_chunks) => {
                 worker.postMessage({type: "chunks", payload: requested_chunks});
             });
-            socketRef.current.on("players", (updated_players) => {
+            socket.on("players", (updated_players) => {
                 player = updated_players[id];
                 worker.postMessage({type: "players", payload: updated_players});
                 //TODO: dont just replace? maybe can be costly if more players
@@ -121,7 +117,7 @@ export const GamePage = () => {
                 if(new_chunk.x !== current_chunk.x || new_chunk.y !== current_chunk.y){
                     current_chunk = new_chunk;
                     visible_chunks = get_visible_chunks(current_chunk);
-                    socketRef.current.emit("req_chunks", visible_chunks);
+                    socket.emit("req_chunks", visible_chunks);
                 }
             })
 
@@ -134,9 +130,10 @@ export const GamePage = () => {
             window.removeEventListener('keyup', handleKeyup);
             window.removeEventListener('blur', handleBlur);
             window.removeEventListener('contextmenu', handleRightClick);
+            window.removeEventListener('wheel', zoom);
             worker.postMessage({type:"terminate"}); //not sure if this is necessary
             worker.terminate();
-            socketRef.current.disconnect();
+            socket.disconnect();
         }
     }, []);
 

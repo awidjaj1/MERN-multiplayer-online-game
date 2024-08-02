@@ -75,6 +75,7 @@ async function main() {
     io.use(verifyTokenIO);
     io.use(verifyNotLoggedIn(io));
     io.on("connection", async (socket) => {
+        console.log("connected");
         const player_id = socket.player_id;
         socket.join(`${player_id}`);
 
