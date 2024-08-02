@@ -1,17 +1,17 @@
 const WALK_START = 0;
-const WALK_END = 8;
+const WALK_END = 7;
 const IDLE_START = 8;
-const IDLE_END = 25;
+const IDLE_END = 24;
 const CLIMB_START = 25;
-const CLIMB_END = 31;
+const CLIMB_END = 30;
 const CLIMB_IDLE_START = 31;
-const CLIMB_IDLE_END = 49;
-const WALK_SPEED = 0.35;
-const CLIMB_SPEED = 0.15;
+const CLIMB_IDLE_END = 48;
+const WALK_SPEED = 0.25;
+const CLIMB_SPEED = 0.05;
 const IDLE_SPEED = 0;
 
 
-class State{
+export class State{
     static STATES = {
         IDLE_S: 0,
         IDLE_N: 1,
@@ -46,7 +46,9 @@ class State{
         NW: 7
     };
 
-    constructor(state){
+    constructor(state, startFrame, endFrame){
+        this.startFrame = startFrame;
+        this.endFrame = endFrame;
         this.state = state;
     }
 
@@ -63,9 +65,9 @@ class State{
     }
 }
 class DirectionalState extends State{
-    constructor(direction, state){
+    constructor(direction, state, startFrame, endFrame){
+        super(state, startFrame, endFrame);
         this.direction = direction;
-        super(state);
     }
 
     handleInput(inputs, player){
@@ -105,25 +107,23 @@ class DirectionalState extends State{
 
 class Walk extends DirectionalState{
     constructor(direction, state){
-        super(direction, state)
+        super(direction, state, WALK_START, WALK_END)
     }
 
     enter(player){
-        player.maxFrame = WALK_END;
-        player.frameX = WALK_START;
-        player.frameY = this.direction;
+        player.entity.frameX = WALK_START;
+        player.entity.frameY = this.direction;
         player.collidable = true;
     }
 }
 class Idle extends DirectionalState{
     constructor(direction, state){
-        super(direction, state)
+        super(direction, state, IDLE_START, IDLE_END)
     }
 
     enter(player){
-        player.maxFrame = IDLE_END;
-        player.frameX = IDLE_START;
-        player.frameY = this.direction;
+        player.entity.frameX = IDLE_START;
+        player.entity.frameY = this.direction;
         player.velocity.x = IDLE_SPEED;
         player.velocity.y = IDLE_SPEED;
         player.collidable = true;
@@ -132,26 +132,24 @@ class Idle extends DirectionalState{
 }
 class Climb extends DirectionalState{
     constructor(direction, state){
-        super(direction, state);
+        super(direction, state, CLIMB_START, CLIMB_END);
     }
     
     enter(player){
-        player.maxFrame = CLIMB_END;
-        player.frameX = CLIMB_START;
-        player.frameY = this.direction;
+        player.entity.frameX = CLIMB_START;
+        player.entity.frameY = this.direction;
         player.velocity.x = IDLE_SPEED;
         player.collidable = false;
     }
 }
 class Climb_Idle extends DirectionalState{
     constructor(direction, state){
-        super(direction, state);
+        super(direction, state, CLIMB_IDLE_START, CLIMB_IDLE_END);
     }
 
     enter(player){
-        player.maxFrame = CLIMB_IDLE_END;
-        player.frameX = CLIMB_IDLE_START;
-        player.frameY = this.direction;
+        player.entity.frameX = CLIMB_IDLE_START;
+        player.entity.frameY = this.direction;
         player.velocity.x = IDLE_SPEED;
         player.velocity.y = IDLE_SPEED;
         player.collidable = false;
@@ -333,7 +331,7 @@ export class Walk_NW extends Walk{
     enter(player){
         super.enter(player);
         player.velocity.x = -WALK_SPEED;
-        player.velocity.y = WALK_SPEED;
+        player.velocity.y = -WALK_SPEED;
     }
 
     handleInput(inputs, player){

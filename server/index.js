@@ -20,8 +20,6 @@ const httpServer = createServer(app);
 const io = new Server(httpServer);
 const PORT = process.env.PORT || 5000;
 const __dirname = import.meta.dirname;
-const TICK_RATE = 70;
-const clients = {};
 
 //logging
 app.use(morgan("common"));
@@ -56,10 +54,10 @@ mongoose
     .catch((err) => console.error(`${err} did not connect`));
 
 
-const tick = (dt) => {
+const tick = (map, clients, dt) => {
     for(const player_id in clients){
-        const {player, inputs} = clients[player_id];
-        player.update(inputs, map, dt);
+        const {playerWrapper, inputHandler} = clients[player_id];
+        playerWrapper.update(inputHandler.inputs, map, dt);
     }
     io.emit("players", PlayerWrapper.players);
 }
@@ -67,6 +65,8 @@ const tick = (dt) => {
 
 async function main() {
     console.log(`Listening to ${PORT}`);
+    const clients = {};
+    const TICK_RATE = 70;
     const map = await load_map();
     const {grid_size, chunk_size, mapWidth, mapHeight, num_layers} = map.metadata;
 
@@ -93,8 +93,8 @@ async function main() {
             spriteSheet: "8d_player-Sheet.png"
         };
         clients[player_id] = {
-            player: new PlayerWrapper(player),
-            inputs: new InputHandler(socket)
+            playerWrapper: new PlayerWrapper(player),
+            inputHandler: new InputHandler(socket)
         }
         PlayerWrapper.players[player_id] = player;
         const initial_payload = {
@@ -106,7 +106,7 @@ async function main() {
         socket.emit("init", initial_payload);
 
         socket.on("req_chunks", (chunks) => {
-            const requested_chunks = chunks.map(({x,y}) => getChunk(x,y));
+            const requested_chunks = chunks.map(({x,y}) => map.getChunk(x,y));
             const layers = [];
             for(let i=0; i<num_layers; i++){
                 let layer = [];
@@ -129,8 +129,10 @@ async function main() {
             socket.emit("resp_chunks", {layers, layerX: chunks[0].x*grid_size, layerY: chunks[0].y*grid_size});
         });
         socket.on("disconnect", async () => {
-            for(const key in player)
-                player_db[key] = player[key];
+            player_db.level = player.level;
+            player_db.x = player.coords.x;
+            player_db.y = player.coords.y; //prolly fix this in the db
+            player_db.elevation = player.elevation;
             await player_db.save();
             delete clients[player_id];
             delete PlayerWrapper.players[player_id];
@@ -142,7 +144,7 @@ async function main() {
     setInterval(() => {
         const now = Date.now();
         const dt = now - lastUpdate;
-        tick(dt);
+        tick(map, clients, dt);
         lastUpdate = now;
     }, 1000 / TICK_RATE);
 };

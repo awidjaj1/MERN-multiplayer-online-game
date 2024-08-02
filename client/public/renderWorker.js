@@ -36,8 +36,8 @@ onmessage = async (e) => {
             break;
         case "players":
             players = e.data.payload;
-            camera.x = Math.round(clamp(players[id].x + players[id].width/2 - canvas.width/2,0,mapWidth - canvas.width));
-            camera.y = Math.round(clamp(players[id].y + players[id].height/2 - canvas.height/2,0, mapHeight - canvas.height));
+            camera.x = Math.round(clamp(players[id].coords.x + players[id].width/2 - canvas.width/2,0,mapWidth - canvas.width));
+            camera.y = Math.round(clamp(players[id].coords.y + players[id].height/2 - canvas.height/2,0, mapHeight - canvas.height));
             for(const pid in players){
                 const src = players[pid].spriteSheet;
                 if(!images[src]){
@@ -49,7 +49,6 @@ onmessage = async (e) => {
             }
             break;
         case "chunks":
-            console.log("loaded new chunks");
             chunks = e.data.payload;
             break;
         case "canvas":
@@ -68,8 +67,8 @@ onmessage = async (e) => {
             mapHeight = e.data.payload.mapHeight;
             tilesets = e.data.payload.tilesets;
             id = e.data.payload.id;
-            camera.x = Math.round(clamp(players[id].x + players[id].width/2 - canvas.width/2,0,mapWidth - canvas.width));
-            camera.y = Math.round(clamp(players[id].y + players[id].height/2 - canvas.height/2,0, mapHeight - canvas.height));
+            camera.x = Math.round(clamp(players[id].coords.x + players[id].width/2 - canvas.width/2,0,mapWidth - canvas.width));
+            camera.y = Math.round(clamp(players[id].coords.y + players[id].height/2 - canvas.height/2,0, mapHeight - canvas.height));
             getFirstGid = (function (){
                 const keys = Object.keys(tilesets).map((key) => parseInt(key)).sort((a,b) => b - a);
                 return (gid) => {
