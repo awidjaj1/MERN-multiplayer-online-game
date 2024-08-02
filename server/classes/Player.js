@@ -32,7 +32,7 @@ export default class PlayerWrapper extends EntityWrapper{
         }else{
             this.frameTimer += dt;
         }
-        
+
         const move = (axis) => {
             const grid_size = map.metadata.grid_size;
             if(this.velocity[axis]){
@@ -43,7 +43,6 @@ export default class PlayerWrapper extends EntityWrapper{
                 const coord = map.collision.checkCollisionStatic(this, possible_tiles, possible_tiles_ids, axis);
                 if(coord){
                     this.entity.coords[axis] = coord;
-                    console.log(coord);
                 }
             }
         }
@@ -53,11 +52,12 @@ export default class PlayerWrapper extends EntityWrapper{
     }
 
     setState(state){
-        if(state === this.currentState.state)
-            return;
-        this.currentState.exit(this);
-        this.currentState = this.states[state];
-        this.currentState.enter(this);
+        if(state !== this.currentState.state){
+            this.currentState.exit(this);
+            this.currentState = this.states[state];
+            this.currentState.enter(this);
+        }
+        return true;
     }
 
 }

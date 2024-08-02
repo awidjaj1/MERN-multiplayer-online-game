@@ -59,6 +59,7 @@ export async function load_map() {
                 return chunks[x][y];
             };
         })();
+
     
         
         const checkCollisionStatic = (function (){
@@ -75,11 +76,23 @@ export async function load_map() {
                     return value > 0? 's': 'n';   
             }
 
-            return (player, possible_tiles, possible_tiles_ids, axis) => {
-                Object.keys(player.context).forEach((key) => player.context[key] = false);
-                const direction = get_direction(axis, player.velocity[axis])
+            const getFirstGid = (function (){
+                const keys = Object.keys(tilesets).map((key) => parseInt(key)).sort((a,b) => b - a);
+                return (gid) => {
+                    //TODO: instead of linear search, can do binary search
+                    for (const key of keys) {
+                        if (key <= gid) return key;
+                    }
+                    return null;
+                }
+            })();
+
+            return (playerWrapper, possible_tiles, possible_tiles_ids, axis) => {
+                Object.keys(playerWrapper.context).forEach((key) => playerWrapper.context[key] = false);
+                const direction = get_direction(axis, playerWrapper.velocity[axis])
                 const gridHitbox = {x:0,y:0,width:grid_size,height:grid_size};
-                const playerHitbox = {x: player.x, y: player.y, width: player.width, height: player.height};
+                const playerHitbox = {x: playerWrapper.entity.coords.x, y: playerWrapper.entity.coords.y, 
+                    width: playerWrapper.entity.width, height: playerWrapper.entity.height};
             
                 //only one direction at a time, even for diagonal (i.e. we move in an L shape). This could make
                 //the character move around an object when moving diagonally, but it shouldn't be an issue if the
@@ -94,15 +107,17 @@ export async function load_map() {
                 let coord = null;
             
                 let measure = Math.min;
-                let extend = false;
+                let nw = false;
                 if(direction === 'n' || direction === 'w'){
                     measure = Math.max;
-                    extend = true;
+                    nw = true;
                 }
+                //note that the coordinate is the topleft corner of the player, so need to shift 
+                //according to dimensions of the player if coming from se
                 if(direction === 'n' || direction === 's'){
-                    extract_coord = (hitbox) => hitbox.y + extend*hitbox.height;
+                    extract_coord = (hitbox) => hitbox.y + nw*hitbox.height - !nw*playerHitbox.height;
                 }else{
-                    extract_coord = (hitbox) => hitbox.x + extend*hitbox.width;
+                    extract_coord = (hitbox) => hitbox.x + nw*hitbox.width - !nw*playerHitbox.width;
                 }
             
                 for(const i in possible_tiles){
@@ -112,30 +127,30 @@ export async function load_map() {
                     const groundHitbox = {...gridHitbox, x:gridHitbox.x + x, y: gridHitbox.y + y};
             
                     //check there is floor below player's feet (if we care for collisions)
-                    if(player.collidable && AABB_Colliding(groundHitbox, playerHitbox) && !ground_id){
+                    if(playerWrapper.collidable && AABB_Colliding(groundHitbox, playerHitbox) && !ground_id){
                         coord = measure(extract_coord(groundHitbox), coord || extract_coord(groundHitbox));
                     }
             
                     //check for ground elevation hitboxes
                     if(specialTiles[ground_id]){
                         const gid = getFirstGid(ground_id);
-                        const tileWidth = gidToTilesetMap[gid].tileWidth;
-                        const tileHeight = gidToTilesetMap[gid].tileHeight;
+                        const tileWidth = tilesets[gid].tileWidth;
+                        const tileHeight = tilesets[gid].tileHeight;
                         const offsetX = grid_size - tileWidth;
                         const offsetY = grid_size - tileHeight;
             
                         specialTiles[ground_id].forEach(({hitbox, properties}) => {
                             const tileHitbox = {...hitbox, x:hitbox.x + x + offsetX, y:hitbox.y + y + offsetY};
                             if(AABB_Colliding(tileHitbox, playerHitbox)){
-                                if(properties.type === "collision" && player.collidable){
+                                if(properties.type === "collision" && playerWrapper.collidable){
                                     coord = measure(extract_coord(tileHitbox), coord || extract_coord(tileHitbox));
                                 }else if(properties.type === "climb_up"){
                                     //discovered top half of ladder while on higher elevation
-                                    player.context.near_ladder = true;
+                                    playerWrapper.context.near_ladder = true;
                                 }else if(properties.type === "climb_down"){
                                     //discovered lower half of ladder while on higher elevation
-                                    player.context.near_ladder = true;
-                                    player.elevation--;
+                                    playerWrapper.context.near_ladder = true;
+                                    playerWrapper.entity.elevation--;
                                 }
                             }
                         })
@@ -144,23 +159,23 @@ export async function load_map() {
                     //check for object elevation hitboxes
                     if(specialTiles[object_id]){
                         const gid = getFirstGid(object_id);
-                        const tileWidth = gidToTilesetMap[gid].tileWidth;
-                        const tileHeight = gidToTilesetMap[gid].tileHeight;
+                        const tileWidth = tilesets[gid].tileWidth;
+                        const tileHeight = tilesets[gid].tileHeight;
                         const offsetX = grid_size - tileWidth;
                         const offsetY = grid_size - tileHeight;
                         for(const {hitbox, properties} of specialTiles[object_id]){
                             const tileHitbox = {...hitbox, x:hitbox.x + x + offsetX, y:hitbox.y + y + offsetY};
             
                             if(AABB_Colliding(tileHitbox, playerHitbox)){
-                                if(properties.type === "collision" && player.collidable){
+                                if(properties.type === "collision" && playerWrapper.collidable){
                                     coord = measure(extract_coord(tileHitbox), coord || extract_coord(tileHitbox));
                                 }else if(properties.type === "climb_up"){
                                     //discovered top half of ladder while on lower elevation
-                                    player.context.near_ladder = true;
-                                    player.elevation++;
+                                    playerWrapper.context.near_ladder = true;
+                                    playerWrapper.entity.elevation++;
                                 }else if(properties.type === "climb_down"){
                                     //discovered lower half of ladder while on lower elevation
-                                    player.context.near_ladder = true;
+                                    playerWrapper.context.near_ladder = true;
                                 }
                             }
                         }
@@ -198,7 +213,11 @@ export async function load_map() {
         };
 
 
-        return {metadata: {grid_size, chunk_size, mapWidth, mapHeight, num_layers}, collision: {checkCollisionStatic, get_4x4, get_tiles}, getChunk, tilesets, specialTiles};
+        return {
+                metadata: {grid_size, chunk_size, mapWidth, mapHeight, num_layers}, 
+                collision: {checkCollisionStatic, get_4x4, get_tiles}, 
+                getChunk, tilesets, specialTiles
+            };
     } catch(err){
         return console.error(`Error encountered when trying to load chunks: ${err}`);
     }

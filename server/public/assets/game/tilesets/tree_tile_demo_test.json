@@ -60,7 +60,7 @@
              "name":"",
              "objects":[
                     {
-                     "height":17.5,
+                     "height":14.5,
                      "id":5,
                      "name":"",
                      "properties":[
@@ -72,12 +72,12 @@
                      "rotation":0,
                      "type":"",
                      "visible":true,
-                     "width":2,
-                     "x":15.5,
-                     "y":4
+                     "width":0.5,
+                     "x":16.5,
+                     "y":7
                     }, 
                     {
-                     "height":17.5,
+                     "height":14.4130434782609,
                      "id":6,
                      "name":"",
                      "properties":[
@@ -89,8 +89,8 @@
                      "rotation":0,
                      "type":"",
                      "visible":true,
-                     "width":2,
-                     "x":15.5,
+                     "width":0.5,
+                     "x":16.5,
                      "y":21.5
                     }],
              "opacity":1,

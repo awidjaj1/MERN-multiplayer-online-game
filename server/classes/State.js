@@ -71,36 +71,32 @@ class DirectionalState extends State{
     }
 
     handleInput(inputs, player){
-         if(player.context.near_ladder)
+        if(player.context.near_ladder)
             if(inputs.w)
-                player.setState(State.STATES.CLIMB_N);
+                return player.setState(State.STATES.CLIMB_N);
             else if(inputs.s)
-                player.setState(State.STATES.CLIMB_S);
-            else
-                return false; //no input was caught
+                return player.setState(State.STATES.CLIMB_S);
 
         if(inputs.w)
             if(inputs.d)
-                player.setState(State.STATES.WALK_NE);
+                return player.setState(State.STATES.WALK_NE);
             else if(inputs.a)
-                player.setState(State.STATES.WALK_NW);
+                return player.setState(State.STATES.WALK_NW);
             else
-                player.setState(State.STATES.WALK_N);
+                return player.setState(State.STATES.WALK_N);
         else if(inputs.s)
             if(inputs.d)
-                player.setState(State.STATES.WALK_SE);
+                return player.setState(State.STATES.WALK_SE);
             else if(inputs.a)
-                player.setState(State.STATES.WALK_SW);
+                return player.setState(State.STATES.WALK_SW);
             else
-                player.setState(State.STATES.WALK_S);
+                return player.setState(State.STATES.WALK_S);
         else if(inputs.d)
-            player.setState(State.STATES.WALK_E);
+            return player.setState(State.STATES.WALK_E);
         else if(inputs.a)
-            player.setState(State.STATES.WALK_W);
+            return player.setState(State.STATES.WALK_W);
         else
             return false; //no input was caught
-
-        return true; //input was caught
             
     }
 }
@@ -153,6 +149,12 @@ class Climb_Idle extends DirectionalState{
         player.velocity.x = IDLE_SPEED;
         player.velocity.y = IDLE_SPEED;
         player.collidable = false;
+    }
+
+    handleInput(inputs, player){
+        if(player.context.near_ladder && !inputs.w && !inputs.s && (inputs.d || inputs.a))
+            return;
+        super.handleInput(inputs, player);
     }
 }
 
@@ -223,8 +225,8 @@ export class Walk_NE extends Walk{
 
     enter(player){
         super.enter(player);
-        player.velocity.x = WALK_SPEED;
-        player.velocity.y = -WALK_SPEED;
+        player.velocity.x = WALK_SPEED * Math.SQRT1_2;
+        player.velocity.y = -WALK_SPEED * Math.SQRT1_2;
     }
 
     handleInput(inputs, player){
@@ -259,8 +261,8 @@ export class Walk_SE extends Walk{
 
     enter(player){
         super.enter(player);
-        player.velocity.x = WALK_SPEED;
-        player.velocity.y = WALK_SPEED;
+        player.velocity.x = WALK_SPEED* Math.SQRT1_2;
+        player.velocity.y = WALK_SPEED* Math.SQRT1_2;
     }
 
     handleInput(inputs, player){
@@ -294,8 +296,8 @@ export class Walk_SW extends Walk{
 
     enter(player){
         super.enter(player);
-        player.velocity.x = -WALK_SPEED;
-        player.velocity.y = WALK_SPEED;
+        player.velocity.x = -WALK_SPEED* Math.SQRT1_2;
+        player.velocity.y = WALK_SPEED* Math.SQRT1_2;
     }
 
     handleInput(inputs, player){
@@ -330,8 +332,8 @@ export class Walk_NW extends Walk{
 
     enter(player){
         super.enter(player);
-        player.velocity.x = -WALK_SPEED;
-        player.velocity.y = -WALK_SPEED;
+        player.velocity.x = -WALK_SPEED* Math.SQRT1_2;
+        player.velocity.y = -WALK_SPEED* Math.SQRT1_2;
     }
 
     handleInput(inputs, player){
@@ -353,9 +355,11 @@ export class Climb_N extends Climb{
     }
 
     handleInput(inputs, player){
-        //if no key is caught
-        if(!super.handleInput(inputs, player))
+        if(player.context.near_ladder && !inputs.w && !inputs.s)
             player.setState(State.STATES.CLIMB_IDLE_N);
+        else
+            super.handleInput(inputs, player);
+            
     }
 }
 export class Climb_S extends Climb{
@@ -370,9 +374,10 @@ export class Climb_S extends Climb{
 
 
     handleInput(inputs, player){
-        //if no key is caught
-        if(!super.handleInput(inputs, player))
+        if(player.context.near_ladder && !inputs.w && !inputs.s)
             player.setState(State.STATES.CLIMB_IDLE_S);
+        else
+            super.handleInput(inputs, player);
     }
 }
 export class Climb_Idle_N extends Climb_Idle{

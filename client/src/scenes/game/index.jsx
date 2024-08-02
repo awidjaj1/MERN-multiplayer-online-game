@@ -7,7 +7,7 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 export const GamePage = () => {
     const MAX_CANVAS_SIZE = {width: 1920, height: 1080};
-    const MIN_CANVAS_SIZE = {width: 800, height: 450};
+    const MIN_CANVAS_SIZE = {width: 320, height: 180};
     const socketRef = useRef(null);
     const canvasRef = useRef(null);
     const token = useSelector((state) => state.token);
