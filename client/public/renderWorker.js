@@ -3,6 +3,7 @@
 // TODO: look into webpack
 
 const __dir = "/server/public/assets/game/tilesets/";
+const DEFAULT_FONT_SIZE = 6;
 const images = {};
 let chunks;
 let players;
@@ -18,6 +19,9 @@ let animationFrameId;
 let ctx;
 let canvas;
 let getFirstGid;
+let ZOOM = 1;
+let MIN_ZOOM = 1;
+let MAX_ZOOM = 4;
 
 function clamp(val, min, max){
     if(val < min) return min;
@@ -27,17 +31,24 @@ function clamp(val, min, max){
 
 onmessage = async (e) => {
     switch(e.data.type){
+        case "zoom":
+            ZOOM = clamp(ZOOM + e.data.payload, 1, MAX_ZOOM);
+            camera.x = Math.round(clamp(ZOOM*(players[id].coords.x + players[id].width/2) - canvas.width/2,0,mapWidth*ZOOM - canvas.width));
+            camera.y = Math.round(clamp(ZOOM*(players[id].coords.y + players[id].height/2) - canvas.height/2,0, mapHeight*ZOOM - canvas.height));
+            ctx.font = `${DEFAULT_FONT_SIZE*ZOOM}px Arial`;
         case "resize":
+            //when canvas is resized, context is reset
             canvas.width = e.data.payload.width;
             canvas.height = e.data.payload.height;
             ctx.imageSmoothingEnabled = false;
             ctx.textAlign = "center";
-            ctx.fillStyle = "black";
+            ctx.fillStyle = "black"; 
+            ctx.font = `${DEFAULT_FONT_SIZE*ZOOM}px Arial`;
             break;
         case "players":
             players = e.data.payload;
-            camera.x = Math.round(clamp(players[id].coords.x + players[id].width/2 - canvas.width/2,0,mapWidth - canvas.width));
-            camera.y = Math.round(clamp(players[id].coords.y + players[id].height/2 - canvas.height/2,0, mapHeight - canvas.height));
+            camera.x = Math.round(clamp(ZOOM*(players[id].coords.x + players[id].width/2) - canvas.width/2,0,mapWidth*ZOOM - canvas.width));
+            camera.y = Math.round(clamp(ZOOM*(players[id].coords.y + players[id].height/2) - canvas.height/2,0, mapHeight*ZOOM - canvas.height));
             for(const pid in players){
                 const src = players[pid].spriteSheet;
                 if(!images[src]){
@@ -57,6 +68,7 @@ onmessage = async (e) => {
             ctx.imageSmoothingEnabled = false;
             ctx.textAlign = "center";
             ctx.fillStyle = "black";
+            ctx.font = `${DEFAULT_FONT_SIZE*ZOOM}px Arial`;
             break;
         case "init":
             players = e.data.payload.players;
@@ -67,8 +79,8 @@ onmessage = async (e) => {
             mapHeight = e.data.payload.mapHeight;
             tilesets = e.data.payload.tilesets;
             id = e.data.payload.id;
-            camera.x = Math.round(clamp(players[id].coords.x + players[id].width/2 - canvas.width/2,0,mapWidth - canvas.width));
-            camera.y = Math.round(clamp(players[id].coords.y + players[id].height/2 - canvas.height/2,0, mapHeight - canvas.height));
+            camera.x = Math.round(clamp(ZOOM*(players[id].coords.x + players[id].width/2) - canvas.width/2,0,mapWidth*ZOOM - canvas.width));
+            camera.y = Math.round(clamp(ZOOM*(players[id].coords.y + players[id].height/2) - canvas.height/2,0, mapHeight*ZOOM - canvas.height));
             getFirstGid = (function (){
                 const keys = Object.keys(tilesets).map((key) => parseInt(key)).sort((a,b) => b - a);
                 return (gid) => {
@@ -143,12 +155,16 @@ function render() {
                 //but canvas renders the image downwards and right, so we have to offset x,y position to top left corner
                 const tile_dx = grid_size - tileWidth;
                 const tile_dy = grid_size - tileHeight;
-                const canvasX = layerX + layer_dx + tile_dx - camera.x;
-                const canvasY = layerY + layer_dy + tile_dy - camera.y;
-                if(clamp(canvasX, -tileWidth, canvas.width) === canvasX && clamp(canvasY, -tileHeight, canvas.height) === canvasY)
+                //x and y canvas draw locations
+                const canvasX = (layerX + layer_dx + tile_dx)*ZOOM - camera.x;
+                const canvasY = (layerY + layer_dy + tile_dy)*ZOOM - camera.y;
+                //width and height of drawing on canvas
+                const canvasWidth = tileWidth * ZOOM;
+                const canvasHeight = tileHeight * ZOOM;
+                if(clamp(canvasX, -canvasWidth, canvas.width) === canvasX && clamp(canvasY, -canvasHeight, canvas.height) === canvasY)
                     ctx.drawImage(images[src], imageCol * tileWidth, imageRow * tileHeight, 
                         tileWidth, tileHeight,
-                        canvasX,canvasY,tileWidth, tileHeight);
+                        canvasX,canvasY,canvasWidth,canvasHeight);
             }
 
             //a null tile indicates a chunk_sized row of empty tiles
@@ -167,17 +183,25 @@ function render() {
                     //since the first row will always be offscreen anyways
                     const player_id = players_to_draw.pop();
                     const player = players[player_id];
-                    ctx.drawImage(
-                        images[player.spriteSheet], 
-                        player.frameX * player.width, 
-                        player.frameY * player.height, 
-                        player.width, player.height,
-                        (player.coords.x - camera.x), 
-                        (player.coords.y - camera.y), 
-                        player.width, player.height);
-                    ctx.fillText(`lvl.${player.level} ${player.username}`, 
-                        (player.coords.x - camera.x) + grid_size/2, 
-                        (player.coords.y - camera.y) + grid_size*2)
+                    const canvasX = player.coords.x*ZOOM - camera.x;
+                    const canvasY = player.coords.y*ZOOM - camera.y;
+                    const canvasWidth = player.width * ZOOM;
+                    const canvasHeight = player.height * ZOOM;
+
+                    if(clamp(canvasX, -canvasWidth, canvas.width) === canvasX && clamp(canvasY, -canvasHeight, canvas.height) === canvasY){
+                        ctx.drawImage(
+                            images[player.spriteSheet], 
+                            player.frameX * player.width, 
+                            player.frameY * player.height, 
+                            player.width, player.height,
+                            canvasX, 
+                            canvasY, 
+                            canvasWidth, canvasHeight);
+                        ctx.fillText(`lvl.${player.level} ${player.username}`, 
+                            canvasX + canvasWidth/2, 
+                            canvasY + canvasHeight + DEFAULT_FONT_SIZE*ZOOM,
+                        )
+                    }
                 }
             }
         }

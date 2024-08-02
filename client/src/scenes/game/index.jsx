@@ -19,21 +19,17 @@ export const GamePage = () => {
                         height: clamp(window.innerHeight, MIN_CANVAS_SIZE.height, MAX_CANVAS_SIZE.height)};
 
     useEffect(() => {
-        const handleResize = () => {
-            // setScreenSize(
-            //     {width: clamp(window.innerWidth, MIN_CANVAS_SIZE.width, MAX_CANVAS_SIZE.width), 
-            //     height: clamp(window.innerHeight, MIN_CANVAS_SIZE.height, MAX_CANVAS_SIZE.height)});
-            screenSize.width = clamp(window.innerWidth, MIN_CANVAS_SIZE.width, MAX_CANVAS_SIZE.width);
-            screenSize.height = clamp(window.innerHeight, MIN_CANVAS_SIZE.height, MAX_CANVAS_SIZE.height)
-            worker.postMessage({type:"resize", payload: screenSize});
-        }
-        window.addEventListener('resize', handleResize, true);
 
         socketRef.current = io({
             auth: {
                 token
             }
         });
+        const canvas = canvasRef.current;
+        const offscreen = canvas.transferControlToOffscreen();
+        const worker = new Worker("renderWorker.js");
+        worker.postMessage({type: "canvas", payload: offscreen}, [offscreen]);
+
         const handleInput = (function (event){
             const validInput = ['w', 'a', 's', 'd', 'W', 'A', 'S', 'D'];
             return (e) => {
@@ -50,21 +46,26 @@ export const GamePage = () => {
         //TODO: implement custom right click where you can right click on users in the game to see more info
         const handleRightClick = (e) => {
             socketRef.current.emit("keyup", "all");
-        }
+        };
+        const zoom = (e) => {
+            worker.postMessage({type:"zoom", payload: e.deltaY*-0.001});
+        };
+        const handleResize = () => {
+            screenSize.width = clamp(window.innerWidth, MIN_CANVAS_SIZE.width, MAX_CANVAS_SIZE.width);
+            screenSize.height = clamp(window.innerHeight, MIN_CANVAS_SIZE.height, MAX_CANVAS_SIZE.height)
+            worker.postMessage({type:"resize", payload: screenSize});
+        };
+        window.addEventListener('resize', handleResize, true);
         window.addEventListener('keydown', handleKeydown, true);
         window.addEventListener('keyup', handleKeyup, true);
         window.addEventListener('blur', handleBlur, true);
         window.addEventListener('contextmenu', handleRightClick, true);
+        window.addEventListener('wheel', zoom, true);
 
         socketRef.current.on('connect_error', (err) => {
             window.alert(`There was an error starting the game. ${err}`);
             navigate("/home");
         });
-
-        const canvas = canvasRef.current;
-        const offscreen = canvas.transferControlToOffscreen();
-        const worker = new Worker("renderWorker.js");
-        worker.postMessage({type: "canvas", payload: offscreen}, [offscreen]);
 
         socketRef.current.on("init", ({
                                         grid_size, 
