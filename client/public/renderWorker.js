@@ -25,7 +25,7 @@ function clamp(val, min, max){
     return val;
 };
 
-onmessage = (e) => {
+onmessage = async (e) => {
     switch(e.data.type){
         case "resize":
             canvas.width = e.data.payload.width;
@@ -36,8 +36,17 @@ onmessage = (e) => {
             break;
         case "players":
             players = e.data.payload;
-            camera.x = Math.round(clamp(players[id].x - canvas.width/2,0,mapWidth - canvas.width));
-            camera.y = Math.round(clamp(players[id].y - canvas.height/2,0, mapHeight - canvas.height));
+            camera.x = Math.round(clamp(players[id].x + players[id].width/2 - canvas.width/2,0,mapWidth - canvas.width));
+            camera.y = Math.round(clamp(players[id].y + players[id].height/2 - canvas.height/2,0, mapHeight - canvas.height));
+            for(const pid in players){
+                const src = players[pid].spriteSheet;
+                if(!images[src]){
+                    const response = await fetch(__dir + src);
+                    const blob = await response.blob();
+                    const img = await createImageBitmap(blob);
+                    images[src] = img;
+                }
+            }
             break;
         case "chunks":
             console.log("loaded new chunks");
@@ -59,8 +68,8 @@ onmessage = (e) => {
             mapHeight = e.data.payload.mapHeight;
             tilesets = e.data.payload.tilesets;
             id = e.data.payload.id;
-            camera.x = Math.round(clamp(players[id].x - canvas.width/2,0,mapWidth - canvas.width));
-            camera.y = Math.round(clamp(players[id].y - canvas.height/2,0, mapHeight - canvas.height));
+            camera.x = Math.round(clamp(players[id].x + players[id].width/2 - canvas.width/2,0,mapWidth - canvas.width));
+            camera.y = Math.round(clamp(players[id].y + players[id].height/2 - canvas.height/2,0, mapHeight - canvas.height));
             getFirstGid = (function (){
                 const keys = Object.keys(tilesets).map((key) => parseInt(key)).sort((a,b) => b - a);
                 return (gid) => {
@@ -85,10 +94,12 @@ onmessage = (e) => {
 async function init () {
     for(const gid in tilesets){
         const src = tilesets[gid].src;
-        const blob = await fetch(__dir + src).then(r => r.blob());
+        const response = await fetch(__dir + src);
+        const blob = await response.blob();
         const img = await createImageBitmap(blob);
         images[src] = img;
     }
+
     animationFrameId = requestAnimationFrame(main_loop);
 
 }
@@ -113,7 +124,7 @@ function render() {
         while(player_ids.length && players[player_ids.at(-1)].elevation === elevation){
             players_to_draw.push(player_ids.pop());
         }
-        players_to_draw.sort((p1, p2) => players[p2].y - players[p1].y);
+        players_to_draw.sort((p1, p2) => players[p2].coords.y - players[p1].coords.y);
 
         let layer_dx = 0;
         let layer_dy = 0;
@@ -152,14 +163,22 @@ function render() {
                 layer_dx = 0;
                 layer_dy += grid_size;
                 //TODO: only draw when player in camera
-                while(players_to_draw.length && players[players_to_draw.at(-1)].y < layer_dy + layerY){
+                while(players_to_draw.length && players[players_to_draw.at(-1)].coords.y < layer_dy + layerY){
                     //don't have to worry about the case where you have to draw the player before the first row of tiles
                     //since the first row will always be offscreen anyways
-                   const player_id = players_to_draw.pop();
-                   ctx.fillRect((players[player_id].x - camera.x), (players[player_id].y - camera.y) - 0.5*grid_size, grid_size, 1.5*grid_size);
-                    ctx.fillText(`lvl.${players[player_id].level} ${players[player_id].username}`, 
-                        (players[player_id].x - camera.x) + grid_size/2, 
-                        (players[player_id].y - camera.y) + grid_size*2)
+                    const player_id = players_to_draw.pop();
+                    const player = players[player_id];
+                    ctx.drawImage(
+                        images[player.spriteSheet], 
+                        player.frameX * player.width, 
+                        player.frameY * player.height, 
+                        player.width, player.height,
+                        (player.coords.x - camera.x), 
+                        (player.coords.y - camera.y), 
+                        player.width, player.height);
+                    ctx.fillText(`lvl.${player.level} ${player.username}`, 
+                        (player.coords.x - camera.x) + grid_size/2, 
+                        (player.coords.y - camera.y) + grid_size*2)
                 }
             }
         }

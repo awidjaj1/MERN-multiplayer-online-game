@@ -89,8 +89,8 @@ export const GamePage = () => {
 
             let player = players[id];
             const get_current_chunk = (player) => {
-                return {x: Math.floor(player.x / (grid_size * chunk_size)) * chunk_size, 
-                    y: Math.floor(player.y / (grid_size *chunk_size)) * chunk_size};
+                return {x: Math.floor(player.coords.x / (grid_size * chunk_size)) * chunk_size, 
+                    y: Math.floor(player.coords.y / (grid_size * chunk_size)) * chunk_size};
             }
             const get_visible_chunks = (current_chunk) => {
                 

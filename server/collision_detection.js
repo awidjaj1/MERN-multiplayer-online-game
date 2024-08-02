@@ -12,8 +12,9 @@ function get_direction(axis, value){
         return value > 0? 's': 'n';   
 }
 
-const checkCollisionStatic = (player, possible_tiles, possible_tiles_ids, direction, specialTiles) => {
+const checkCollisionStatic = (player, possible_tiles, possible_tiles_ids, specialTiles, axis) => {
     Object.keys(player.context).forEach((key) => player.context[key] = false);
+    const direction = get_direction(axis, player.velocity[axis])
     const gridHitbox = {x:0,y:0,width:grid_size,height:grid_size};
     const playerHitbox = {x: player.x, y: player.y, width: player.width, height: player.height};
 

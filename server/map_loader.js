@@ -59,18 +59,9 @@ export async function load_map() {
                 return chunks[x][y];
             };
         })();
-        const getFirstGid = (function (){
-            const keys = Object.keys(tilesets).map((key) => parseInt(key)).sort((a,b) => b - a);
-            return (gid) => {
-                //TODO: instead of linear search, can do binary search
-                for (const key of keys) {
-                    if (key <= gid) return key;
-                }
-                return null;
-            }
-        })();
+    
 
-        return {metadata: {grid_size, chunk_size, mapWidth, mapHeight, num_layers}, getChunk, getFirstGid, tilesets, specialTiles};
+        return {metadata: {grid_size, chunk_size, mapWidth, mapHeight, num_layers}, getChunk, tilesets, specialTiles};
     } catch(err){
         return console.error(`Error encountered when trying to load chunks: ${err}`);
     }
