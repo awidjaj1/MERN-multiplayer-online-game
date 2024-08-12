@@ -15,8 +15,7 @@ export default class PlayerWrapper extends EntityWrapper{
             new Walk_S(), new Walk_N(), new Walk_E(), new Walk_SE(), new Walk_NE(), new Walk_W(), new Walk_SW(), new Walk_NW(),
             new Climb_Idle_N(), new Climb_Idle_S(), new Climb_N(), new Climb_S(),
         ];
-        this.context = {near_ladder: false, near_water: false};
-        this.collidable = true;
+        this.context = {near_ladder: false, near_water: false, elevated: false};
         this.currentState = this.states[State.STATES.IDLE_S];
         this.velocity = {x: 0, y:0};
         this.fps = 30;

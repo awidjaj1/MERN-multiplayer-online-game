@@ -1,17 +1,11 @@
-{ "columns":2,
- "grid":
-    {
-     "height":16,
-     "orientation":"orthogonal",
-     "width":16
-    },
- "image":"tree_tile_demo.png",
+{ "columns":3,
+ "image":"3x2.png",
  "imageheight":48,
- "imagewidth":64,
+ "imagewidth":96,
  "margin":0,
  "name":"3x2",
  "spacing":0,
- "tilecount":2,
+ "tilecount":3,
  "tiledversion":"1.10.2",
  "tileheight":48,
  "tileoffset":
@@ -25,6 +19,7 @@
          "objectgroup":
             {
              "draworder":"index",
+             "id":2,
              "name":"",
              "objects":[
                     {
@@ -40,8 +35,8 @@
                      "rotation":0,
                      "type":"",
                      "visible":true,
-                     "width":12,
-                     "x":10,
+                     "width":11,
+                     "x":11,
                      "y":33
                     }],
              "opacity":1,
@@ -56,11 +51,29 @@
          "objectgroup":
             {
              "draworder":"index",
+             "id":2,
              "name":"",
              "objects":[
                     {
-                     "height":14.5,
-                     "id":5,
+                     "height":25,
+                     "id":2,
+                     "name":"",
+                     "properties":[
+                            {
+                             "name":"type",
+                             "type":"string",
+                             "value":"ladder"
+                            }],
+                     "rotation":0,
+                     "type":"",
+                     "visible":true,
+                     "width":1,
+                     "x":16,
+                     "y":11
+                    }, 
+                    {
+                     "height":5,
+                     "id":1,
                      "name":"",
                      "properties":[
                             {
@@ -71,13 +84,28 @@
                      "rotation":0,
                      "type":"",
                      "visible":true,
-                     "width":0.5,
-                     "x":16.5,
-                     "y":7
-                    }, 
+                     "width":1,
+                     "x":16,
+                     "y":31
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "x":0,
+             "y":0
+            }
+        }, 
+        {
+         "id":2,
+         "objectgroup":
+            {
+             "draworder":"index",
+             "id":2,
+             "name":"",
+             "objects":[
                     {
-                     "height":14.4130434782609,
-                     "id":6,
+                     "height":3,
+                     "id":1,
                      "name":"",
                      "properties":[
                             {
@@ -88,9 +116,26 @@
                      "rotation":0,
                      "type":"",
                      "visible":true,
-                     "width":0.5,
-                     "x":16.5,
-                     "y":21.5
+                     "width":1,
+                     "x":16,
+                     "y":36
+                    }, 
+                    {
+                     "height":25,
+                     "id":2,
+                     "name":"",
+                     "properties":[
+                            {
+                             "name":"type",
+                             "type":"string",
+                             "value":"ladder"
+                            }],
+                     "rotation":0,
+                     "type":"",
+                     "visible":true,
+                     "width":1,
+                     "x":16,
+                     "y":11
                     }],
              "opacity":1,
              "type":"objectgroup",

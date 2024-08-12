@@ -1,4 +1,5 @@
 import {readFile} from "fs/promises";
+import { State } from "./classes/State";
 
 export async function load_map() {
     try {
@@ -91,8 +92,12 @@ export async function load_map() {
                 Object.keys(playerWrapper.context).forEach((key) => playerWrapper.context[key] = false);
                 const direction = get_direction(axis, playerWrapper.velocity[axis])
                 const gridHitbox = {x:0,y:0,width:grid_size,height:grid_size};
-                const playerHitbox = {x: playerWrapper.entity.coords.x, y: playerWrapper.entity.coords.y, 
-                    width: playerWrapper.entity.width, height: playerWrapper.entity.height};
+                const playerHitbox = {
+                    x: playerWrapper.entity.coords.x + (playerWrapper.entity.width/3), 
+                    y: playerWrapper.entity.coords.y + (3*playerWrapper.entity.height/4), 
+                    width: playerWrapper.entity.width/3, 
+                    height: playerWrapper.entity.height/4
+                };
             
                 //only one direction at a time, even for diagonal (i.e. we move in an L shape). This could make
                 //the character move around an object when moving diagonally, but it shouldn't be an issue if the
@@ -125,9 +130,9 @@ export async function load_map() {
                     const [ground_id, object_id] = possible_tiles_ids[i];
             
                     const groundHitbox = {...gridHitbox, x:gridHitbox.x + x, y: gridHitbox.y + y};
-            
-                    //check there is floor below player's feet (if we care for collisions)
-                    if(playerWrapper.collidable && AABB_Colliding(groundHitbox, playerHitbox) && !ground_id){
+                    
+                    //check there is floor below player's feet
+                    if(AABB_Colliding(groundHitbox, playerHitbox) && !ground_id){
                         coord = measure(extract_coord(groundHitbox), coord || extract_coord(groundHitbox));
                     }
             
@@ -142,18 +147,17 @@ export async function load_map() {
                         specialTiles[ground_id].forEach(({hitbox, properties}) => {
                             const tileHitbox = {...hitbox, x:hitbox.x + x + offsetX, y:hitbox.y + y + offsetY};
                             if(AABB_Colliding(tileHitbox, playerHitbox)){
-                                if(properties.type === "collision" && playerWrapper.collidable){
+                                if(properties.type === "collision"){
                                     coord = measure(extract_coord(tileHitbox), coord || extract_coord(tileHitbox));
-                                }else if(properties.type === "climb_up"){
-                                    //discovered top half of ladder while on higher elevation
-                                    playerWrapper.context.near_ladder = true;
-                                }else if(properties.type === "climb_down"){
-                                    //discovered lower half of ladder while on higher elevation
-                                    playerWrapper.context.near_ladder = true;
-                                    playerWrapper.entity.elevation--;
+                                }else if(properties.type === "elevated"){
+                                    playerWrapper.context.elevated = true;
                                 }
                             }
                         })
+                    }
+
+                    if(playerWrapper.context.elevated){
+                        coord = null;
                     }
             
                     //check for object elevation hitboxes
@@ -169,13 +173,16 @@ export async function load_map() {
                             if(AABB_Colliding(tileHitbox, playerHitbox)){
                                 if(properties.type === "collision" && playerWrapper.collidable){
                                     coord = measure(extract_coord(tileHitbox), coord || extract_coord(tileHitbox));
-                                }else if(properties.type === "climb_up"){
-                                    //discovered top half of ladder while on lower elevation
+                                }else if(properties.type === "ladder"){
                                     playerWrapper.context.near_ladder = true;
+                                }else if(properties.type === "climb_up" 
+                                    && playerWrapper.currentState.state === State.STATES.CLIMB_N){
                                     playerWrapper.entity.elevation++;
-                                }else if(properties.type === "climb_down"){
-                                    //discovered lower half of ladder while on lower elevation
-                                    playerWrapper.context.near_ladder = true;
+                                }else if(properties.type === "climb_down"
+                                    && playerWrapper.currentState.state === State.STATES.CLIMB_S){
+                                    playerWrapper.entity.elevation--;
+                                }else if(properties.type === "elevated"){
+                                    playerWrapper.context.elevated = true;
                                 }
                             }
                         }
