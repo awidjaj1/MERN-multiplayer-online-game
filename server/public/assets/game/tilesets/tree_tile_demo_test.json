@@ -9,7 +9,7 @@
  "imageheight":48,
  "imagewidth":64,
  "margin":0,
- "name":"tree_tile_demo_test",
+ "name":"3x2",
  "spacing":0,
  "tilecount":2,
  "tiledversion":"1.10.2",
@@ -56,7 +56,6 @@
          "objectgroup":
             {
              "draworder":"index",
-             "id":2,
              "name":"",
              "objects":[
                     {
