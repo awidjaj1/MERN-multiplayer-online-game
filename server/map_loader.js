@@ -180,7 +180,12 @@ export async function load_map() {
                                 }else if(properties.type === "elevated"){
                                     playerWrapper.context.near_elevation = true;
                                 }else if(properties.type === "ladder"){
-                                    playerWrapper.context.near_ladder = true;
+                                    const playerCenter = playerStaticHitbox.x + playerStaticHitbox.width/2;
+                                    const ladderCenter = tileHitbox.x + tileHitbox.width/2;
+                                    if(Math.abs(playerCenter - ladderCenter) < grid_size/8){
+                                        playerWrapper.context.near_ladder = true;
+                                        playerWrapper.context.near_elevation = true;
+                                    }
                                 }else if(properties.type === "climb_down"
                                     && playerWrapper.currentState.state === State.STATES.CLIMB_S){
                                     playerWrapper.entity.elevation--;
@@ -202,13 +207,18 @@ export async function load_map() {
                             if(AABB_Colliding(tileHitbox, playerStaticHitbox)){
                                 if(properties.type === "collision"){
                                     coord = measure(extract_coord(tileHitbox), coord || extract_coord(tileHitbox));
+                                }else if(properties.type === "elevated"){
+                                    playerWrapper.context.near_elevation = true;
                                 }else if(properties.type === "ladder"){
-                                    playerWrapper.context.near_ladder = true;
+                                    const playerCenter = playerStaticHitbox.x + playerStaticHitbox.width/2;
+                                    const ladderCenter = tileHitbox.x + tileHitbox.width/2;
+                                    if(Math.abs(playerCenter - ladderCenter) < grid_size/8){
+                                        playerWrapper.context.near_ladder = true;
+                                        playerWrapper.context.near_elevation = true;
+                                    }
                                 }else if(properties.type === "climb_up" 
                                     && playerWrapper.currentState.state === State.STATES.CLIMB_N){
                                     playerWrapper.entity.elevation++;
-                                }else if(properties.type === "elevated"){
-                                    playerWrapper.context.near_elevation = true;
                                 }
                             }
                         }
@@ -216,9 +226,10 @@ export async function load_map() {
                 }
                 
                 //keep track of elevated context for next collision detection
-                if(!(coord && !playerWrapper.context.near_elevation && playerWrapper.elevated)){
-                    playerWrapper.elevated = playerWrapper.context.near_elevation;
-                }
+                // if(!(coord && !playerWrapper.context.near_elevation && playerWrapper.elevated)){
+                //this is finnicky cause what if the player moves off of elevation
+                playerWrapper.elevated = playerWrapper.context.near_elevation;
+                
                 return coord;
             }
         })();
