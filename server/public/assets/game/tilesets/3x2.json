@@ -55,7 +55,7 @@
              "name":"",
              "objects":[
                     {
-                     "height":25,
+                     "height":29,
                      "id":2,
                      "name":"",
                      "properties":[
@@ -69,10 +69,10 @@
                      "visible":true,
                      "width":1,
                      "x":16,
-                     "y":11
+                     "y":7
                     }, 
                     {
-                     "height":5,
+                     "height":1,
                      "id":1,
                      "name":"",
                      "properties":[
@@ -104,24 +104,7 @@
              "name":"",
              "objects":[
                     {
-                     "height":3,
-                     "id":1,
-                     "name":"",
-                     "properties":[
-                            {
-                             "name":"type",
-                             "type":"string",
-                             "value":"climb_down"
-                            }],
-                     "rotation":0,
-                     "type":"",
-                     "visible":true,
-                     "width":1,
-                     "x":16,
-                     "y":36
-                    }, 
-                    {
-                     "height":25,
+                     "height":29,
                      "id":2,
                      "name":"",
                      "properties":[
@@ -135,7 +118,24 @@
                      "visible":true,
                      "width":1,
                      "x":16,
-                     "y":11
+                     "y":7
+                    }, 
+                    {
+                     "height":1,
+                     "id":1,
+                     "name":"",
+                     "properties":[
+                            {
+                             "name":"type",
+                             "type":"string",
+                             "value":"climb_down"
+                            }],
+                     "rotation":0,
+                     "type":"",
+                     "visible":true,
+                     "width":1,
+                     "x":16,
+                     "y":34
                     }],
              "opacity":1,
              "type":"objectgroup",

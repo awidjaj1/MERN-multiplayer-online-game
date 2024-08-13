@@ -156,10 +156,6 @@ export async function load_map() {
                         })
                     }
 
-                    if(playerWrapper.context.elevated){
-                        coord = null;
-                    }
-            
                     //check for object elevation hitboxes
                     if(specialTiles[object_id]){
                         const gid = getFirstGid(object_id);
