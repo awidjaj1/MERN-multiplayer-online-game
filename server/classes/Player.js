@@ -41,6 +41,7 @@ export default class PlayerWrapper extends EntityWrapper{
                 const possible_tiles_ids = possible_tiles.map(({x,y}) => map.collision.get_tiles(x,y, this.entity.elevation));
                 const coord = map.collision.checkCollisionStatic(this, possible_tiles, possible_tiles_ids, axis);
                 if(coord){
+                    console.log(coord);
                     this.entity.coords[axis] = coord;
                 }
             }

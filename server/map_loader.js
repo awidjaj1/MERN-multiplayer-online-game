@@ -1,5 +1,5 @@
 import {readFile} from "fs/promises";
-import { State } from "./classes/State";
+import { State } from "./classes/State.js";
 
 export async function load_map() {
     try {
@@ -92,11 +92,12 @@ export async function load_map() {
                 Object.keys(playerWrapper.context).forEach((key) => playerWrapper.context[key] = false);
                 const direction = get_direction(axis, playerWrapper.velocity[axis])
                 const gridHitbox = {x:0,y:0,width:grid_size,height:grid_size};
+                const playerHitboxOffset = {n: (3/4)*playerWrapper.entity.height, e: -playerWrapper.entity.width/5, s: -0, w: playerWrapper.entity.width/5};
                 const playerHitbox = {
-                    x: playerWrapper.entity.coords.x + (playerWrapper.entity.width/3), 
-                    y: playerWrapper.entity.coords.y + (3*playerWrapper.entity.height/4), 
-                    width: playerWrapper.entity.width/3, 
-                    height: playerWrapper.entity.height/4
+                    x: playerWrapper.entity.coords.x + playerHitboxOffset.w, 
+                    y: playerWrapper.entity.coords.y + playerHitboxOffset.n, 
+                    width: playerWrapper.entity.width  - playerHitboxOffset.w + playerHitboxOffset.e, 
+                    height: playerWrapper.entity.height - playerHitboxOffset.n + playerHitboxOffset.s
                 };
             
                 //only one direction at a time, even for diagonal (i.e. we move in an L shape). This could make
@@ -120,9 +121,9 @@ export async function load_map() {
                 //note that the coordinate is the topleft corner of the player, so need to shift 
                 //according to dimensions of the player if coming from se
                 if(direction === 'n' || direction === 's'){
-                    extract_coord = (hitbox) => hitbox.y + nw*hitbox.height - !nw*playerHitbox.height;
+                    extract_coord = (hitbox) => hitbox.y + nw*hitbox.height - !nw*playerWrapper.entity.height - playerHitboxOffset[direction];
                 }else{
-                    extract_coord = (hitbox) => hitbox.x + nw*hitbox.width - !nw*playerHitbox.width;
+                    extract_coord = (hitbox) => hitbox.x + nw*hitbox.width - !nw*playerWrapper.entity.width - playerHitboxOffset[direction];
                 }
             
                 for(const i in possible_tiles){
@@ -167,7 +168,7 @@ export async function load_map() {
                             const tileHitbox = {...hitbox, x:hitbox.x + x + offsetX, y:hitbox.y + y + offsetY};
             
                             if(AABB_Colliding(tileHitbox, playerHitbox)){
-                                if(properties.type === "collision" && playerWrapper.collidable){
+                                if(properties.type === "collision"){
                                     coord = measure(extract_coord(tileHitbox), coord || extract_coord(tileHitbox));
                                 }else if(properties.type === "ladder"){
                                     playerWrapper.context.near_ladder = true;

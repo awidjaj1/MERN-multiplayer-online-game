@@ -1031,6 +1031,7 @@
          "objectgroup":
             {
              "draworder":"index",
+             "id":2,
              "name":"",
              "objects":[
                     {
@@ -1046,7 +1047,7 @@
                      "rotation":0,
                      "type":"",
                      "visible":true,
-                     "width":16,
+                     "width":15,
                      "x":0,
                      "y":11
                     }, 
@@ -1063,7 +1064,7 @@
                      "rotation":0,
                      "type":"",
                      "visible":true,
-                     "width":8,
+                     "width":7,
                      "x":8,
                      "y":8
                     }, 
@@ -1081,7 +1082,7 @@
                      "type":"",
                      "visible":true,
                      "width":2,
-                     "x":14,
+                     "x":13,
                      "y":0
                     }],
              "opacity":1,
@@ -1976,6 +1977,7 @@
          "objectgroup":
             {
              "draworder":"index",
+             "id":2,
              "name":"",
              "objects":[
                     {
@@ -1991,7 +1993,7 @@
                      "rotation":0,
                      "type":"",
                      "visible":true,
-                     "width":14,
+                     "width":15,
                      "x":0,
                      "y":0
                     }],
