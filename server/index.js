@@ -86,6 +86,8 @@ async function main() {
             coords: {
                 x: player_db.x, 
                 y: player_db.y},
+            y_drawbias: 0,
+            z_drawbias: 0,
             height: 16,
             width: 16,
             elevation: player_db.elevation,

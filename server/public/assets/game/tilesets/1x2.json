@@ -1,13 +1,13 @@
 { "columns":4,
- "image":"3x2.png",
- "imageheight":48,
+ "image":"1x2.png",
+ "imageheight":128,
  "imagewidth":128,
  "margin":0,
- "name":"3x2",
+ "name":"1x2",
  "spacing":0,
- "tilecount":4,
+ "tilecount":32,
  "tiledversion":"1.10.2",
- "tileheight":48,
+ "tileheight":16,
  "tileoffset":
     {
      "x":-16,
@@ -23,40 +23,8 @@
              "name":"",
              "objects":[
                     {
-                     "height":14,
-                     "id":1,
-                     "name":"",
-                     "properties":[
-                            {
-                             "name":"type",
-                             "type":"string",
-                             "value":"collision"
-                            }],
-                     "rotation":0,
-                     "type":"",
-                     "visible":true,
-                     "width":11,
-                     "x":11,
-                     "y":33
-                    }],
-             "opacity":1,
-             "type":"objectgroup",
-             "visible":true,
-             "x":0,
-             "y":0
-            }
-        }, 
-        {
-         "id":1,
-         "objectgroup":
-            {
-             "draworder":"index",
-             "id":2,
-             "name":"",
-             "objects":[
-                    {
                      "height":29,
-                     "id":3,
+                     "id":1,
                      "name":"",
                      "properties":[
                             {
@@ -67,128 +35,13 @@
                      "rotation":0,
                      "type":"",
                      "visible":true,
-                     "width":3,
-                     "x":15,
-                     "y":7
-                    }, 
-                    {
-                     "height":29,
-                     "id":2,
-                     "name":"",
-                     "properties":[
-                            {
-                             "name":"type",
-                             "type":"string",
-                             "value":"ladder"
-                            }],
-                     "rotation":0,
-                     "type":"",
-                     "visible":true,
-                     "width":1,
-                     "x":16,
-                     "y":7
-                    }, 
-                    {
-                     "height":1,
-                     "id":1,
-                     "name":"",
-                     "properties":[
-                            {
-                             "name":"type",
-                             "type":"string",
-                             "value":"climb_up"
-                            }],
-                     "rotation":0,
-                     "type":"",
-                     "visible":true,
-                     "width":1,
-                     "x":16,
-                     "y":31
-                    }],
-             "opacity":1,
-             "type":"objectgroup",
-             "visible":true,
-             "x":0,
-             "y":0
-            }
-        }, 
-        {
-         "id":2,
-         "objectgroup":
-            {
-             "draworder":"index",
-             "id":2,
-             "name":"",
-             "objects":[
-                    {
-                     "height":29,
-                     "id":2,
-                     "name":"",
-                     "properties":[
-                            {
-                             "name":"type",
-                             "type":"string",
-                             "value":"ladder"
-                            }],
-                     "rotation":0,
-                     "type":"",
-                     "visible":true,
                      "width":1,
                      "x":16,
                      "y":7
                     }, 
                     {
                      "height":29,
-                     "id":3,
-                     "name":"",
-                     "properties":[
-                            {
-                             "name":"type",
-                             "type":"string",
-                             "value":"elevated"
-                            }],
-                     "rotation":0,
-                     "type":"",
-                     "visible":true,
-                     "width":3,
-                     "x":15,
-                     "y":7
-                    }],
-             "opacity":1,
-             "type":"objectgroup",
-             "visible":true,
-             "x":0,
-             "y":0
-            }
-        }, 
-        {
-         "id":3,
-         "objectgroup":
-            {
-             "draworder":"index",
-             "id":2,
-             "name":"",
-             "objects":[
-                    {
-                     "height":29,
                      "id":2,
-                     "name":"",
-                     "properties":[
-                            {
-                             "name":"type",
-                             "type":"string",
-                             "value":"elevated"
-                            }],
-                     "rotation":0,
-                     "type":"",
-                     "visible":true,
-                     "width":3,
-                     "x":15,
-                     "y":7
-                    }, 
-                    {
-                     "height":29,
-                     "id":1,
                      "name":"",
                      "properties":[
                             {
@@ -218,7 +71,73 @@
                      "visible":true,
                      "width":1,
                      "x":16,
-                     "y":31
+                     "y":35
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "x":0,
+             "y":0
+            }
+        }, 
+        {
+         "id":10,
+         "objectgroup":
+            {
+             "draworder":"index",
+             "id":2,
+             "name":"",
+             "objects":[
+                    {
+                     "height":29,
+                     "id":1,
+                     "name":"",
+                     "properties":[
+                            {
+                             "name":"type",
+                             "type":"string",
+                             "value":"elevated"
+                            }],
+                     "rotation":0,
+                     "type":"",
+                     "visible":true,
+                     "width":1,
+                     "x":16,
+                     "y":-25
+                    }, 
+                    {
+                     "height":29,
+                     "id":2,
+                     "name":"",
+                     "properties":[
+                            {
+                             "name":"type",
+                             "type":"string",
+                             "value":"ladder"
+                            }],
+                     "rotation":0,
+                     "type":"",
+                     "visible":true,
+                     "width":1,
+                     "x":16,
+                     "y":-25
+                    }, 
+                    {
+                     "height":1,
+                     "id":3,
+                     "name":"",
+                     "properties":[
+                            {
+                             "name":"type",
+                             "type":"string",
+                             "value":"climb_up"
+                            }],
+                     "rotation":0,
+                     "type":"",
+                     "visible":true,
+                     "width":1,
+                     "x":16,
+                     "y":3
                     }],
              "opacity":1,
              "type":"objectgroup",

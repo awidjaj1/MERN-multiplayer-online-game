@@ -5,8 +5,8 @@ const IDLE_END = 24;
 const CLIMB_START = 25;
 const CLIMB_END = 30;
 const CLIMB_IDLE_START = 31;
-const CLIMB_IDLE_END = 48;
-const WALK_SPEED = 0.25;
+const CLIMB_IDLE_END = 47;
+const WALK_SPEED = 0.15;
 const CLIMB_SPEED = 0.05;
 const IDLE_SPEED = 0;
 
@@ -169,7 +169,8 @@ export class Climb_N extends Climb{
         if(player.context.near_ladder && !inputs.w && !inputs.s)
             player.setState(State.STATES.CLIMB_IDLE_N);
         else
-            super.handleInput(inputs, player);
+            if(!super.handleInput(inputs, player))
+                player.setState(State.STATES.IDLE_N);
             
     }
 }
@@ -188,7 +189,8 @@ export class Climb_S extends Climb{
         if(player.context.near_ladder && !inputs.w && !inputs.s)
             player.setState(State.STATES.CLIMB_IDLE_S);
         else
-            super.handleInput(inputs, player);
+            if(!super.handleInput(inputs, player))
+                player.setState(State.STATES.IDLE_S)
     }
 }
 export class Climb_Idle_N extends Climb_Idle{

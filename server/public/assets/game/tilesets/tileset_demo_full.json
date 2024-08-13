@@ -1993,7 +1993,7 @@
                      "rotation":0,
                      "type":"",
                      "visible":true,
-                     "width":15,
+                     "width":14.8695652173913,
                      "x":0,
                      "y":0
                     }],
@@ -2417,6 +2417,55 @@
             }
         }, 
         {
+         "id":113,
+         "objectgroup":
+            {
+             "draworder":"index",
+             "id":2,
+             "name":"",
+             "objects":[
+                    {
+                     "height":6,
+                     "id":1,
+                     "name":"",
+                     "properties":[
+                            {
+                             "name":"type",
+                             "type":"string",
+                             "value":"elevated"
+                            }],
+                     "rotation":0,
+                     "type":"",
+                     "visible":true,
+                     "width":4,
+                     "x":-2,
+                     "y":10
+                    }, 
+                    {
+                     "height":4,
+                     "id":2,
+                     "name":"",
+                     "properties":[
+                            {
+                             "name":"type",
+                             "type":"string",
+                             "value":"ladder"
+                            }],
+                     "rotation":0,
+                     "type":"",
+                     "visible":true,
+                     "width":4,
+                     "x":-2,
+                     "y":12
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "x":0,
+             "y":0
+            }
+        }, 
+        {
          "id":115,
          "objectgroup":
             {
@@ -2469,6 +2518,55 @@
                      "visible":true,
                      "width":15,
                      "x":0,
+                     "y":0
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "x":0,
+             "y":0
+            }
+        }, 
+        {
+         "id":126,
+         "objectgroup":
+            {
+             "draworder":"index",
+             "id":2,
+             "name":"",
+             "objects":[
+                    {
+                     "height":16,
+                     "id":1,
+                     "name":"",
+                     "properties":[
+                            {
+                             "name":"type",
+                             "type":"string",
+                             "value":"ladder"
+                            }],
+                     "rotation":0,
+                     "type":"",
+                     "visible":true,
+                     "width":4,
+                     "x":-2,
+                     "y":0
+                    }, 
+                    {
+                     "height":16,
+                     "id":2,
+                     "name":"",
+                     "properties":[
+                            {
+                             "name":"type",
+                             "type":"string",
+                             "value":"elevated"
+                            }],
+                     "rotation":0,
+                     "type":"",
+                     "visible":true,
+                     "width":4,
+                     "x":-2,
                      "y":0
                     }],
              "opacity":1,
@@ -2566,6 +2664,138 @@
                      "width":16,
                      "x":0,
                      "y":0
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "x":0,
+             "y":0
+            }
+        }, 
+        {
+         "id":137,
+         "objectgroup":
+            {
+             "draworder":"index",
+             "id":2,
+             "name":"",
+             "objects":[
+                    {
+                     "height":6.0625,
+                     "id":5,
+                     "name":"",
+                     "properties":[
+                            {
+                             "name":"type",
+                             "type":"string",
+                             "value":"ladder"
+                            }],
+                     "rotation":0,
+                     "type":"",
+                     "visible":true,
+                     "width":4,
+                     "x":-2,
+                     "y":-2.0625
+                    }, 
+                    {
+                     "height":6.125,
+                     "id":3,
+                     "name":"",
+                     "properties":[
+                            {
+                             "name":"type",
+                             "type":"string",
+                             "value":"climb_up"
+                            }],
+                     "rotation":0,
+                     "type":"",
+                     "visible":true,
+                     "width":4,
+                     "x":-2,
+                     "y":-2.125
+                    }, 
+                    {
+                     "height":6.125,
+                     "id":6,
+                     "name":"",
+                     "properties":[
+                            {
+                             "name":"type",
+                             "type":"string",
+                             "value":"elevated"
+                            }],
+                     "rotation":0,
+                     "type":"",
+                     "visible":true,
+                     "width":4,
+                     "x":-2,
+                     "y":-2.125
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "x":0,
+             "y":0
+            }
+        }, 
+        {
+         "id":139,
+         "objectgroup":
+            {
+             "draworder":"index",
+             "id":2,
+             "name":"",
+             "objects":[
+                    {
+                     "height":5,
+                     "id":6,
+                     "name":"",
+                     "properties":[
+                            {
+                             "name":"type",
+                             "type":"string",
+                             "value":"elevated"
+                            }],
+                     "rotation":0,
+                     "type":"",
+                     "visible":true,
+                     "width":4,
+                     "x":-2,
+                     "y":-2
+                    }, 
+                    {
+                     "height":6,
+                     "id":5,
+                     "name":"",
+                     "properties":[
+                            {
+                             "name":"type",
+                             "type":"string",
+                             "value":"ladder"
+                            }],
+                     "rotation":0,
+                     "type":"",
+                     "visible":true,
+                     "width":4,
+                     "x":-2,
+                     "y":-2
+                    }, 
+                    {
+                     "height":4,
+                     "id":4,
+                     "name":"",
+                     "properties":[
+                            {
+                             "name":"type",
+                             "type":"string",
+                             "value":"climb_down"
+                            }],
+                     "rotation":0,
+                     "type":"",
+                     "visible":true,
+                     "width":4,
+                     "x":-2,
+                     "y":2
                     }],
              "opacity":1,
              "type":"objectgroup",

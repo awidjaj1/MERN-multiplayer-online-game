@@ -53,3 +53,6 @@ Not yet decided. But I hope to make it so that users can kill enemies or other p
 
 ## Performance
 Currently the game runs at ~60fps which is the limit of requestAnimationFrame() so that's good. The server runs at a tick rate of 60 ticks/second. However, in the code tick rate is set to 70 because for some reason setting it to 60 gives unstable delta times.
+
+## Screenshots
+![alt text](https://github.com/awidjaj1/MERN-multiplayer-online-game/blob/main/screenshots/account_settings.png)

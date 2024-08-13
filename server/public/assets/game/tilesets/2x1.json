@@ -1,11 +1,11 @@
-{ "columns":4,
+{ "columns":8,
  "image":"2x1.png",
- "imageheight":32,
- "imagewidth":64,
+ "imageheight":128,
+ "imagewidth":128,
  "margin":0,
  "name":"2x1",
  "spacing":0,
- "tilecount":4,
+ "tilecount":32,
  "tiledversion":"1.10.2",
  "tileheight":32,
  "tiles":[
@@ -18,15 +18,21 @@
              "name":"",
              "objects":[
                     {
-                     "height":3,
+                     "height":6,
                      "id":1,
                      "name":"",
+                     "properties":[
+                            {
+                             "name":"type",
+                             "type":"string",
+                             "value":"collision"
+                            }],
                      "rotation":0,
                      "type":"",
                      "visible":true,
                      "width":16,
                      "x":0,
-                     "y":19
+                     "y":16
                     }],
              "opacity":1,
              "type":"objectgroup",
@@ -44,15 +50,21 @@
              "name":"",
              "objects":[
                     {
-                     "height":3,
+                     "height":6,
                      "id":1,
                      "name":"",
+                     "properties":[
+                            {
+                             "name":"type",
+                             "type":"string",
+                             "value":"collision"
+                            }],
                      "rotation":0,
                      "type":"",
                      "visible":true,
                      "width":16,
                      "x":0,
-                     "y":19
+                     "y":16
                     }],
              "opacity":1,
              "type":"objectgroup",
@@ -70,15 +82,21 @@
              "name":"",
              "objects":[
                     {
-                     "height":3,
+                     "height":6,
                      "id":1,
                      "name":"",
+                     "properties":[
+                            {
+                             "name":"type",
+                             "type":"string",
+                             "value":"collision"
+                            }],
                      "rotation":0,
                      "type":"",
                      "visible":true,
                      "width":16,
                      "x":0,
-                     "y":19
+                     "y":16
                     }],
              "opacity":1,
              "type":"objectgroup",
@@ -99,6 +117,12 @@
                      "height":6,
                      "id":1,
                      "name":"",
+                     "properties":[
+                            {
+                             "name":"type",
+                             "type":"string",
+                             "value":"collision"
+                            }],
                      "rotation":0,
                      "type":"",
                      "visible":true,

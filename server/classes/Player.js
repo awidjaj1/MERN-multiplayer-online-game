@@ -15,7 +15,10 @@ export default class PlayerWrapper extends EntityWrapper{
             new Walk_S(), new Walk_N(), new Walk_E(), new Walk_SE(), new Walk_NE(), new Walk_W(), new Walk_SW(), new Walk_NW(),
             new Climb_Idle_N(), new Climb_Idle_S(), new Climb_N(), new Climb_S(),
         ];
-        this.context = {near_ladder: false, near_water: false, elevated: false};
+        this.context = {near_ladder: false, near_water: false, near_elevation: false};
+        this.staticHitboxOffset = {n: (3/4)*this.entity.height, e: -this.entity.width/5, s: -0, w: this.entity.width/5}
+        this.dynamicHitboxOffset = {n: 0, e: -0, s: -0, w: 0}
+        this.elevated = false;
         this.currentState = this.states[State.STATES.IDLE_S];
         this.velocity = {x: 0, y:0};
         this.fps = 30;
@@ -33,15 +36,10 @@ export default class PlayerWrapper extends EntityWrapper{
         }
 
         const move = (axis) => {
-            const grid_size = map.metadata.grid_size;
             if(this.velocity[axis]){
                 this.entity.coords[axis] += this.velocity[axis] * dt;
-                const tile = {x: Math.floor(this.entity.coords.x/grid_size) * grid_size, y: Math.floor(this.entity.coords.y/grid_size) * grid_size};
-                const possible_tiles = map.collision.get_4x4(tile);
-                const possible_tiles_ids = possible_tiles.map(({x,y}) => map.collision.get_tiles(x,y, this.entity.elevation));
-                const coord = map.collision.checkCollisionStatic(this, possible_tiles, possible_tiles_ids, axis);
+                const coord = map.collision.checkCollisionStatic(this, axis);
                 if(coord){
-                    console.log(coord);
                     this.entity.coords[axis] = coord;
                 }
             }
