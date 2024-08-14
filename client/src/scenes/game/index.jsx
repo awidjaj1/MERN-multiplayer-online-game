@@ -39,6 +39,10 @@ export const GamePage = () => {
         };
         const handleKeydown = handleInput('keydown');
         const handleKeyup = handleInput('keyup');
+        const handleMouseClick = (e) => {
+            const buttons = ['left', 'middle', 'right', 'back', 'forward'];
+            socket.emit("mousedown", buttons[e.button]);
+        }
         //TODO: implement custom right click where you can right click on users in the game to see more info
         const handleRightClick = (e) => {
             socket.emit("keyup", "all");
@@ -57,6 +61,7 @@ export const GamePage = () => {
         window.addEventListener('blur', handleBlur, true);
         window.addEventListener('contextmenu', handleRightClick, true);
         window.addEventListener('wheel', zoom, true);
+        window.addEventListener('mousedown', handleMouseClick, true);
 
         socket.on('connect_error', (err) => {
             window.alert(`There was an error starting the game. ${err}`);
@@ -131,6 +136,7 @@ export const GamePage = () => {
             window.removeEventListener('blur', handleBlur);
             window.removeEventListener('contextmenu', handleRightClick);
             window.removeEventListener('wheel', zoom);
+            window.removeEventListener('mousedown', handleMouseClick);
             worker.postMessage({type:"terminate"}); //not sure if this is necessary
             worker.terminate();
             socket.disconnect();

@@ -6,6 +6,17 @@ export default class InputHandler{
             s: false,
             d: false
         }
+        this.clicks = {
+            left: false,
+            right: false,
+            middle: false,
+            back: false,
+            forward: false,
+        };
+        socket.on("mousedown", (button) => {
+            this.clicks[button] = true;
+        });
+
         socket.on("keydown", (key) => {
             this.inputs[key] = true;
         });
