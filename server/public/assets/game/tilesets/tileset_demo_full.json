@@ -2425,7 +2425,7 @@
              "name":"",
              "objects":[
                     {
-                     "height":4.9375,
+                     "height":5,
                      "id":2,
                      "name":"",
                      "properties":[
@@ -2439,7 +2439,7 @@
                      "visible":true,
                      "width":4,
                      "x":6.5,
-                     "y":11.0625
+                     "y":11
                     }],
              "opacity":1,
              "type":"objectgroup",
@@ -2648,13 +2648,13 @@
              "objects":[
                     {
                      "height":6,
-                     "id":2,
+                     "id":3,
                      "name":"",
                      "properties":[
                             {
                              "name":"type",
                              "type":"string",
-                             "value":"climb_up"
+                             "value":"ladder"
                             }],
                      "rotation":0,
                      "type":"",
@@ -2665,13 +2665,13 @@
                     }, 
                     {
                      "height":6,
-                     "id":3,
+                     "id":2,
                      "name":"",
                      "properties":[
                             {
                              "name":"type",
                              "type":"string",
-                             "value":"ladder"
+                             "value":"climb_up"
                             }],
                      "rotation":0,
                      "type":"",
