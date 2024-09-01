@@ -1,4 +1,6 @@
 # MERN-multiplayer-online-game
+# UPDATE: Progress has slowed down now that school started.
+# TODO: Add dash and blink abilities. Add enemies.
 
 ## Deployment
 Not currently deployed.
